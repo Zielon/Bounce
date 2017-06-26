@@ -77,7 +77,7 @@ keyboardMouse force velocityX velocityY keys delta p key state _ _ = case key of
 
       (Char ' ') ->
         if state == Down then 
-          update keys 2 True >> up delta p keys >> force $~! \f -> f + 0.1
+          update keys 2 True >> up delta p keys >> force $~! \f -> f + 0.15
         else do
           f <- get force
           update keys 2 False >> delta $~! (*0) >> velocityY $~! (\y-> y + f) >> (force $~! \f -> 0.0) >> p $~! \(x,y) -> (x, y + 0.01)          

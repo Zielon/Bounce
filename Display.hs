@@ -10,14 +10,14 @@ import Text.Printf
 import Control.Concurrent
 import Points
 import Gravity
+import MapGenerator
 
 display :: IORef GLfloat -> IORef GLfloat -> IORef GLfloat -> IORef (GLfloat, GLfloat) -> DisplayCallback
 display velocityX velocityY angle pos = do 
   clear [ColorBuffer, DepthBuffer] -- clear depth buffer, too
   clear [ColorBuffer]
   loadIdentity
-  renderPrimitive Lines $ mapM_ (\(x, y, z) -> vertex $ Vertex3 x y z)
-     [(-1::GLfloat,-0.95::GLfloat,0::GLfloat), (1::GLfloat,-0.95::GLfloat,0::GLfloat)]
+  renderPrimitive Lines $ mapM_ (\(x, y, z) -> vertex $ Vertex3 x y z) (flatten generate)
   (x',y') <- get pos
   translate $ Vector3 x' y' 0
   preservingMatrix $ do
@@ -36,6 +36,6 @@ idle angle delta velocityX velocityY pos = do
   (x, y) <- get pos
   putStrLn $ printf "x -> %f v: %f | y -> %f v: %f" x vX y vY
   angle $~! (+ d)
-  updateGravity velocityX velocityY pos >> postRedisplay Nothing
+  updateGravity velocityX velocityY pos generate >> postRedisplay Nothing
   if vY < 0.005 && y < -0.90 then pos $~! \(x',y') -> (x', -0.90)
   else return ()
