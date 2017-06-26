@@ -15,7 +15,7 @@ main = do
   delta     <- newIORef 0.0
   velocityX <- newIORef 0.0
   velocityY <- newIORef 0.8
-  force     <- newIORef 0.0
+  force     <- newIORef 0
   pos       <- newIORef (0.0, 0.8)
   angle     <- newIORef 0
   keys      <- getKeys
@@ -29,4 +29,4 @@ main = do
   idleCallback          $= Just (idle angle delta velocityX velocityY pos)
   displayCallback       $= display velocityX velocityY angle pos
   
-  mainLoop
+  mainLoop 

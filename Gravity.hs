@@ -37,9 +37,9 @@ mapElementsCollision :: IORef GLfloat -> IORef GLfloat ->
                         IORef (GLfloat, GLfloat) -> IO ()
 mapElementsCollision velocityY velocityX map pos = do
     (x,y) <- get pos
-    forM_ map $ \((a,b,c), (d,e,f)) -> 
-        if x >= a - 0.05 && x <= d + 0.05 && y + 0.05 >= b then velocityY $~! \v -> v - 0.05
-        --else if x >= a - 0.05 && x <= d + 0.05 && y - 0.05 < b then velocityY $~! \v -> v * (ball - earth) / (ball + earth)
+    forM_ map $ \((a,b,c), (d,e,f)) ->
+        if x >= a - 0.05 && x <= d + 0.05 && (y - 0.05 >= b - 0.001 && y - 0.05 <= b + 0.001)  
+            then velocityY $~! \v -> v * (ball - earth) / (ball + earth)
         else return ()
         where ball  = 50.0
               earth = 500.0
