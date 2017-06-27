@@ -31,11 +31,13 @@ display velocityX velocityY angle pos = do
 idle :: IORef GLfloat -> IORef GLfloat -> IORef GLfloat -> IORef GLfloat -> IORef (GLfloat, GLfloat) -> IdleCallback
 idle angle delta velocityX velocityY pos = do
   d      <- get delta
-  vX     <- get velocityX
+  vX     <- get velocityX 
   vY     <- get velocityY
   (x, y) <- get pos
-  --putStrLn $ printf "x -> %f v: %f | y -> %f v: %f" x vX y vY
+  putStrLn $ printf "Idle:: x -> %.8f v: %.8f | y -> %.8f v: %.8f" x vX y vY
+
   angle $~! (+ d)
-  updateGravity velocityX velocityY pos generate >> postRedisplay Nothing
-  if vY < 0.005 && y < -0.90 then pos $~! \(x',y') -> (x', -0.90)
-  else return ()
+  updateGravity velocityX velocityY generate pos
+
+  if vY < 0.003 && y < -0.90 then pos $~! (\(x',y') -> (x', -0.90)) >> postRedisplay Nothing
+  else postRedisplay Nothing
