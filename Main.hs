@@ -9,8 +9,8 @@ import Text.Printf
 import Bindings
 import Environment
 import Keys
-import Gravity
-import MapGenerator
+import Physics
+import FloorGenerator
 
 main :: IO ()
 main = do
@@ -24,16 +24,19 @@ main = do
   velocityX <- newIORef 0.0
   velocityY <- newIORef 0.8
   force     <- newIORef 0
-  pos       <- newIORef (0.1, 0.4)
+  pos       <- newIORef (-0.25, 0.0)
   angle     <- newIORef 0
 
   setProjection
   setLights
   setMaterial
 
+  -- Mock | TODO Random generator
+  let floors = getFloors [(0.0, 0.0), (0.5, 0.5), (-0.7, -0.6)]
+
   clearColor            $= Color4 255.0 255.0 255.0 255.0
   keyboardMouseCallback $= Just (keyboardMouse force velocityX velocityY pos)
-  idleCallback          $= Just (idle angle delta velocityX velocityY pos)
-  displayCallback       $= display velocityX velocityY angle pos
+  idleCallback          $= Just (idle angle delta velocityX velocityY pos floors)
+  displayCallback       $= display velocityX velocityY angle pos floors
 
   mainLoop

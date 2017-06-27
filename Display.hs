@@ -9,15 +9,15 @@ import Text.Printf
 
 import Control.Concurrent
 import Points
-import Gravity
-import MapGenerator
+import Physics
+import FloorGenerator
 
-display :: IORef GLfloat -> IORef GLfloat -> IORef GLfloat -> IORef (GLfloat, GLfloat) -> DisplayCallback
-display velocityX velocityY angle pos = do 
+display :: IORef GLfloat -> IORef GLfloat -> IORef GLfloat -> IORef (GLfloat, GLfloat) -> [Floor] -> DisplayCallback
+display velocityX velocityY angle pos floors = do 
   clear [ColorBuffer, DepthBuffer] -- clear depth buffer, too
   clear [ColorBuffer]
   loadIdentity
-  renderPrimitive Lines $ mapM_ (\(x, y, z) -> vertex $ Vertex3 x y z) $ (flatten generate) ++ getBottom
+  forM_ floors $ \f -> renderPrimitive Polygon $ mapM_ (\(x, y, z) -> vertex $ Vertex3 x y z) $ getPoints f
   (x',y') <- get pos
   translate $ Vector3 x' y' 0
   preservingMatrix $ do
@@ -28,8 +28,14 @@ display velocityX velocityY angle pos = do
     renderObject Solid $ Sphere' 0.1 64 64
   swapBuffers
 
-idle :: IORef GLfloat -> IORef GLfloat -> IORef GLfloat -> IORef GLfloat -> IORef (GLfloat, GLfloat) -> IdleCallback
-idle angle delta velocityX velocityY pos = do
+idle :: IORef GLfloat -> 
+        IORef GLfloat -> 
+        IORef GLfloat -> 
+        IORef GLfloat -> 
+        IORef (GLfloat, GLfloat) -> 
+        [Floor] -> 
+        IdleCallback
+idle angle delta velocityX velocityY pos floors = do
   d      <- get delta
   vX     <- get velocityX 
   vY     <- get velocityY
@@ -37,7 +43,7 @@ idle angle delta velocityX velocityY pos = do
   putStrLn $ printf "Idle:: x -> %.8f v: %.8f | y -> %.8f v: %.8f" x vX y vY
 
   angle $~! (+ d)
-  updateGravity velocityX velocityY generate pos
+  updateGravity velocityX velocityY floors pos
 
   if vY < 0.003 && y < -0.90 then pos $~! (\(x',y') -> (x', -0.90)) >> postRedisplay Nothing
   else postRedisplay Nothing
