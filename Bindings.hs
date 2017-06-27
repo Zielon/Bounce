@@ -24,8 +24,8 @@ keyboardMouse force velocityX velocityY p key state _ _ =
         if state == Down then velocityX $~! (\x -> x + 0.15)
         else return ()
       (Char ' ') ->
-        if state == Down then force $~! \f -> (f + 0.15)
+        if state == Down then force $~! \f -> (f + 0.5)
         else do
           f <- get force
-          velocityY $~! (\y-> y + f) >> force $~! (\f -> 0) >> p $~! \(x,y) -> (x, y + 0.01)
+          velocityY $~! (\y-> y + f) >> force $~! (\f -> 0)
       _ -> return ()

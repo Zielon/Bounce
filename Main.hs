@@ -24,7 +24,7 @@ main = do
   velocityX <- newIORef 0.0
   velocityY <- newIORef 0.8
   force     <- newIORef 0
-  pos       <- newIORef (-0.25, 0.0)
+  pos       <- newIORef (0.0, 0.4)
   angle     <- newIORef 0
 
   setProjection
@@ -32,7 +32,7 @@ main = do
   setMaterial
 
   -- Mock | TODO Random generator
-  let floors = getFloors [(0.0, 0.0), (0.5, 0.5), (-0.7, -0.6)]
+  let floors = getFloors [(0.0, 0.0)]--, (0.5, 0.5), (-0.7, -0.6)]
 
   clearColor            $= Color4 255.0 255.0 255.0 255.0
   keyboardMouseCallback $= Just (keyboardMouse force velocityX velocityY pos)

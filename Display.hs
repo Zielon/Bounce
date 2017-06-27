@@ -45,5 +45,5 @@ idle angle delta velocityX velocityY pos floors = do
   angle $~! (+ d)
   updateGravity velocityX velocityY floors pos
 
-  if vY < 0.003 && y < -0.90 then pos $~! (\(x',y') -> (x', -0.90)) >> postRedisplay Nothing
+  if y < -0.90 then pos $~! (\(x',y') -> (x', -0.90)) >> postRedisplay Nothing
   else postRedisplay Nothing
