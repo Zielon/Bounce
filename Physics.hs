@@ -27,7 +27,7 @@ updateGravity velocityX velocityY edges pos = do
 
 earth :: Float -> Float
 earth v = v * (ball - earth) / (ball + earth)
-          where ball  = 5.0
+          where ball  = 50.0
                 earth = 500.0
 
 collisionBoundaries :: IORef GLfloat -> 
@@ -35,10 +35,10 @@ collisionBoundaries :: IORef GLfloat ->
                        IORef (GLfloat, GLfloat) -> IO ()
 collisionBoundaries velocityY velocityX pos = do
     (x,y) <- get pos
-    when (y < -0.90) (velocityY $~! \v -> earth v)
-    when (y > 0.90 ) (velocityY $~! \v -> earth v)
-    when (x > 0.95 ) (velocityX $~! \v -> v - 0.05) 
-    when (x < -0.95) (velocityX $~! \v -> v + 0.05)
+    when (y < -0.90) $ velocityY $~! \v -> earth v
+    when (y > 0.90 ) $ velocityY $~! \v -> earth v
+    when (x > 0.95 ) $ velocityX $~! \v -> v - 0.05
+    when (x < -0.95) $ velocityX $~! \v -> v + 0.05
 
 collisionEdges :: IORef GLfloat -> 
                   IORef GLfloat -> 
@@ -49,10 +49,15 @@ collisionEdges velocityY velocityX floors pos = do
     fls <- get floors
 
     let ball  = 0.05
-    let is    = \point line -> point >= line - 0.0025 && point <= line + 0.0025
-    let check = \first second velocity x y change -> if is (y - ball) first || is (y + ball) second 
-                                                     then (velocity $~! \v -> change v)
-                                                     else return ()
+    let is    = \point line -> point >= line - 0.009 && point <= line + 0.009
+
+    let horizontal = \top bottom y -> if is (y - ball) top || is (y + ball) bottom 
+                                      then (velocityY $~! \v -> earth v)
+                                      else return ()
+
+    let vertical = \left right x -> if is (x + ball) left || is (x - ball) right
+                                    then (velocityX $~! \v -> earth v)
+                                    else return ()
     forM_ fls $ \f -> do
         
         (x,y) <- get pos
@@ -61,5 +66,5 @@ collisionEdges velocityY velocityX floors pos = do
         let (tr_x, tr_y, _) = top_right f
         let (br_x, br_y, _) = bottom_right f
 
-        when (tl_x <= x && tr_x >= x) $ check tl_y br_y velocityY x y earth
-        --when (br_y <= y && tr_y >= y) $ check tl_x br_x velocityX x y $ \v -> v - 0.05
+        when (tl_x <= x && tr_x >= x) $ horizontal tl_y br_y y
+        when (br_y <= y && tr_y >= y) $ vertical tl_x tr_x x

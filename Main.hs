@@ -26,7 +26,7 @@ main = do
   force     <- newIORef 0
   pos       <- newIORef (0.0, 0.4)
   angle     <- newIORef 0
-  floors    <- newIORef $ getFloors [(0.0, 0.0)]--, (0.5, 0.5), (-0.7, -0.6)]
+  floors    <- newIORef $ getFloors [(0.0, 0.0), (0.5, 0.5), (-0.7, -0.6)]
 
   setProjection
   setLights
