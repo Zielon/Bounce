@@ -12,12 +12,18 @@ import Points
 import Physics
 import FloorGenerator
 
-display :: IORef GLfloat -> IORef GLfloat -> IORef GLfloat -> IORef (GLfloat, GLfloat) -> [Floor] -> DisplayCallback
-display velocityX velocityY angle pos floors = do 
+display :: IORef GLfloat -> 
+           IORef GLfloat -> 
+           IORef GLfloat -> 
+           IORef (GLfloat, GLfloat) -> 
+           IORef [Floor] ->
+           DisplayCallback
+display velocityX velocityY angle pos floor = do 
   clear [ColorBuffer, DepthBuffer] -- clear depth buffer, too
   clear [ColorBuffer]
   loadIdentity
-  forM_ floors $ \f -> renderPrimitive Polygon $ mapM_ (\(x, y, z) -> vertex $ Vertex3 x y z) $ getPoints f
+  fls     <- get floor
+  forM_ fls $ \f -> renderPrimitive Polygon $ mapM_ (\(x, y, z) -> vertex $ Vertex3 x y z) $ getPoints f
   (x',y') <- get pos
   translate $ Vector3 x' y' 0
   preservingMatrix $ do
@@ -32,17 +38,17 @@ idle :: IORef GLfloat ->
         IORef GLfloat -> 
         IORef GLfloat -> 
         IORef GLfloat -> 
-        IORef (GLfloat, GLfloat) -> 
-        [Floor] -> 
+        IORef (GLfloat, GLfloat) ->
+        IORef [Floor] ->
         IdleCallback
 idle angle delta velocityX velocityY pos floors = do
   d      <- get delta
   vX     <- get velocityX 
   vY     <- get velocityY
   (x, y) <- get pos
-  putStrLn $ printf "Idle:: x -> %.8f v: %.8f | y -> %.8f v: %.8f" x vX y vY
 
-  angle $~! (+ d)
+  putStrLn $ printf "Idle:: x -> %.8f v: %.8f | y -> %.8f v: %.8f" x vX y vY
+  angle $~! (+ d)  
   updateGravity velocityX velocityY floors pos
 
   if y < -0.90 then pos $~! (\(x',y') -> (x', -0.90)) >> postRedisplay Nothing
