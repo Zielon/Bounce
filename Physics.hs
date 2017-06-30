@@ -11,19 +11,15 @@ import FloorGenerator
 
 updateGravity :: IORef GLfloat -> 
                  IORef GLfloat ->  
-                 IORef [Floor] -> 
-                 IORef (GLfloat, GLfloat) -> IO ()
-updateGravity velocityX velocityY edges pos = do
-    -- Check collision with map elements
-    collisionBoundaries velocityY velocityX pos
-    collisionEdges      velocityY velocityX edges pos
-
+                 IORef (GLfloat, GLfloat) ->
+                 Float ->
+                 IO ()
+updateGravity velocityX velocityY pos dt = do
     vX <- get velocityX
     velocityY $~! \v -> v + acc * dt
     vY <- get velocityY
     pos $~! \(x,y) -> ((x + vX * dt),((y + vY * dt) + 0.5 * acc * dt ^ 2))
     where acc = -9.80665
-          dt  = 0.0005
 
 earth :: Float -> Float
 earth v = v * (ball - earth) / (ball + earth)
@@ -35,10 +31,13 @@ collisionBoundaries :: IORef GLfloat ->
                        IORef (GLfloat, GLfloat) -> IO ()
 collisionBoundaries velocityY velocityX pos = do
     (x,y) <- get pos
-    when (y < -0.90) $ velocityY $~! \v -> earth v
-    when (y > 0.90 ) $ velocityY $~! \v -> earth v
-    when (x > 0.95 ) $ velocityX $~! \v -> v - 0.05
-    when (x < -0.95) $ velocityX $~! \v -> v + 0.05
+    when (y < -0.95 || y > 0.95) $ velocityY $~! \v -> earth v
+    when (x > 0.95  || x < -0.95) $ velocityX $~! \v -> earth v
+    -- egde valuse
+    when (y < -0.95) $ pos $~! (\(x',y') -> (x', -0.95))
+    when (y > 0.95 ) $ pos $~! (\(x',y') -> (x', 0.95))
+    when (x > 0.95 ) $ pos $~! (\(x',y') -> (0.95, y'))
+    when (x < -0.95) $ pos $~! (\(x',y') -> (-0.95, y'))
 
 collisionEdges :: IORef GLfloat -> 
                   IORef GLfloat -> 

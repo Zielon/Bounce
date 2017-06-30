@@ -47,9 +47,6 @@ idle angle delta velocityX velocityY pos floors = do
   vY     <- get velocityY
   (x, y) <- get pos
 
-  putStrLn $ printf "Idle:: x -> %.8f v: %.8f | y -> %.8f v: %.8f" x vX y vY
+  --putStrLn $ printf "Idle:: x -> %.8f v: %.8f | y -> %.8f v: %.8f" x vX y vY
   angle $~! (+ d)  
-  updateGravity velocityX velocityY floors pos
-
-  if y < -0.90 then pos $~! (\(x',y') -> (x', -0.90)) >> postRedisplay Nothing
-  else postRedisplay Nothing
+  postRedisplay Nothing
