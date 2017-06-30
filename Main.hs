@@ -9,7 +9,7 @@ import Text.Printf
 import Bindings
 import Environment
 import Keys
-import Physics
+import PhysicsEngine
 import FloorGenerator
 
 main :: IO ()

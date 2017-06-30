@@ -9,7 +9,6 @@ import Text.Printf
 
 import Control.Concurrent
 import Points
-import Physics
 import FloorGenerator
 
 display :: IORef GLfloat -> 

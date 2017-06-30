@@ -1,11 +1,12 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Physics where
+module PhysicsEngine (updateGravity, collisionBoundaries, collisionEdges) where
 
 import Graphics.UI.GLUT
 import Control.Monad    
 import Data.IORef
 import Control.Concurrent
+import Text.Printf
 
 import FloorGenerator
 
@@ -44,26 +45,20 @@ collisionEdges :: IORef GLfloat ->
                   IORef [Floor] ->
                   IORef (GLfloat, GLfloat) -> IO ()
 collisionEdges velocityY velocityX floors pos = do
-
     fls <- get floors
-
-    let ball  = 0.05
-    let is    = \point line -> point >= line - 0.009 && point <= line + 0.009
-
-    let horizontal = \top bottom y -> if is (y - ball) top || is (y + ball) bottom 
-                                      then (velocityY $~! \v -> earth v)
-                                      else return ()
-
-    let vertical = \left right x -> if is (x + ball) left || is (x - ball) right
-                                    then (velocityX $~! \v -> earth v)
-                                    else return ()
     forM_ fls $ \f -> do
-        
         (x,y) <- get pos
+        when (testAABBOverlap f x y) $ putStrLn $ printf "Collision | x -> %.8f | y -> %.8f" x y
 
-        let (tl_x, tl_y, _) = top_left f
-        let (tr_x, tr_y, _) = top_right f
-        let (br_x, br_y, _) = bottom_right f
-
-        when (tl_x <= x && tr_x >= x) $ horizontal tl_y br_y y
-        when (br_y <= y && tr_y >= y) $ vertical tl_x tr_x x
+testAABBOverlap :: Floor -> GLfloat -> GLfloat -> Bool
+testAABBOverlap f x y = 
+    if d1x > 0.0 || d1y > 0.0 then False
+    else if d2x > 0.0 || d2y > 0.0 then False
+    else True
+    where ball = 0.05
+          (min_x, min_y, _) = bottom_left f
+          (max_x, max_y, _) = top_right f
+          d1x = (x-ball) - max_x
+          d1y = (y-ball) - max_y
+          d2x = min_x - (x + ball)
+          d2y = min_y - (y + ball)
