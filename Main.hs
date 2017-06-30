@@ -5,8 +5,6 @@ import System.IO
 import Control.Concurrent
 import Control.Monad
 import Text.Printf
-import Data.Time
-import Data.Time.Clock.POSIX
 
 import Bindings
 import Environment
@@ -43,7 +41,7 @@ main = do
   -- Gravity update
   forkIO $ forever $ do
      threadDelay 5000   -- wait 5 ms
-     updateGravity velocityX velocityY pos 0.005 -- dt
+     updateGravity       velocityX velocityY pos 0.005 -- dt
 
   -- Collision detection thread
   forkIO $ forever $ do
@@ -54,5 +52,5 @@ main = do
      threadDelay 1      -- wait 1 μs
      collisionEdges      velocityY velocityX floors pos
 
-  -- main OpenGL loop with callbacks
+  -- Main OpenGL loop with callbacks
   mainLoop

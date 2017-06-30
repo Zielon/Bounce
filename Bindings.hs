@@ -18,14 +18,16 @@ keyboardMouse :: IORef GLfloat ->
 keyboardMouse force velocityX velocityY p key state _ _ = 
   case key of
       (SpecialKey KeyLeft) ->
-        if state == Down then velocityX $~! (\x -> x - 0.15)
+        if state == Down then velocityX $~! (\x -> x - 0.3)
         else return ()
       (SpecialKey KeyRight) ->
-        if state == Down then velocityX $~! (\x -> x + 0.15)
+        if state == Down then velocityX $~! (\x -> x + 0.3)
         else return ()
       (Char ' ') ->
-        if state == Down then force $~! \f -> (f + 0.5)
+        if state == Down then force $~! \f -> (f + 1.0)
         else do
-          f <- get force
-          velocityY $~! (\vY-> if vY <= 0 then vY - f else vY + f) >> force $~! (\f -> 0)
+          force' <- get force
+          let f = if force' > maxForce then maxForce else force'
+          velocityY $~! (\vY-> if vY <= 0 then vY - f else vY + f) >> force $~! (\f -> 0.0)
       _ -> return ()
+  where maxForce = 8.0

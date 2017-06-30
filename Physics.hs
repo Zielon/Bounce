@@ -33,7 +33,7 @@ collisionBoundaries velocityY velocityX pos = do
     (x,y) <- get pos
     when (y < -0.95 || y > 0.95) $ velocityY $~! \v -> earth v
     when (x > 0.95  || x < -0.95) $ velocityX $~! \v -> earth v
-    -- egde valuse
+    -- Egde values when velocity is weaker
     when (y < -0.95) $ pos $~! (\(x',y') -> (x', -0.95))
     when (y > 0.95 ) $ pos $~! (\(x',y') -> (x', 0.95))
     when (x > 0.95 ) $ pos $~! (\(x',y') -> (0.95, y'))
