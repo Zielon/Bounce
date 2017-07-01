@@ -39,6 +39,7 @@ collisionBoundaries velocityY velocityX pos = do
     when (x > 0.95 ) $ pos $~! (\(x',y') -> (0.95, y'))
     when (x < -0.95) $ pos $~! (\(x',y') -> (-0.95, y'))
 
+-- AABB test
 collisionEdges :: IORef GLfloat -> 
                   IORef GLfloat -> 
                   IORef [Floor] ->
@@ -46,21 +47,19 @@ collisionEdges :: IORef GLfloat ->
 collisionEdges velocityY velocityX floors pos = do
     fls <- get floors
     forM_ fls $ \f -> do
-        (x,y) <- get pos
+        (x,y) <- get pos 
+        let (min_x, min_y, _) = bottom_left f
         let (max_x, max_y, _) = top_right f
-        -- TODO For very level move ball on the floor coords.
-        when (testAABBOverlap f x y) $ (pos $~! (\(x',y') -> (x', max_y + 0.05))) >> velocityY $~! \v -> earth v
-        -- putStrLn $ printf "Collision | x -> %.8f | y -> %.8f" x y
-
-testAABBOverlap :: Floor -> GLfloat -> GLfloat -> Bool
-testAABBOverlap f x y = 
-    if d1x > 0.0 || d1y > 0.0 then False
-    else if d2x > 0.0 || d2y > 0.0 then False
-    else True
-    where ball = 0.05
-          (min_x, min_y, _) = bottom_left f
-          (max_x, max_y, _) = top_right f
-          d1x = (x-ball) - max_x
-          d1y = (y-ball) - max_y
-          d2x = min_x - (x + ball)
-          d2y = min_y - (y + ball)
+        let d1x = (x-ball) - max_x
+        let d1y = (y-ball) - max_y
+        let d2x = min_x - (x + ball)
+        let d2y = min_y - (y + ball)
+        if d1x > 0.0 || d1y > 0.0 then return ()
+        else if d2x > 0.0 || d2y > 0.0 then return ()
+        else if max_x > x + ball && min_x < x - ball then do
+               if d1y > d2y then (pos $~! (\(x',y') -> (x', max_y + ball))) >> velocityY $~! \v -> earth v
+               else (pos $~! (\(x',y') -> (x', min_y - ball))) >> velocityY $~! \v -> earth v
+        else do
+            if d1x > d2x then (pos $~! (\(x',y') -> (max_x + ball, y'))) >> velocityX $~! \v -> earth v
+            else (pos $~! (\(x',y') -> (min_x - ball, y'))) >> velocityX $~! \v -> earth v
+        where ball = 0.05
