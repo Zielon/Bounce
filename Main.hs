@@ -38,7 +38,7 @@ main = do
   idleCallback          $= Just (idle angle delta velocityX velocityY pos floors)
   displayCallback       $= display velocityX velocityY angle pos floors
 
-  -- Gravity update
+  -- Gravity update thread
   forkIO $ forever $ do
      threadDelay 5000   -- wait 5 ms
      updateGravity       velocityX velocityY pos 0.005 -- dt

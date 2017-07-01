@@ -13,11 +13,10 @@ import FloorGenerator
 updateGravity :: IORef GLfloat -> 
                  IORef GLfloat ->  
                  IORef (GLfloat, GLfloat) ->
-                 Float ->
-                 IO ()
+                 Float -> IO ()
 updateGravity velocityX velocityY pos dt = do
-    vX <- get velocityX
     velocityY $~! \v -> v + acc * dt
+    vX <- get velocityX 
     vY <- get velocityY
     pos $~! \(x,y) -> ((x + vX * dt),((y + vY * dt) + 0.5 * acc * dt ^ 2))
     where acc = -9.80665
@@ -34,7 +33,7 @@ collisionBoundaries velocityY velocityX pos = do
     (x,y) <- get pos
     when (y < -0.95 || y > 0.95) $ velocityY $~! \v -> earth v
     when (x > 0.95  || x < -0.95) $ velocityX $~! \v -> earth v
-    -- Egde values when velocity is weaker
+    -- Move back the ball when overstep the boundaries
     when (y < -0.95) $ pos $~! (\(x',y') -> (x', -0.95))
     when (y > 0.95 ) $ pos $~! (\(x',y') -> (x', 0.95))
     when (x > 0.95 ) $ pos $~! (\(x',y') -> (0.95, y'))
@@ -48,7 +47,10 @@ collisionEdges velocityY velocityX floors pos = do
     fls <- get floors
     forM_ fls $ \f -> do
         (x,y) <- get pos
-        when (testAABBOverlap f x y) $ putStrLn $ printf "Collision | x -> %.8f | y -> %.8f" x y
+        let (max_x, max_y, _) = top_right f
+        -- TODO For very level move ball on the floor coords.
+        when (testAABBOverlap f x y) $ (pos $~! (\(x',y') -> (x', max_y + 0.05))) >> velocityY $~! \v -> earth v
+        -- putStrLn $ printf "Collision | x -> %.8f | y -> %.8f" x y
 
 testAABBOverlap :: Floor -> GLfloat -> GLfloat -> Bool
 testAABBOverlap f x y = 
