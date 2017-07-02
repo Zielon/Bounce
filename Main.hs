@@ -26,7 +26,7 @@ main = do
   force     <- newIORef 0
   pos       <- newIORef (0.0, 0.4)
   angle     <- newIORef 0
-  floors    <- newIORef $ getFloors [(0.0, 0.0), (0.5, 0.5), (-0.7, -0.6)]
+  floors    <- newIORef $ getFloors [(0.5, 0.5), (-0.5, -0.5)]
 
   setProjection
   setLights
@@ -35,7 +35,7 @@ main = do
   -- Register callback
   clearColor            $= Color4 255.0 255.0 255.0 255.0
   keyboardMouseCallback $= Just (keyboardMouse force velocityX velocityY pos)
-  idleCallback          $= Just (idle angle delta velocityX velocityY pos floors)
+  idleCallback          $= Just (idle angle delta)
   displayCallback       $= display velocityX velocityY angle pos floors
 
   -- Gravity update thread

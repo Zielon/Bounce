@@ -25,7 +25,7 @@ gfloor x y r t = Floor tl tr bl br
           br = ( x + r, y - t, 0.0)  -- | bottom right
           tr = ( x + r, y + t, 0.0)  -- | top right 
 
-sfloor x y = gfloor x y 0.3 0.025
+sfloor x y = gfloor x y 0.3 0.3
 
 getBottom :: [(GLfloat,GLfloat,GLfloat)]
 getBottom = [(-1.0,-0.95,0.0),(1.0,-0.95,0.0)]

@@ -22,30 +22,17 @@ display velocityX velocityY angle pos floor = do
   clear [ColorBuffer]
   loadIdentity
   fls     <- get floor
-  forM_ fls $ \f -> renderPrimitive Polygon $ mapM_ (\(x, y, z) -> vertex $ Vertex3 x y z) $ getPoints f
   (x',y') <- get pos
+  forM_ fls $ \f -> renderPrimitive Polygon $ mapM_ (\(x, y, z) -> vertex $ Vertex3 x y z) $ getPoints f
   translate $ Vector3 x' y' 0
   preservingMatrix $ do
     a <- get angle
-    rotate a $ Vector3 0 0 1
-    rotate a $ Vector3 0 0.1 1 -- changed y-component a bit to show off cube corners
     scale 0.5 0.5 (0.5::GLfloat)
     renderObject Solid $ Sphere' 0.1 64 64
   swapBuffers
 
-idle :: IORef GLfloat -> 
-        IORef GLfloat -> 
-        IORef GLfloat -> 
-        IORef GLfloat -> 
-        IORef (GLfloat, GLfloat) ->
-        IORef [Floor] ->
-        IdleCallback
-idle angle delta velocityX velocityY pos floors = do
-  d      <- get delta
-  vX     <- get velocityX 
-  vY     <- get velocityY
-  (x, y) <- get pos
-
-  --putStrLn $ printf "Idle:: x -> %.8f v: %.8f | y -> %.8f v: %.8f" x vX y vY
+idle :: IORef GLfloat -> IORef GLfloat -> IdleCallback
+idle angle delta = do
+  d <- get delta
   angle $~! (+ d)  
   postRedisplay Nothing
