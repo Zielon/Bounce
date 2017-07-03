@@ -40,8 +40,9 @@ main = do
 
   -- Gravity update thread
   forkIO $ forever $ do
-     threadDelay 5000   -- wait 5 ms
-     updateGravity       velocityX velocityY pos 0.005 -- dt
+     threadDelay 4000   -- wait 4 ms
+     floors $~! (\f -> moveDown f 0.001)
+     updateGravity velocityX velocityY pos 0.005 -- dt
 
   -- Collision detection thread
   forkIO $ forever $ do
@@ -50,7 +51,7 @@ main = do
   
   forkIO $ forever $ do
      threadDelay 1      -- wait 1 μs
-     collisionEdges      velocityY velocityX floors pos
+     collisionEdges velocityY velocityX floors pos
 
   -- Main OpenGL loop with callbacks
   mainLoop
