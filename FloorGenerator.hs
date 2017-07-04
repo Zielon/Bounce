@@ -2,7 +2,6 @@ module FloorGenerator where
 
 import Graphics.UI.GLUT
 import Prelude hiding (snd)
-import System.Random
 
 -- | (x,y,z)
 type Point = (GLfloat,GLfloat,GLfloat)
@@ -26,21 +25,17 @@ getFloors list = map (\(x,y) -> sfloor x y) list
 getPoints :: Floor -> [Point]
 getPoints floor = [top_left floor, bottom_left floor, bottom_right floor, top_right floor]
 
-evaluate :: Floor -> (Point -> Point) -> Floor
-evaluate flr fun = do
-    if snd tl > -0.95 then Floor (fun tl) (fun tr) (fun bl) (fun br)
-    else sfloor x 1.3
+evaluate :: GLfloat -> Floor -> (Point -> Point) -> Floor
+evaluate x flr fun =
+    if snd tl > -1.0 then Floor (fun tl) (fun tr) (fun bl) (fun br)
+    else sfloor x 1.0
     where tl = top_left flr
           bl = bottom_left flr
           br = bottom_right flr
           tr = top_right flr
-          x  = Prelude.fst $ random (mkStdGen 42) :: GLfloat
 
-changeY :: Floor -> GLfloat -> Floor
-changeY flr indicator = evaluate flr $ \(x, y, z) -> (x, y - indicator, z)
-
-moveDown :: [Floor] -> GLfloat -> [Floor]
-moveDown floors value = map (\f -> changeY f value) floors
+moveDown :: GLfloat -> [Floor] -> GLfloat -> [Floor]
+moveDown value floors indicator = map (\f -> evaluate value f $ \(x, y, z) -> (x, y - indicator, z)) floors
 
 -- Floor [game element]
 -- r - width 
@@ -52,7 +47,7 @@ gfloor x y r t = Floor tl tr bl br
           br = ( x + r, y - t, 0.0)  -- | bottom right
           tr = ( x + r, y + t, 0.0)  -- | top right 
 
-sfloor x y = gfloor x y 0.3 0.3
+sfloor x y = gfloor x y 0.3 0.025
 
-getBottom :: [Point]
-getBottom = [(-1.0,-0.95,0.0),(1.0,-0.95,0.0)]
+getMockedFloors :: [(GLfloat, GLfloat)]
+getMockedFloors = [(0.5, 0.5), (-0.5, -0.5), (0.7, -0.8), (0.7, 0.8), (-0.7, 0.5), (-0.1, 0.8)]
