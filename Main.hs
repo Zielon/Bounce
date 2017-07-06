@@ -8,7 +8,6 @@ import Text.Printf
 import System.Random
 
 import Bindings
-import Environment
 import Keys
 import PhysicsEngine
 import FloorGenerator
@@ -29,15 +28,11 @@ main = do
   angle     <- newIORef 0
   floors    <- newIORef $ getFloors getMockedFloors
 
-  setProjection
-  setLights
-  setMaterial
-
   -- Register callback
   clearColor            $= Color4 255.0 255.0 255.0 255.0
   keyboardMouseCallback $= Just (keyboardMouse force velocityX velocityY pos)
   idleCallback          $= Just (idle angle delta)
-  displayCallback       $= display velocityX velocityY angle pos floors
+  displayCallback       $= display velocityX velocityY angle pos floors force
 
   generator <- newIORef (mkStdGen 0)
 
@@ -46,7 +41,7 @@ main = do
      threadDelay 4000   -- wait 4 ms
      gen <- get generator
      let (value, newGenerator) = randomR (-1,1) gen
-     floors $~! (\f -> moveDown value f 0.001)
+     floors $~! (\f -> moveDown value f 0.0001)
      generator $~! (\g -> newGenerator)
      updateGravity velocityX velocityY pos 0.005 -- dt
 

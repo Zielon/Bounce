@@ -38,7 +38,7 @@ moveDown :: GLfloat -> [Floor] -> GLfloat -> [Floor]
 moveDown value floors indicator = map (\f -> evaluate value f $ \(x, y, z) -> (x, y - indicator, z)) floors
 
 -- Floor [game element]
--- r - width 
+-- r - width
 -- t - thickness
 gfloor :: GLfloat -> GLfloat -> GLfloat -> GLfloat -> Floor
 gfloor x y r t = Floor tl tr bl br

@@ -30,4 +30,4 @@ keyboardMouse force velocityX velocityY p key state _ _ =
           let f = if force' > maxForce then maxForce else force'
           velocityY $~! (\vY-> if vY <= 0 then vY - f else vY + f) >> force $~! (\f -> 0.0)
       _ -> return ()
-  where maxForce = 8.0
+  where maxForce = 10.0

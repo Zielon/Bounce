@@ -60,9 +60,8 @@ collisionEdges velocityY velocityX floors pos = do
         else if min_x <= x + edge && max_x >= x - edge then do
             if d1y > d2y then (pos $~! (\(x',y') -> (x', max_y + ball))) >> velocityY $~! \v -> earth v
             else (pos $~! (\(x',y') -> (x', min_y - ball))) >> velocityY $~! \v -> earth v
-        else if max_y > y + edge && min_y < y - edge then
-            if d1x > d2x then (pos $~! (\(x',y') -> (max_x + ball, y'))) >> velocityX $~! \v -> earth v
-            else (pos $~! (\(x',y') -> (min_x - ball, y'))) >> velocityX $~! \v -> earth v
+        else if max_y > y + edge && min_y < y - edge then velocityX $~! \v -> earth v
+            --else (pos $~! (\(x',y') -> (min_x - ball, y'))) >> velocityX $~! \v -> earth v
         else return ()
         where ball = 0.05
               edge = 0.025
