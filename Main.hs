@@ -10,7 +10,7 @@ import System.Random
 import Bindings
 import Keys
 import PhysicsEngine
-import FloorGenerator
+import FloorEngine
 
 main :: IO ()
 main = do
@@ -39,10 +39,7 @@ main = do
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do
      threadDelay 4000   -- wait 4 ms
-     gen <- get generator
-     let (value, newGenerator) = randomR (-1,1) gen
-     floors $~! (\f -> moveDown value f 0.0001)
-     generator $~! (\g -> newGenerator)
+     moveDownAll 0.00005 generator floors
      updateGravity velocityX velocityY pos 0.005 -- dt
 
   -- Collision detection thread

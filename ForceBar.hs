@@ -1,9 +1,9 @@
 module ForceBar where
 
-import FloorGenerator
+import FloorEngine
 
 getBar :: Float -> Floor
-getBar forceLevel = Floor tl tr bl br
+getBar forceLevel = Floor tl tr bl br 1
     where scale = 2/10
           force = scale * forceLevel
           value = if force == 0 then -1 else if forceLevel <= 5 then -1+force else force

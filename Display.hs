@@ -9,7 +9,7 @@ import Text.Printf
 import Control.Concurrent
 
 import Points
-import FloorGenerator
+import FloorEngine
 import ForceBar
 import Environment
 
