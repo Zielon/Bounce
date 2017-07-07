@@ -1,4 +1,7 @@
-module Display (idle, display) where
+module Display (
+  idle, 
+  display)
+where
  
 import Graphics.UI.GLUT
 import Graphics.UI.GLUT.Fonts

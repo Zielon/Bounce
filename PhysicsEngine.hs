@@ -1,12 +1,17 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module PhysicsEngine (updateGravity, collisionBoundaries, collisionEdges) where
+module PhysicsEngine (
+    updateGravity, 
+    collisionBoundaries, 
+    collisionEdges) 
+where
 
 import Graphics.UI.GLUT
 import Control.Monad    
 import Data.IORef
 import Control.Concurrent
 import Text.Printf
+import Prelude hiding (id)
 
 import FloorEngine
 
@@ -58,8 +63,9 @@ collisionEdges velocityY velocityX floors pos = do
         else if d2x > 0.0 || d2y > 0.0 then return ()
         -- Collision occured
         else if min_x <= x + edge && max_x >= x - edge then do
-             velocityY $~! \v -> earth v
-            --else (pos $~! (\(x',y') -> (x', min_y - ball))) >> velocityY $~! \v -> earth v
+            velocityY $~! (\v -> earth v) >> (if d1y > d2y 
+                then floors $~! \floor' -> moveDownSingle (id f) (abs (y - ball - max_y)) floor'     -- over
+                else floors $~! \floor' -> moveDownSingle (id f) (-(abs (y + ball - min_y))) floor') -- under
         else if max_y > y + edge && min_y < y - edge then velocityX $~! \v -> earth v
             --else (pos $~! (\(x',y') -> (min_x - ball, y'))) >> velocityX $~! \v -> earth v
         else return ()
