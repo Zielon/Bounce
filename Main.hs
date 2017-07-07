@@ -11,6 +11,7 @@ import Bindings
 import Keys
 import PhysicsEngine
 import FloorEngine
+import Ball
 
 main :: IO ()
 main = do
@@ -20,20 +21,17 @@ main = do
   createWindow "Bounce"
   reshapeCallback $= Just reshape
 
+  ball      <- newIORef $ Ball 0.0 0.4 0.0 0.1 0
   delta     <- newIORef 0.0
-  velocityX <- newIORef 0.0
-  velocityY <- newIORef 0.1
-  force     <- newIORef 0
-  pos       <- newIORef (0.0, 0.4)
   angle     <- newIORef 0
+  force     <- newIORef 0
   floors    <- newIORef $ getFloors getMockedFloors
-  points    <- newIORef 0
   
   -- Register callback
   clearColor            $= Color4 255.0 255.0 255.0 255.0
-  keyboardMouseCallback $= Just (keyboardMouse force velocityX velocityY pos)
+  keyboardMouseCallback $= Just (keyboardMouse force ball)
   idleCallback          $= Just (idle angle delta)
-  displayCallback       $= display velocityX velocityY angle pos floors force points
+  displayCallback       $= display ball angle floors force
 
   generator <- newIORef (mkStdGen 0)
 
@@ -41,16 +39,16 @@ main = do
   forkIO $ forever $ do
      threadDelay 4000   -- wait 4 ms
      moveDownAll 0.00005 generator floors
-     updateGravity velocityX velocityY pos 0.005 -- dt
+     updateGravity ball 0.005 -- dt
 
   -- Collision detection thread
   forkIO $ forever $ do
      threadDelay 1      -- wait 1 μs
-     collisionBoundaries velocityY velocityX pos
+     collisionBoundaries ball
   
   forkIO $ forever $ do
      threadDelay 1      -- wait 1 μs
-     collisionEdges velocityY velocityX floors points pos
+     collisionEdges ball floors
 
   -- Main OpenGL loop with callbacks
   mainLoop

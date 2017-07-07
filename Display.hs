@@ -11,31 +11,29 @@ import System.IO
 import Text.Printf
 import Control.Concurrent
 
+import Ball
 import Points
 import FloorEngine
 import ForceBar
 import Environment
 
-display :: IORef GLfloat -> 
-           IORef GLfloat -> 
-           IORef GLfloat -> 
-           IORef (GLfloat, GLfloat) -> 
+display :: IORef Ball    ->
+           IORef GLfloat ->      
            IORef [Floor] ->
            IORef GLfloat ->
-           IORef Int ->
            DisplayCallback
-display velocityX velocityY angle pos floor force points = do 
+display ball angle floors force = do 
   clear [ColorBuffer, DepthBuffer] -- clear depth buffer, too
   clear [ColorBuffer]
   loadIdentity
   
-  points' <- get points
+  ball'   <- get ball
   force'  <- get force
-  fls     <- get floor
-  (x',y') <- get pos
+  fls     <- get floors
+
+  let (x', y') = getPosition ball'
 
   -- | Render section ----------------------
-
   -- | Force Bar
   preservingMatrix $ do
       color3f 1 0 0
@@ -49,7 +47,7 @@ display velocityX velocityY angle pos floor force points = do
       color3f 1 0 1
       translate $ Vector3 (0.65::GLfloat) (0.95::GLfloat) 0
       rasterPos (Vertex2 (0.0::GLfloat) (-0.025::GLfloat))
-      renderString Helvetica18 $ printf "Points %d" (points')
+      renderString Helvetica18 $ printf "Points %d" (getScore ball')
   
   -- | Floors
   forM_ fls $ \f -> renderPrimitive Polygon $ do 

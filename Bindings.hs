@@ -9,6 +9,7 @@ import Graphics.UI.GLUT
 import Data.IORef
 import Data.Fixed
 
+import Ball
 import Display
 import Data.Bool
 import Keys
@@ -17,21 +18,19 @@ reshape :: ReshapeCallback
 reshape size = do 
   viewport $= (Position 0 0, size)
 
-keyboardMouse :: IORef GLfloat ->
-                 IORef GLfloat ->
-                 IORef GLfloat -> IORef (GLfloat, GLfloat) -> KeyboardMouseCallback
-keyboardMouse force velocityX velocityY p key state _ _ = 
+keyboardMouse :: IORef GLfloat -> IORef Ball -> KeyboardMouseCallback
+keyboardMouse force ball key state _ _ = do
   case key of
       (SpecialKey KeyLeft) ->
-        if state == Down then velocityX $~! (\x -> x - 0.25)
+        if state == Down then ball $~! \b -> setVelocity b (\(x,y) -> (x - 0.25, y))
         else return ()
       (SpecialKey KeyRight) ->
-        if state == Down then velocityX $~! (\x -> x + 0.25)
+        if state == Down then ball $~! \b -> setVelocity b (\(x,y) -> (x + 0.25, y))
         else return ()
       (Char ' ') ->
         if state == Down then force $~! \f -> if f + 0.25 > maxForce then maxForce else f + 0.25
         else do
           f <- get force
-          velocityY $~! (\vY-> if vY <= 0 then vY - f else vY + f) >> force $~! (\f -> 0.0)
+          ball $~! (\b -> setVelocity b (\(vX,vY) -> if vY <= 0 then (vX, vY - f) else (vX, vY + f))) >> force $~! (\f -> 0.0)
       _ -> return ()
   where maxForce = 10.0
