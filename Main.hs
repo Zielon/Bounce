@@ -16,7 +16,7 @@ main :: IO ()
 main = do
   (_progName, _args) <- getArgsAndInitialize
   initialDisplayMode $= [WithDepthBuffer, DoubleBuffered]
-  initialWindowSize $= Size 500 500
+  initialWindowSize $= Size 600 600
   createWindow "Bounce"
   reshapeCallback $= Just reshape
 

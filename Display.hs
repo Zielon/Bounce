@@ -27,25 +27,34 @@ display velocityX velocityY angle pos floor force = do
   clear [ColorBuffer, DepthBuffer] -- clear depth buffer, too
   clear [ColorBuffer]
   loadIdentity
+  
   force'  <- get force
   fls     <- get floor
   (x',y') <- get pos
+
+  -- | Render section ----------------------
+
+  -- | Force Bar
+  preservingMatrix $ do
+      color3f 1 0 0
+      renderPrimitive Polygon $ mapM_ (\(x, y, z) -> vertex $ Vertex3 x y z) $ getPoints $ getBar force'
+      translate $ Vector3 (-0.95::GLfloat) (0.95::GLfloat) 0
+      rasterPos (Vertex2 (0.0::GLfloat) (-0.025::GLfloat))
+      renderString Helvetica18 $ printf "%.1f%%" (force' * 10)
   
-  renderPrimitive Polygon $ do 
-    color3f 1 0 0
-    mapM_ (\(x, y, z) -> vertex $ Vertex3 x y z) $ getPoints $ getBar force'
-  
+  -- | Floors
   forM_ fls $ \f -> renderPrimitive Polygon $ do 
     mapM_ (\(x, y, z) -> (color3f ((x+1)/2) ((y+1)/2) ((z+1)/2)) >> (vertex $ Vertex3 x y z)) $ getPoints f
   
+  -- | Ball
   translate $ Vector3 x' y' 0
   preservingMatrix $ do
     a <- get angle
     scale 0.5 0.5 (0.5::GLfloat)
     color3f 1 0 0
     renderObject Solid $ Sphere' 0.1 64 64
-  swapBuffers
   
+  swapBuffers
   where color3f r g b = color $ Color3 r g (b :: GLfloat)
 
 idle :: IORef GLfloat -> IORef GLfloat -> IdleCallback

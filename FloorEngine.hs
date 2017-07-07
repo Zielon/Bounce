@@ -32,7 +32,7 @@ data Floor = Floor {
 
 getFloors :: [(GLfloat, GLfloat)] -> [Floor]
 getFloors list = map (\((x,y), i) -> sfloor i x y) $ zip list [1..]
-    
+
 getPoints :: Floor -> [Point]
 getPoints floor = [top_left floor, bottom_left floor, bottom_right floor, top_right floor]
 

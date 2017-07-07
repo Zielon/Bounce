@@ -36,11 +36,11 @@ collisionBoundaries :: IORef GLfloat ->
                        IORef (GLfloat, GLfloat) -> IO ()
 collisionBoundaries velocityY velocityX pos = do
     (x,y) <- get pos
-    when (y < -0.95 || y > 0.95) $ velocityY $~! \v -> earth v
+    when (y < -0.95) $ velocityY $~! \v -> earth v
     when (x > 0.95  || x < -0.95) $ velocityX $~! \v -> earth v
     -- Move back the ball when overstep the boundaries
     when (y < -0.95) $ pos $~! (\(x',y') -> (x', -0.95))
-    when (y > 0.95 ) $ pos $~! (\(x',y') -> (x', 0.95))
+    --when (y > 0.95 ) $ pos $~! (\(x',y') -> (x', 0.95))
     when (x > 0.95 ) $ pos $~! (\(x',y') -> (0.95, y'))
     when (x < -0.95) $ pos $~! (\(x',y') -> (-0.95, y'))
 
@@ -59,6 +59,7 @@ collisionEdges velocityY velocityX floors pos = do
         let d1y = (y-ball) - max_y
         let d2x = min_x - (x + ball)
         let d2y = min_y - (y + ball)
+        -- check AABB test
         if d1x > 0.0 || d1y > 0.0 then return ()
         else if d2x > 0.0 || d2y > 0.0 then return ()
         -- Collision occured
@@ -67,7 +68,6 @@ collisionEdges velocityY velocityX floors pos = do
                 then floors $~! \floor' -> moveDownSingle (id f) (abs (y - ball - max_y)) floor'     -- over
                 else floors $~! \floor' -> moveDownSingle (id f) (-(abs (y + ball - min_y))) floor') -- under
         else if max_y > y + edge && min_y < y - edge then velocityX $~! \v -> earth v
-            --else (pos $~! (\(x',y') -> (min_x - ball, y'))) >> velocityX $~! \v -> earth v
         else return ()
         where ball = 0.05
               edge = 0.025
