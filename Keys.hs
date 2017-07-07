@@ -10,8 +10,7 @@ getKeys = sequence [newIORef (KeyLeft, False), newIORef (KeyRight, False), newIO
 (!!@) :: [IORef (SpecialKey, Bool)] -> SpecialKey -> IO (SpecialKey, Bool)
 (!!@) (x:xs) key =
     pair >>= \(k, s) -> if key == k then return (k,s) else (!!@) xs key
-    where
-        pair = readIORef x
+    where pair = readIORef x
 
 update :: [IORef (SpecialKey, Bool)] -> Int -> Bool -> IO ()
 update arr i s = do

@@ -27,12 +27,13 @@ main = do
   pos       <- newIORef (0.0, 0.4)
   angle     <- newIORef 0
   floors    <- newIORef $ getFloors getMockedFloors
-
+  points    <- newIORef 0
+  
   -- Register callback
   clearColor            $= Color4 255.0 255.0 255.0 255.0
   keyboardMouseCallback $= Just (keyboardMouse force velocityX velocityY pos)
   idleCallback          $= Just (idle angle delta)
-  displayCallback       $= display velocityX velocityY angle pos floors force
+  displayCallback       $= display velocityX velocityY angle pos floors force points
 
   generator <- newIORef (mkStdGen 0)
 
@@ -49,7 +50,7 @@ main = do
   
   forkIO $ forever $ do
      threadDelay 1      -- wait 1 μs
-     collisionEdges velocityY velocityX floors pos
+     collisionEdges velocityY velocityX floors points pos
 
   -- Main OpenGL loop with callbacks
   mainLoop

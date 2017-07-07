@@ -48,8 +48,9 @@ collisionBoundaries velocityY velocityX pos = do
 collisionEdges :: IORef GLfloat -> 
                   IORef GLfloat -> 
                   IORef [Floor] ->
+                  IORef Int     -> 
                   IORef (GLfloat, GLfloat) -> IO ()
-collisionEdges velocityY velocityX floors pos = do
+collisionEdges velocityY velocityX floors points pos = do
     fls <- get floors
     forM_ fls $ \f -> do
         (x,y) <- get pos 
@@ -65,7 +66,7 @@ collisionEdges velocityY velocityX floors pos = do
         -- Collision occured
         else if min_x <= x + edge && max_x >= x - edge then do
             velocityY $~! (\v -> earth v) >> (if d1y > d2y 
-                then floors $~! \floor' -> moveDownSingle (id f) (abs (y - ball - max_y)) floor'     -- over
+                then floors $~! (\floor' -> moveDownSingle (id f) (abs (y - ball - max_y)) floor') >> points $~! (\p -> p + 1)
                 else floors $~! \floor' -> moveDownSingle (id f) (-(abs (y + ball - min_y))) floor') -- under
         else if max_y > y + edge && min_y < y - edge then velocityX $~! \v -> earth v
         else return ()
