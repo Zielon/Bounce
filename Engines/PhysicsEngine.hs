@@ -1,9 +1,10 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module PhysicsEngine (
+module Engines.PhysicsEngine (
     updateGravity, 
     collisionBoundaries, 
-    collisionEdges) 
+    collisionEdges,
+    floorTestAABB) 
 where
 
 import Graphics.UI.GLUT hiding (None)
@@ -13,8 +14,9 @@ import Control.Concurrent
 import Text.Printf
 import Prelude hiding (id, floor)
 
-import FloorEngine
-import Ball
+import Engines.FloorEngine
+import API.CollisionTests
+import GameObjects.Ball
 
 updateGravity :: IORef Ball -> Float -> IO ()
 updateGravity ball dt = do
@@ -41,26 +43,7 @@ collisionBoundaries ball = do
     when (x > 0.95 ) $ ball $~! \b -> setPosition b $ \(x,y) -> (0.95, y)
     when (x < -0.95) $ ball $~! \b -> setPosition b $ \(x,y) -> (-0.95, y)
 
-data Collision = AxisX | OverAxisY | UnderAxisY | None
-
--- AABB test for ball
-ballTestAABB :: Ball -> Floor -> Collision
-ballTestAABB ball floor =
-        if d1x > 0.0 || d1y > 0.0 then None
-        else if d2x > 0.0 || d2y > 0.0 then None
-        else if min_x <= x + edge && max_x >= x - edge then if d1y > d2y then OverAxisY else UnderAxisY
-        else if max_y > y + edge && min_y < y - edge then AxisX
-        else None
-        where radius = 0.05
-              edge = 0.025
-              (x,y) = getPosition ball
-              (min_x, min_y, _) = bottom_left floor
-              (max_x, max_y, _) = top_right floor
-              d1x = (x-radius) - max_x
-              d1y = (y-radius) - max_y
-              d2x = min_x - (x + radius)
-              d2y = min_y - (y + radius)
- 
+-- Collisin for the ball with floors
 collisionEdges :: IORef Ball -> IORef [Floor] -> IO ()
 collisionEdges ball floors = do
     fls <- get floors
@@ -73,10 +56,10 @@ collisionEdges ball floors = do
             None       -> return ()
             AxisX      -> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (earth vX, vY))
             UnderAxisY -> ball $~! (\b -> updateScore b (id f)) 
-                            >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY)) 
-                            >> floors $~! (\floor' -> moveDownSingle (id f) (-(abs (y + radius - min_y))) floor')
+                                   >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY)) 
+                                   >> floors $~! (\floor' -> moveDownSingle f (-(abs (y + radius - min_y))) floor')
             OverAxisY  -> ball $~! (\b -> updateScore b (id f)) 
-                            >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY)) 
-                            >> floors $~! (\floor' -> moveDownSingle (id f) (abs (y - radius - max_y)) floor')
+                                   >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY)) 
+                                   >> floors $~! (\floor' -> moveDownSingle f (abs (y - radius - max_y)) floor')
         where radius = 0.05
-              edge = 0.025
+              edge   = 0.025

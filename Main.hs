@@ -7,11 +7,11 @@ import Control.Monad
 import Text.Printf
 import System.Random
 
-import Bindings
-import Keys
-import PhysicsEngine
-import FloorEngine
-import Ball
+import API.Bindings
+import API.Keys
+import Engines.PhysicsEngine
+import Engines.FloorEngine
+import GameObjects.Ball
 
 main :: IO ()
 main = do

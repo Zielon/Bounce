@@ -1,4 +1,4 @@
-module Bindings (
+module API.Bindings (
   idle, 
   display, 
   reshape, 
@@ -8,11 +8,11 @@ where
 import Graphics.UI.GLUT
 import Data.IORef
 import Data.Fixed
-
-import Ball
-import Display
 import Data.Bool
-import Keys
+
+import GameObjects.Ball
+import API.Display
+import API.Keys
 
 reshape :: ReshapeCallback
 reshape size = do 

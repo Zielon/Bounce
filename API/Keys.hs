@@ -1,4 +1,4 @@
-module Keys where
+module API.Keys where
 
 import Graphics.UI.GLUT
 import Data.IORef

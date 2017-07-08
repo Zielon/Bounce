@@ -1,6 +1,6 @@
-module ForceBar where
+module GameObjects.ForceBar where
 
-import FloorEngine
+import Engines.FloorEngine
 
 getBar :: Float -> Floor
 getBar forceLevel = Floor tl tr bl br 1

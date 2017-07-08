@@ -1,4 +1,4 @@
-module Display (
+module API.Display (
   idle, 
   display)
 where
@@ -11,11 +11,11 @@ import System.IO
 import Text.Printf
 import Control.Concurrent
 
-import Ball
-import Points
-import FloorEngine
-import ForceBar
-import Environment
+import API.Points
+import API.Environment
+import GameObjects.Ball
+import GameObjects.ForceBar
+import Engines.FloorEngine
 
 display :: IORef Ball    ->
            IORef GLfloat ->      

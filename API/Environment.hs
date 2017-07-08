@@ -1,4 +1,4 @@
-module Environment where
+module API.Environment where
  
 import Graphics.UI.GLUT
  
