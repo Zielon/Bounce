@@ -59,7 +59,9 @@ collisionEdges ball floors = do
         else if d2x > 0.0 || d2y > 0.0 then return ()
         -- Collision occured
         else if min_x <= x + edge && max_x >= x - edge then do
-            (ball $~! \b -> setVelocity b $ \(vX,vY) -> (vX, earth vY)) >> (if d1y > d2y 
+            (ball $~! \b -> updateScore b (id f)) 
+            >> (ball $~! \b -> setVelocity b $ \(vX,vY) -> (vX, earth vY)) 
+            >> (if d1y > d2y 
                 then floors $~! (\floor' -> moveDownSingle (id f) (abs (y - radius - max_y)) floor')
                 else floors $~! \floor' -> moveDownSingle (id f) (-(abs (y + radius - min_y))) floor') -- under
         else if max_y > y + edge && min_y < y - edge then ball $~! \b -> setVelocity b $ \(vX,vY) -> (earth vX, vY)

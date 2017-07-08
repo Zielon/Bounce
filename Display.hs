@@ -34,6 +34,7 @@ display ball angle floors force = do
   let (x', y') = getPosition ball'
 
   -- | Render section ----------------------
+
   -- | Force Bar
   preservingMatrix $ do
       color3f 1 0 0
@@ -41,18 +42,18 @@ display ball angle floors force = do
       translate $ Vector3 (-0.95::GLfloat) (0.95::GLfloat) 0
       rasterPos (Vertex2 (0.0::GLfloat) (-0.025::GLfloat))
       renderString Helvetica18 $ printf "%.1f%%" (force' * 10)
-  
+
   -- | Points
   preservingMatrix $ do
       color3f 1 0 1
       translate $ Vector3 (0.65::GLfloat) (0.95::GLfloat) 0
       rasterPos (Vertex2 (0.0::GLfloat) (-0.025::GLfloat))
       renderString Helvetica18 $ printf "Points %d" (getScore ball')
-  
+
   -- | Floors
   forM_ fls $ \f -> renderPrimitive Polygon $ do 
     mapM_ (\(x, y, z) -> (color3f ((x+1)/2) ((y+1)/2) ((z+1)/2)) >> (vertex $ Vertex3 x y z)) $ getPoints f
-  
+
   -- | Ball
   translate $ Vector3 x' y' 0
   preservingMatrix $ do

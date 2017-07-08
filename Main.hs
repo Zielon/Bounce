@@ -21,7 +21,7 @@ main = do
   createWindow "Bounce"
   reshapeCallback $= Just reshape
 
-  ball      <- newIORef $ Ball 0.0 0.4 0.0 0.1 0
+  ball      <- newIORef $ Ball 0.0 0.4 0.0 0.1 0 0
   delta     <- newIORef 0.0
   angle     <- newIORef 0
   force     <- newIORef 0
@@ -33,6 +33,7 @@ main = do
   idleCallback          $= Just (idle angle delta)
   displayCallback       $= display ball angle floors force
 
+  -- Global handler for StdGen
   generator <- newIORef (mkStdGen 0)
 
   -- Gravity update and rand new floors thread
