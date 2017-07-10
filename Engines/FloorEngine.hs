@@ -5,8 +5,7 @@ module Engines.FloorEngine(
     getPoints, 
     moveDownAll,
     moveDownSingle, 
-    getMockedFloors,
-    evaluate) 
+    getMockedFloors) 
 where
 
 import Prelude hiding (snd, id, floor)
@@ -59,7 +58,7 @@ sfloor i x y = gfloor i x y width thickness
                      thickness = 0.025
 
 getMockedFloors :: [(GLfloat, GLfloat)]
-getMockedFloors = [(0.1, 0.5), (0.0, 0.4), (-0.1, 0.3), (-0.2, 0.2), (-0.3, 0.1) ]
+getMockedFloors = [(-0.2, 0.2), (-0.1, 0.3), (0.0, 0.4), (-0.3, 0.1), (0.1, 0.5)]
 
 -- | Private section --------------
 moveDown' :: GLfloat -> [Floor] -> GLfloat -> [Floor]

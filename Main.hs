@@ -6,6 +6,7 @@ import Control.Concurrent
 import Control.Monad
 import Text.Printf
 import System.Random
+import Data.List
 
 import API.Bindings
 import API.Keys
@@ -22,11 +23,11 @@ main = do
   createWindow "Bounce"
   reshapeCallback $= Just reshape
 
-  ball      <- newIORef $ Ball 0.0 0.7 0.0 0.1 0 0
+  ball      <- newIORef $ Ball 0.0 0.9 0.0 0.1 0 0
   delta     <- newIORef 0.0
   angle     <- newIORef 0
   force     <- newIORef 0
-  floors    <- newIORef $ getFloors getMockedFloors
+  floors    <- newIORef $ getFloors $ sortBy (\a b -> a `compare` b) getMockedFloors
   
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0
@@ -43,17 +44,16 @@ main = do
   forkIO $ forever $ do
      threadDelay 4000   -- wait 4 ms
      moveDownAll 0.00005 generator floors
-     gridIntersect2D floors
      updateGravity ball 0.005 -- dt
 
-  -- Collision detection thread
   forkIO $ forever $ do
      threadDelay 1      -- wait 1 μs
      collisionBoundaries ball
-  
+     collisionEdges ball floors
+
   forkIO $ forever $ do
      threadDelay 1      -- wait 1 μs
-     collisionEdges ball floors
+     gridIntersect2D floors
 
   -- Main OpenGL loop with callbacks
   mainLoop
