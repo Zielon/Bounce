@@ -1,6 +1,7 @@
 module GameObjects.Floor where
 
 import Graphics.UI.GLUT
+import Prelude hiding (floor, fst, snd, id)
 
 -- | (x,y,z)
 type Point = (GLfloat,GLfloat,GLfloat)
@@ -16,5 +17,13 @@ data Floor = Floor {
     top_right    :: Point,
     bottom_left  :: Point,
     bottom_right :: Point,
-    id           :: Int
+    id           :: Int,
+    color3f      :: Point
 }
+
+class Floorable a where
+    setColor :: a -> Point -> a
+
+instance Floorable Floor where
+    setColor floor color = 
+        Floor (top_left floor) (top_right floor) (bottom_left floor) (bottom_right floor) (id floor) color

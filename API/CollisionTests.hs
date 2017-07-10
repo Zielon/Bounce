@@ -1,20 +1,28 @@
 module API.CollisionTests(
     Collision(..),
     floorTestAABB,
-    ballTestAABB
+    ballTestAABB,
+    gridIntersect2D
 ) where
 
+import Graphics.UI.GLUT hiding (None)
+import Prelude          hiding (fst, id)
+import Data.IORef
 import GameObjects.Floor
 import GameObjects.Ball
+import Control.Monad
+import Text.Printf
+
+import Engines.FloorEngine
 
 data Collision = AxisX | OverAxisY | UnderAxisY | None deriving Eq
 
 -- AABB test for floors
-floorTestAABB :: Floor -> Floor -> Collision
+floorTestAABB :: Floor -> Floor -> Bool
 floorTestAABB a b =
-    if d1x > 0.0 || d1y > 0.0 then None
-    else if d2x > 0.0 || d2y > 0.0 then None
-    else OverAxisY
+    if d1x > 0.0 || d1y > 0.0 then False
+    else if d2x > 0.0 || d2y > 0.0 then False
+    else True
     where (a_min_x, a_min_y, _) = bottom_left a
           (a_max_x, a_max_y, _) = top_right a
           (b_min_x, b_min_y, _) = bottom_left b
@@ -23,6 +31,35 @@ floorTestAABB a b =
           d1y = b_min_y - a_max_y
           d2x = a_min_x - b_max_x
           d2y = a_min_y - b_max_y
+
+--                             X                   Y
+getMinMax :: Floor -> ((GLfloat, GLfloat), (GLfloat,GLfloat))
+getMinMax floor = ((GameObjects.Floor.fst $ bottom_left floor, GameObjects.Floor.fst $ top_right floor), 
+                   (GameObjects.Floor.snd $ bottom_left floor, GameObjects.Floor.snd $ top_right floor))
+
+getFloorByIndex :: [Floor] -> Int -> Floor
+getFloorByIndex floors i = filter (\f -> (id f) == i) floors !! 0
+
+gridIntersect2D :: IORef [Floor] -> IO ()
+gridIntersect2D ioFloors = do
+    floors <- get ioFloors
+    grid   <- newIORef []
+    forM_ floors $ \f -> do
+        g <- get grid
+        let i = (id f)
+        let ((min_x, max_x), (min_y, max_y)) = getMinMax f
+        forM_ [Prelude.floor(min_x/h)..Prelude.ceiling(max_x/h)] $ \x ->
+            forM_ [Prelude.floor(min_y/h)..Prelude.ceiling(max_y/h)] $ \y -> do
+                let cells = filter (\((a,b), _) -> (a,b) == (x,y)) g
+                if cells /= [] then do
+                    forM_ (Prelude.snd (cells !! 0)) $ \n -> do
+                        let collitionWith = getFloorByIndex floors n
+                        if floorTestAABB f collitionWith
+                        then  return () -- putStrLn $ printf "%d -> %d" (id f) (id collitionWith)
+                        else return ()
+                else grid $~! (\g -> g ++ [((x,y), [i])])
+
+    where h = 0.1 :: GLfloat
 
 -- AABB test for the ball
 ballTestAABB :: Ball -> Floor -> Collision

@@ -3,16 +3,15 @@
 module Engines.PhysicsEngine (
     updateGravity, 
     collisionBoundaries, 
-    collisionEdges,
-    floorTestAABB) 
+    collisionEdges) 
 where
 
 import Graphics.UI.GLUT hiding (None)
+import Prelude          hiding (id, floor)
 import Control.Monad    
 import Data.IORef
 import Control.Concurrent
 import Text.Printf
-import Prelude hiding (id, floor)
 
 import Engines.FloorEngine
 import API.CollisionTests

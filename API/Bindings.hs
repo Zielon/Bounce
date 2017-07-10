@@ -15,20 +15,22 @@ import API.Display
 import API.Keys
 
 reshape :: ReshapeCallback
-reshape size = do 
-  viewport $= (Position 0 0, size)
+reshape size = do viewport $= (Position 0 0, size)
 
 keyboardMouse :: IORef GLfloat -> IORef Ball -> KeyboardMouseCallback
 keyboardMouse force ball key state _ _ = do
   case key of
       (SpecialKey KeyLeft) ->
-        if state == Down then (putStrLn "<- | Left") >> ball $~! \b -> setVelocity b (\(x,y) -> (x - 0.25, y))
+        if state == Down 
+        then (putStrLn "<- | Left") >> ball $~! \b -> setVelocity b (\(x,y) -> (x - 0.25, y))
         else return ()
       (SpecialKey KeyRight) ->
-        if state == Down then (putStrLn "-> | Right") >> ball $~! \b -> setVelocity b (\(x,y) -> (x + 0.25, y))
+        if state == Down 
+        then (putStrLn "-> | Right") >> ball $~! \b -> setVelocity b (\(x,y) -> (x + 0.25, y))
         else return ()
       (Char ' ') ->
-        if state == Down then force $~! \f -> if f + 0.25 > maxForce then maxForce else f + 0.25
+        if state == Down 
+        then force $~! \f -> if f + 0.25 > maxForce then maxForce else f + 0.25
         else do
           f <- get force
           putStrLn "Space"
