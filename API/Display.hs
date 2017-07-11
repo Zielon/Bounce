@@ -10,6 +10,7 @@ import Data.IORef
 import System.IO
 import Text.Printf
 import Control.Concurrent
+import Data.Map
 
 import API.Points
 import API.Environment
@@ -20,7 +21,7 @@ import Engines.FloorEngine
 
 display :: IORef Ball    ->
            IORef GLfloat ->      
-           IORef [Floor] ->
+           IORef (Map Int Floor) ->
            IORef GLfloat ->
            DisplayCallback
 display ball angle floors force = do 

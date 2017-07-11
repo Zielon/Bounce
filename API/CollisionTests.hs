@@ -51,17 +51,14 @@ ballTestAABB ball floor =
           d2x = min_x - (x + radius)
           d2y = min_y - (y + radius)
 
---                             X                   Y
+--                        (minX,maxX)         (minY,maxY)
 getMinMax :: Floor -> ((GLfloat, GLfloat), (GLfloat,GLfloat))
 getMinMax floor = ((GameObjects.Floor.fst $ bottom_left floor, GameObjects.Floor.fst $ top_right floor), 
                    (GameObjects.Floor.snd $ bottom_left floor, GameObjects.Floor.snd $ top_right floor))
 
-getFloorByIndex :: [Floor] -> Int -> Floor
-getFloorByIndex floors i = Prelude.filter (\f -> (id f) == i) floors !! 0
-
-gridIntersect2D :: IORef [Floor] -> IO ()
-gridIntersect2D ioFloors = do
-    floors <- get ioFloors
+gridIntersect2D :: IORef (Map Int Floor)-> IO ()
+gridIntersect2D dictionary = do
+    floors <- get dictionary
     grid   <- newIORef $ (fromList [] :: Map (Int, Int) [Int])
     forM_ floors $ \f -> do
         g <- get grid
@@ -73,11 +70,13 @@ gridIntersect2D ioFloors = do
                     Nothing    -> grid $~! (\d -> insertWith (++) (x,y) [i] d)    -- Not exist
                     Just cells -> do grid $~! (\d -> insertWith (++) (x,y) [i] d) -- Update list on (x,y) position in the map
                                      forM_ cells $ \n -> do
-                                        let collisionWith = getFloorByIndex floors n
-                                        let ((c_min_x, c_max_x), (c_min_y, c_max_y)) = getMinMax collisionWith
-                                        let maxMinY = max c_min_y min_y
-                                        let maxMinX = max c_min_x min_x
-                                        if floorTestAABB f collisionWith && Prelude.floor(maxMinX/h) /= x && Prelude.floor(maxMinY/h) /= y
-                                        then ioFloors $~! (\list ->  Prelude.map (\e -> if (id e) == (id collisionWith) then setY (min_y - 0.05) (min_y) collisionWith else e ) list)
-                                        else return ()
+                                        case lookup n floors of
+                                            Nothing            -> return ()
+                                            Just collisionWith -> do
+                                                let ((c_min_x, c_max_x), (c_min_y, c_max_y)) = getMinMax collisionWith
+                                                let maxMinY = max c_min_y min_y
+                                                let maxMinX = max c_min_x min_x
+                                                if floorTestAABB f collisionWith && Prelude.floor(maxMinX/h) /= x && Prelude.floor(maxMinY/h) /= y
+                                                then dictionary $~! (\d -> insert (id collisionWith) (setY (min_y - 0.05) (min_y) collisionWith) d)
+                                                else return ()
     where h = 0.01 :: GLfloat

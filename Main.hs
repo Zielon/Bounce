@@ -7,6 +7,7 @@ import Control.Monad
 import Text.Printf
 import System.Random
 import Data.List
+import Data.Map
 
 import API.Bindings
 import API.Keys

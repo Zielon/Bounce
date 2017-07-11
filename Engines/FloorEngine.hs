@@ -12,11 +12,12 @@ import Prelude hiding (snd, id, floor)
 import Graphics.UI.GLUT
 import Data.IORef
 import System.Random
+import Data.Map
 
 import GameObjects.Floor
 
-getFloors :: [(GLfloat, GLfloat)] -> [Floor]
-getFloors list = map (\((x,y), i) -> sfloor i x y) $ zip list [1..]
+getFloors :: [(GLfloat, GLfloat)] -> (Map Int Floor)
+getFloors list = fromList $ Prelude.map (\((x,y), i) -> (i, sfloor i x y)) $ zip list [1..]
 
 getPoints :: Floor -> [Point]
 getPoints floor = [top_left floor, bottom_left floor, bottom_right floor, top_right floor]
@@ -32,10 +33,10 @@ evaluate x flr fun =
           identifier = id flr
           colors = color3f flr
 
-moveDownSingle :: Floor -> GLfloat -> [Floor] -> [Floor]
+moveDownSingle :: Floor -> GLfloat -> (Map Int Floor) -> (Map Int Floor)
 moveDownSingle floor y floors = moveDown'' floor 0.0 floors y
 
-moveDownAll ::  GLfloat -> IORef StdGen -> IORef [Floor] -> IO ()
+moveDownAll ::  GLfloat -> IORef StdGen -> IORef (Map Int Floor) -> IO ()
 moveDownAll y generator floors = do
     gen     <- get generator
     let (value, newGenerator) = randomR (-1,1) gen
@@ -61,11 +62,10 @@ getMockedFloors :: [(GLfloat, GLfloat)]
 getMockedFloors = [(-0.2, 0.2), (-0.1, 0.3), (0.0, 0.4), (-0.3, 0.1), (0.1, 0.5)]
 
 -- | Private section --------------
-moveDown' :: GLfloat -> [Floor] -> GLfloat -> [Floor]
-moveDown' value floors indicator = map (\f -> evaluate value f $ \(x, y, z) -> (x, y - indicator, z)) floors
+moveDown' :: GLfloat -> (Map Int Floor) -> GLfloat -> (Map Int Floor)
+moveDown' random floors indicator = Data.Map.map (\f -> evaluate random f $ \(x, y, z) -> (x, y - indicator, z)) floors
 
-moveDown'' :: Floor -> GLfloat -> [Floor] -> GLfloat -> [Floor]
-moveDown'' floor value floors indicator = map (\f -> if (id f) == (id floor) 
-                                                     then evaluate value f $ \(x, y, z) -> (x, y - indicator, z) 
-                                                     else f) floors
+moveDown'' :: Floor -> GLfloat -> (Map Int Floor) -> GLfloat -> (Map Int Floor)
+moveDown'' floor random floors indicator = insert (id floor) (evaluate random floor $ \(x, y, z) -> (x, y - indicator, z)) floors
+
 -- | ------------------------------
