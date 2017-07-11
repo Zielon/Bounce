@@ -1,28 +1,24 @@
-module API.Keys where
+module API.Keys(
+    GameKey(..),
+    getKeys,
+    updateKey
+) where
 
 import Graphics.UI.GLUT
 import Data.IORef
 import Data.Bool
+import Data.Map
 
-getKeys :: IO [IORef (SpecialKey, Bool)]
-getKeys = sequence [newIORef (KeyLeft, False), newIORef (KeyRight, False), newIORef (KeyUp, False), newIORef (KeyDown, False)]
+data GameKey = GameKeyLeft | GameKeyRight | GameKeyForce 
+    deriving (Eq, Ord)
 
-(!!@) :: [IORef (SpecialKey, Bool)] -> SpecialKey -> IO (SpecialKey, Bool)
-(!!@) (x:xs) key = pair >>= \(k, s) -> if key == k then return (k,s) else (!!@) xs key
-                   where pair = readIORef x
+getKeys :: Map GameKey Bool
+getKeys = fromList [ (GameKeyLeft,  False),
+                     (GameKeyRight, False), 
+                     (GameKeyForce, False)]
 
-update :: [IORef (SpecialKey, Bool)] -> Int -> Bool -> IO ()
-update arr i s = do modifyIORef (arr !! i) $ \(k, s') -> (k, s) 
+updateKey :: IORef (Map GameKey Bool) -> GameKey -> Bool -> IO ()
+updateKey ref key value = do ref $~! (\d -> insert key value d)
 
-getStatus :: [IORef (SpecialKey, Bool)] -> SpecialKey -> IO Bool
-getStatus [] _       = return False
-getStatus (x:xs) key = do
-    pair <- readIORef x
-    if (fst pair) == key then return $ snd pair
-    else getStatus xs key
-
-resetAll :: [IORef (SpecialKey, Bool)] -> IO ()
-resetAll [] = return ()
-resetAll (x:xs) = do
-    modifyIORef x $ \(k, s) -> (k, False)
-    resetAll xs
+resetAll :: IORef (Map GameKey Bool) -> IO ()
+resetAll ref = do ref $~! (\d -> Data.Map.map (\f -> False) d)

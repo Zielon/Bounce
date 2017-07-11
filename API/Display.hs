@@ -72,7 +72,6 @@ display ball angle floors force = do
     getColor3f' :: Point -> IO ()
     getColor3f' (r, g, b) = color $ Color3 r g (b :: GLfloat)
 
-
 idle :: IORef GLfloat -> IORef GLfloat -> IdleCallback
 idle angle delta = do
   d <- get delta

@@ -11,8 +11,9 @@ where
 import Prelude hiding (snd, id, floor)
 import Graphics.UI.GLUT
 import Data.IORef
-import System.Random
 import Data.Map
+import System.Random
+
 
 import GameObjects.Floor
 
@@ -54,18 +55,23 @@ gfloor id x y r t = Floor tl tr bl br id color
           tr = ( x + r, y + t, 0.0)  -- | top right
           color = (((x+1)/2), ((y+1)/2), ((0+1)/2))
 
+-- | Standard floor
+--
 sfloor i x y = gfloor i x y width thickness
                where width     = 0.3
                      thickness = 0.025
 
-getMockedFloors :: [(GLfloat, GLfloat)]
-getMockedFloors = [(-0.2, 0.2), (-0.1, 0.3), (0.0, 0.4), (-0.3, 0.1), (0.1, 0.5)]
-
--- | Private section --------------
+-- | Private section
+--
 moveDown' :: GLfloat -> (Map Int Floor) -> GLfloat -> (Map Int Floor)
 moveDown' random floors indicator = Data.Map.map (\f -> evaluate random f $ \(x, y, z) -> (x, y - indicator, z)) floors
 
 moveDown'' :: Floor -> GLfloat -> (Map Int Floor) -> GLfloat -> (Map Int Floor)
 moveDown'' floor random floors indicator = insert (id floor) (evaluate random floor $ \(x, y, z) -> (x, y - indicator, z)) floors
 
--- | ------------------------------
+-- | Mock section
+--
+getMockedFloors :: [(GLfloat, GLfloat)]
+getMockedFloors = [(-0.2, 0.2), (-0.1, 0.3), (0.0, 0.4), (-0.3, 0.1), (0.1, 0.5)]
+
+

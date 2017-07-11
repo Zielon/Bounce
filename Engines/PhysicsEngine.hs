@@ -39,19 +39,20 @@ collisionBoundaries ball = do
     when (x > 0.95  || x < -0.95) $ ball $~! \b -> setVelocity b $ \(vX,vY) -> (earth vX, vY)
     -- Move back the ball when overstep the boundaries
     when (y < -0.95) $ ball $~! \b -> setPosition b $ \(x,y) -> (x, -0.95)
-    --when (y > 0.95 ) $ pos $~! (\(x',y') -> (x', 0.95))
     when (x > 0.95 ) $ ball $~! \b -> setPosition b $ \(x,y) -> (0.95, y)
     when (x < -0.95) $ ball $~! \b -> setPosition b $ \(x,y) -> (-0.95, y)
 
--- Collisin for the ball with floors
+-- | Collisin for the ball with floors
+--
 collisionEdges :: IORef Ball -> IORef (Map Int Floor) -> IO ()
 collisionEdges ball dictionary = do
     floors' <- get dictionary
     forM_ floors' $ \f -> do
         ball' <- get ball
         let (x,y) = getPosition ball'
-        let (min_x, min_y, _) = bottom_left f
-        let (max_x, max_y, _) = top_right f
+            (min_x, min_y, _) = bottom_left f
+            (max_x, max_y, _) = top_right f
+
         case ballTestAABB ball' f of
             None       -> return ()
             AxisX      -> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (earth vX, vY))

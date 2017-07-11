@@ -16,7 +16,8 @@ import GameObjects.Floor
 import GameObjects.Ball
 import Engines.FloorEngine
 
-data Collision = AxisX | OverAxisY | UnderAxisY | None deriving Eq
+data Collision = AxisX | OverAxisY | UnderAxisY | None 
+    deriving Eq
 
 -- AABB test for floors
 floorTestAABB :: Floor -> Floor -> Bool
@@ -61,22 +62,23 @@ gridIntersect2D dictionary = do
     floors <- get dictionary
     grid   <- newIORef $ (fromList [] :: Map (Int, Int) [Int])
     forM_ floors $ \f -> do
-        g <- get grid
+        g  <- get grid
         let i = (id f)
-        let ((min_x, max_x), (min_y, max_y)) = getMinMax f
+            ((min_x, max_x), (min_y, max_y)) = getMinMax f
         forM_ [Prelude.floor(min_x/h)..Prelude.ceiling(max_x/h)] $ \x ->
             forM_ [Prelude.floor(min_y/h)..Prelude.ceiling(max_y/h)] $ \y -> do
                 case lookup (x,y) g of
-                    Nothing    -> grid $~! (\d -> insertWith (++) (x,y) [i] d)    -- Not exist
-                    Just cells -> do grid $~! (\d -> insertWith (++) (x,y) [i] d) -- Update list on (x,y) position in the map
+                    Nothing    ->    grid $~! (\d -> insertWith (++) (x,y) [i] d) -- Not exist
+                    Just cells -> do grid $~! (\d -> insertWith (++) (x,y) [i] d) -- Update the list on the (x,y) position in the map
                                      forM_ cells $ \n -> do
                                         case lookup n floors of
                                             Nothing            -> return ()
                                             Just collisionWith -> do
                                                 let ((c_min_x, c_max_x), (c_min_y, c_max_y)) = getMinMax collisionWith
-                                                let maxMinY = max c_min_y min_y
-                                                let maxMinX = max c_min_x min_x
-                                                if floorTestAABB f collisionWith && Prelude.floor(maxMinX/h) /= x && Prelude.floor(maxMinY/h) /= y
+                                                    maxMinY = max c_min_y min_y
+                                                    maxMinX = max c_min_x min_x
+                                                if floorTestAABB f collisionWith && Prelude.floor(maxMinX/h) /= x 
+                                                                                 && Prelude.floor(maxMinY/h) /= y
                                                 then dictionary $~! (\d -> insert (id collisionWith) (setY (min_y - 0.05) (min_y) collisionWith) d)
                                                 else return ()
     where h = 0.01 :: GLfloat

@@ -9,11 +9,14 @@ import System.Random
 import Data.List
 import Data.Map
 
+import API.Display
 import API.Bindings
 import API.Keys
 import API.CollisionTests
+
 import Engines.PhysicsEngine
 import Engines.FloorEngine
+
 import GameObjects.Ball
 
 main :: IO ()
@@ -28,11 +31,12 @@ main = do
   delta     <- newIORef 0.0
   angle     <- newIORef 0
   force     <- newIORef 0
+  keys      <- newIORef getKeys
   floors    <- newIORef $ getFloors $ sortBy (\a b -> a `compare` b) getMockedFloors
   
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0
-  keyboardMouseCallback $= Just (keyboardMouse force ball)
+  keyboardMouseCallback $= Just (keyboardMouse force ball keys)
   idleCallback          $= Just (idle angle delta)
   displayCallback       $= display ball angle floors force
 
