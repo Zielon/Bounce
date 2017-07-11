@@ -6,13 +6,14 @@ module API.CollisionTests(
 ) where
 
 import Graphics.UI.GLUT hiding (None)
-import Prelude          hiding (fst, id)
+import Prelude          hiding (fst, id, lookup)
 import Data.IORef
-import GameObjects.Floor
-import GameObjects.Ball
 import Control.Monad
 import Text.Printf
+import Data.Map
 
+import GameObjects.Floor
+import GameObjects.Ball
 import Engines.FloorEngine
 
 data Collision = AxisX | OverAxisY | UnderAxisY | None deriving Eq
@@ -56,27 +57,27 @@ getMinMax floor = ((GameObjects.Floor.fst $ bottom_left floor, GameObjects.Floor
                    (GameObjects.Floor.snd $ bottom_left floor, GameObjects.Floor.snd $ top_right floor))
 
 getFloorByIndex :: [Floor] -> Int -> Floor
-getFloorByIndex floors i = filter (\f -> (id f) == i) floors !! 0
+getFloorByIndex floors i = Prelude.filter (\f -> (id f) == i) floors !! 0
 
 gridIntersect2D :: IORef [Floor] -> IO ()
 gridIntersect2D ioFloors = do
     floors <- get ioFloors
-    grid   <- newIORef []
+    grid   <- newIORef $ (fromList [] :: Map (Int, Int) [Int])
     forM_ floors $ \f -> do
         g <- get grid
         let i = (id f)
         let ((min_x, max_x), (min_y, max_y)) = getMinMax f
         forM_ [Prelude.floor(min_x/h)..Prelude.ceiling(max_x/h)] $ \x ->
             forM_ [Prelude.floor(min_y/h)..Prelude.ceiling(max_y/h)] $ \y -> do
-                let cells = filter (\((a,b), _) -> (a,b) == (x,y)) g
-                if cells /= [] then do
-                    forM_ (Prelude.snd (cells !! 0)) $ \n -> do
-                        let collitionWith = getFloorByIndex floors n
-                        let ((c_min_x, c_max_x), (c_min_y, c_max_y)) = getMinMax collitionWith
-                        let maxMinY = max c_min_y min_y
-                        let maxMinX = max c_min_x min_x
-                        if floorTestAABB f collitionWith && Prelude.floor(maxMinX/h) /= x && Prelude.floor(maxMinY/h) /= y
-                        then ioFloors $~! (\list ->  map (\e -> if (id e) == (id collitionWith) then setY (min_y - 0.05) (min_y) collitionWith else e ) list)
-                        else return ()
-                else grid $~! (\g -> g ++ [((x,y), [i])])
+                case lookup (x,y) g of
+                    Nothing    -> grid $~! (\d -> insertWith (++) (x,y) [i] d)    -- Not exist
+                    Just cells -> do grid $~! (\d -> insertWith (++) (x,y) [i] d) -- Update list on (x,y) position in the map
+                                     forM_ cells $ \n -> do
+                                        let collisionWith = getFloorByIndex floors n
+                                        let ((c_min_x, c_max_x), (c_min_y, c_max_y)) = getMinMax collisionWith
+                                        let maxMinY = max c_min_y min_y
+                                        let maxMinX = max c_min_x min_x
+                                        if floorTestAABB f collisionWith && Prelude.floor(maxMinX/h) /= x && Prelude.floor(maxMinY/h) /= y
+                                        then ioFloors $~! (\list ->  Prelude.map (\e -> if (id e) == (id collisionWith) then setY (min_y - 0.05) (min_y) collisionWith else e ) list)
+                                        else return ()
     where h = 0.01 :: GLfloat
