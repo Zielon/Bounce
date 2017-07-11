@@ -47,9 +47,10 @@ main = do
 
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do
-     threadDelay 4000   -- wait 4 ms
+     threadDelay 7000   -- wait 4 ms
      moveDownAll 0.00005 generator floors
-     updateGravity ball 0.005 -- dt
+     updateGravity ball 0.009 -- dt
+     updateKeysBindings keys force ball
 
   forkIO $ forever $ do
      threadDelay 1      -- wait 1 μs

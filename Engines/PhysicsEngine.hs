@@ -56,9 +56,9 @@ collisionEdges ball dictionary = do
         case ballTestAABB ball' f of
             None       -> return ()
             AxisX      -> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (earth vX, vY))
-            UnderAxisY -> ball $~! (\b -> updateScore b (id f)) 
+            UnderAxisY -> ball $~! (\b -> updateScore b (id f))
                                    >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY)) 
-                                   >> dictionary $~! (\floor' -> moveDownSingle f (-(abs (y + radius - min_y))) floor')
+                                   -- >> dictionary $~! (\floor' -> moveDownSingle f (-(abs (y + radius - min_y))) floor')
             OverAxisY  -> ball $~! (\b -> updateScore b (id f)) 
                                    >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY)) 
                                    >> dictionary $~! (\floor' -> moveDownSingle f (abs (y - radius - max_y)) floor')

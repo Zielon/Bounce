@@ -1,5 +1,6 @@
 module API.Bindings (
-  reshape, 
+  reshape,
+  updateKeysBindings,
   keyboardMouse) 
 where
 
@@ -28,9 +29,9 @@ updateKeysBindings refkeys force ball = do
   let (Just rightKey) = lookup GameKeyRight keys
   let (Just forceKey) = lookup GameKeyForce keys
 
-  when(leftKey)      $ ball  $~! \b -> setVelocity b (\(x,y) -> (x - 0.25, y))
-  when(rightKey)     $ ball  $~! \b -> setVelocity b (\(x,y) -> (x + 0.25, y))
-  when(forceKey)     $ force $~! \f -> f + 0.25 > maxForce ? maxForce :? f + 0.25
+  when(leftKey)      $ ball  $~! \b -> setVelocity b (\(x,y) -> (x - 0.05, y))
+  when(rightKey)     $ ball  $~! \b -> setVelocity b (\(x,y) -> (x + 0.05, y))
+  when(forceKey)     $ force $~! \f -> f + 0.1 > maxForce ? maxForce :? f + 0.1
   when(not forceKey) $ ball  $~! (\b -> setVelocity b (\(vX,vY) -> vY <= 0 ? (vX, vY - gForce) :? (vX, vY + gForce))) >> force $~! (\f -> 0.0)
 
   where maxForce = 10.0
@@ -43,4 +44,4 @@ keyboardMouse force ball keys key state _ _ = do
       (Char ' ')            -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
       _                     -> return ()
 
-  updateKeysBindings keys force ball
+  --updateKeysBindings keys force ball
