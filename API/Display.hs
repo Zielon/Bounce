@@ -2,7 +2,8 @@ module API.Display (
   idle, 
   display)
 where
- 
+
+import Prelude hiding (id)
 import Graphics.UI.GLUT
 import Graphics.UI.GLUT.Fonts
 import Control.Monad
@@ -53,8 +54,13 @@ display ball angle floors force = do
       renderString Helvetica18 $ printf "Points %d" (getScore ball')
 
   -- | Floors
-  forM_ floors' $ \f -> renderPrimitive Polygon $ do 
-    mapM_ (\(x, y, z) -> getColor3f' (color3f f) >> (vertex $ Vertex3 x y z)) $ getPoints f
+  forM_ floors' $ \f -> preservingMatrix $ do
+      renderPrimitive Polygon $ mapM_ (\(x, y, z) -> getColor3f' (color3f f) >> (vertex $ Vertex3 x y z)) $ getPoints f
+      let (x,y,z) = top_left f
+      getColor3f (0, 0, 0)
+      translate $ Vector3 x y z
+      rasterPos (Vertex2 (0.025::GLfloat) (-0.045::GLfloat))
+      renderString Helvetica18 $ printf "%d" (id f)
 
   -- | Ball
   translate $ Vector3 x' y' 0

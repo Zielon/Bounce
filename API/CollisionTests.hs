@@ -6,8 +6,8 @@ module API.CollisionTests(
 ) where
 
 import Graphics.UI.GLUT hiding (None)
-import Prelude          hiding (fst, id, lookup, snd)
-import Data.List        hiding (insert, lookup)
+import Prelude          hiding (fst, id, lookup, snd, map, Right, Left)
+import Data.List        hiding (insert, lookup, map)
 import Data.IORef
 import Control.Monad
 import Text.Printf
@@ -18,15 +18,19 @@ import GameObjects.Floor
 import GameObjects.Ball
 import Engines.FloorEngine
 
-data Collision = AxisX | OverAxisY | UnderAxisY | None 
-    deriving Eq
+data Collision = Left | Right | Over | Under | X |None
+    deriving (Eq, Show)
 
--- AABB test for floors
-floorTestAABB :: Floor -> Floor -> Bool
+-- AABB test for floors by a
+floorTestAABB :: Floor -> Floor -> Collision
 floorTestAABB a b =
-    if d1x > 0.0 || d1y > 0.0 then False
-    else if d2x > 0.0 || d2y > 0.0 then False
-    else True
+    if      d1x > 0.0 || d1y > 0.0 then None
+    else if d2x > 0.0 || d2y > 0.0 then None
+    else if b_min_y < a_max_y && (d1x < 0.0 || d2x < 0.0) then Under -- a under b
+    else if a_min_y < b_max_y && (d1x < 0.0 || d2x < 0.0) then Over  -- a over  b
+    else if d2x < d1x && (d1y < 0.0 || d1y < 0.0) then Right -- a on right b
+    else if d1x < d2x && (d1y < 0.0 || d1y < 0.0) then Left  -- a on left b
+    else None
     where (a_min_x, a_min_y, _) = bottom_left a
           (a_max_x, a_max_y, _) = top_right a
           (b_min_x, b_min_y, _) = bottom_left b
@@ -39,20 +43,24 @@ floorTestAABB a b =
 -- AABB test for the ball
 ballTestAABB :: Ball -> Floor -> Collision
 ballTestAABB ball floor =
-    if d1x > 0.0 || d1y > 0.0 then None
+    if      d1x > 0.0 || d1y > 0.0 then None
     else if d2x > 0.0 || d2y > 0.0 then None
-    else if min_x <= x + edge && max_x >= x - edge then if d1y > d2y then OverAxisY else UnderAxisY
-    else if max_y > y + edge && min_y < y - edge then AxisX
+    else if b_max_y - a_min_y > 0.0 && a_max_y > b_max_y && (d1x < 0.0 || d2x < 0.0) then Over  -- a over  b
+    else if a_max_y - b_min_y > 0.0 && a_min_y < b_min_y && (d1x < 0.0 || d2x < 0.0) then Under -- a under b
+    else if a_min_x < b_max_x && (d1y < 0.0 || d1y < 0.0) then Right -- a on right b
+    else if a_max_x < b_min_x && (d1y < 0.0 || d1y < 0.0) then Left  -- a on left b
     else None
     where radius = 0.05
           edge   = 0.025
           (x,y)  = getPosition ball
-          (min_x, min_y, _) = bottom_left floor
-          (max_x, max_y, _) = top_right floor
-          d1x = (x-radius) - max_x
-          d1y = (y-radius) - max_y
-          d2x = min_x - (x + radius)
-          d2y = min_y - (y + radius)
+          (a_min_x, a_min_y, _) = ((x-radius), (y-radius), 0)
+          (a_max_x, a_max_y, _) = ((x + radius), (y + radius), 0)
+          (b_min_x, b_min_y, _) = bottom_left floor
+          (b_max_x, b_max_y, _) = top_right floor
+          d1x = b_min_x - a_max_x
+          d1y = b_min_y - a_max_y
+          d2x = a_min_x - b_max_x
+          d2y = a_min_y - b_max_y
 
 --                        (minX,maxX)         (minY,maxY)
 getMinMax :: Floor -> ((GLfloat, GLfloat), (GLfloat,GLfloat))
@@ -63,25 +71,23 @@ gridIntersect2D :: IORef (Map Int Floor)-> IO ()
 gridIntersect2D dictionary = do
     floors <- get dictionary
     grid   <- newIORef $ (fromList [] :: Map (Int, Int) [Int])
-    let sorted = sortBy (\(_, f1) (_, f2) -> snd(bottom_left f1) `compare` snd(bottom_left f2)) $ toList floors -- Max 6 elements
-    forM_ sorted $ \(_, f) -> do
+    forM_ floors $ \a -> do
         g  <- get grid
-        let i = (id f)
-            ((min_x, max_x), (min_y, max_y)) = getMinMax f
-        forM_ [Prelude.floor(min_x/h)..Prelude.ceiling(max_x/h)] $ \x ->
-            forM_ [Prelude.floor(min_y/h)..Prelude.ceiling(max_y/h)] $ \y -> do
+        let i = (id a)
+        let ((a_min_x, a_max_x), (a_min_y, a_max_y)) = getMinMax a
+        forM_ [Prelude.floor(a_min_x/h)..Prelude.ceiling(a_max_x/h)] $ \x ->
+            forM_ [Prelude.floor(a_min_y/h)..Prelude.ceiling(a_max_y/h)] $ \y -> do
                 case lookup (x,y) g of
-                    Nothing    ->    grid $~! (\d -> insertWith (++) (x,y) [i] d) -- Not exist
-                    Just cells -> do grid $~! (\d -> insertWith (++) (x,y) [i] d) -- Update the list on the (x,y) position in the map
-                                     forM_ cells $ \n -> do
-                                        case lookup n floors of
-                                            Nothing            -> return ()
-                                            Just collisionWith -> do
-                                                let ((c_min_x, c_max_x), (c_min_y, c_max_y)) = getMinMax collisionWith
-                                                    maxMinY = max c_min_y min_y
-                                                    maxMinX = max c_min_x min_x
-                                                if floorTestAABB f collisionWith && Prelude.floor(maxMinX/h) /= x 
-                                                                                 && Prelude.floor(maxMinY/h) /= y
-                                                then dictionary $~! (\d -> insert (id collisionWith) (setY (min_y - 0.05) (min_y) collisionWith) d)
-                                                else return ()
-    where h = 0.05 :: GLfloat
+                    Nothing    -> grid $~! (\d -> insertWith (++) (x,y) [i] d)    -- Not exist
+                    Just cells ->
+                        do grid $~! (\d -> insertWith (++) (x,y) [i] d)           -- Update the list on the (x,y) position in the map
+                           forM_ cells $ \n -> do
+                             case lookup n floors of
+                                Nothing -> return ()
+                                Just b  -> do
+                                        putStrLn $ printf "[a : %d] [b : %d] = %s" (id a) (id b) (show $ floorTestAABB a b)
+                                        case floorTestAABB a b of
+                                            Over  -> dictionary $~! (\d -> insert (id b) (setY (a_min_y - 0.05) (a_min_y) b) d)
+                                            Under -> dictionary $~! (\d -> insert (id b) (setY (a_max_y) (a_max_y + 0.05) b) d)
+                                            _     -> return ()
+    where h = 0.01 :: GLfloat

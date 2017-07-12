@@ -8,7 +8,8 @@ module Engines.FloorEngine(
     getMockedFloors) 
 where
 
-import Prelude hiding (snd, id, floor)
+import Prelude   hiding (snd, id, floor)
+import Data.List hiding(insert)
 import Graphics.UI.GLUT
 import Data.IORef
 import Data.Map
@@ -47,7 +48,7 @@ gfloor id x y r t = Floor tl tr bl br id color
 --
 sfloor i x y = gfloor i x y width thickness
                where width     = 0.3
-                     thickness = 0.025
+                     thickness = 0.3
 
 -- | Private section
 --
@@ -62,15 +63,13 @@ evaluate x flr fun =
     if snd tl > -1.0 then Floor (fun tl) (fun tr) (fun bl) (fun br) identifier colors
     else sfloor identifier x 1.0
     where identifier = id flr
-          colors     = color3f flr 
+          colors     = color3f flr
           tl         = top_left flr
-          bl         = bottom_left flr  
+          bl         = bottom_left flr
           br         = bottom_right flr
           tr         = top_right flr
 
 -- | Mock section
 --
 getMockedFloors :: [(GLfloat, GLfloat)]
-getMockedFloors = [(-0.2, 0.2), (-0.1, 0.3), (0.0, 0.4), (-0.3, 0.1), (0.1, 0.5)]
-
-
+getMockedFloors = [(-0.3, 0.0)] -- , (0.1, 0.5)] -- [(-0.2, 0.2), (-0.3, 0.7), (-0.1, 0.3), (0.1, 0.5), (0.0, 0.4)]

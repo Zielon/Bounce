@@ -7,7 +7,7 @@ module Engines.PhysicsEngine (
 where
 
 import Graphics.UI.GLUT hiding (None)
-import Prelude          hiding (id, floor)
+import Prelude          hiding (id, floor, Left, Right)
 import Control.Monad    
 import Data.IORef
 import Control.Concurrent
@@ -54,13 +54,17 @@ collisionEdges ball dictionary = do
             (max_x, max_y, _) = top_right f
 
         case ballTestAABB ball' f of
-            None       -> return ()
-            AxisX      -> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (earth vX, vY))
-            UnderAxisY -> ball $~! (\b -> updateScore b (id f))
+            None  -> return ()
+            Left  -> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (earth vX, vY)) >> putStrLn "Left"
+            Right -> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (earth vX, vY)) >> putStrLn "Right"
+            Under -> ball $~! (\b -> updateScore b (id f))
+                                   >> (putStrLn "Under")
+                                   >> ball $~! (\b -> setPosition b $ \(x,y) -> (x, min_y - radius))
+                                   >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY))
+                                   >> dictionary $~! (\d -> moveDownSingle f (-(abs (y + radius - min_y))) d) -- actually move up
+            Over  -> ball $~! (\b -> updateScore b (id f))
+                                   >> (putStrLn "Over")
+                                   >> ball $~! (\b -> setPosition b $ \(x,y) -> (x, max_y + radius))
                                    >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY)) 
-                                   -- >> dictionary $~! (\floor' -> moveDownSingle f (-(abs (y + radius - min_y))) floor')
-            OverAxisY  -> ball $~! (\b -> updateScore b (id f)) 
-                                   >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY)) 
-                                   >> dictionary $~! (\floor' -> moveDownSingle f (abs (y - radius - max_y)) floor')
-        where radius = 0.05
-              edge   = 0.025
+                                   >> dictionary $~! (\d -> moveDownSingle f (abs (y - radius - max_y)) d)
+        where radius = 0.051
