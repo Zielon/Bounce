@@ -43,11 +43,9 @@ main = do
   -- Global handler for StdGen
   generator <- newIORef (mkStdGen 0)
 
-  gridIntersect2D floors
-
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do
-     threadDelay 7000   -- wait 4 ms
+     threadDelay 7000   -- wait 7 ms
      moveDownAll 0.00005 generator floors
      updateGravity ball 0.009 -- dt
      updateKeysBindings keys force ball

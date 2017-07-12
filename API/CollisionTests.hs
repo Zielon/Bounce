@@ -6,11 +6,13 @@ module API.CollisionTests(
 ) where
 
 import Graphics.UI.GLUT hiding (None)
-import Prelude          hiding (fst, id, lookup)
+import Prelude          hiding (fst, id, lookup, snd)
+import Data.List        hiding (insert, lookup)
 import Data.IORef
 import Control.Monad
 import Text.Printf
 import Data.Map
+
 
 import GameObjects.Floor
 import GameObjects.Ball
@@ -61,7 +63,8 @@ gridIntersect2D :: IORef (Map Int Floor)-> IO ()
 gridIntersect2D dictionary = do
     floors <- get dictionary
     grid   <- newIORef $ (fromList [] :: Map (Int, Int) [Int])
-    forM_ floors $ \f -> do
+    let sorted = sortBy (\(_, f1) (_, f2) -> snd(bottom_left f1) `compare` snd(bottom_left f2)) $ toList floors -- Max 6 elements
+    forM_ sorted $ \(_, f) -> do
         g  <- get grid
         let i = (id f)
             ((min_x, max_x), (min_y, max_y)) = getMinMax f
@@ -81,4 +84,4 @@ gridIntersect2D dictionary = do
                                                                                  && Prelude.floor(maxMinY/h) /= y
                                                 then dictionary $~! (\d -> insert (id collisionWith) (setY (min_y - 0.05) (min_y) collisionWith) d)
                                                 else return ()
-    where h = 0.01 :: GLfloat
+    where h = 0.05 :: GLfloat

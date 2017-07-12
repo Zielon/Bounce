@@ -14,7 +14,6 @@ import Data.IORef
 import Data.Map
 import System.Random
 
-
 import GameObjects.Floor
 
 getFloors :: [(GLfloat, GLfloat)] -> (Map Int Floor)
@@ -22,17 +21,6 @@ getFloors list = fromList $ Prelude.map (\((x,y), i) -> (i, sfloor i x y)) $ zip
 
 getPoints :: Floor -> [Point]
 getPoints floor = [top_left floor, bottom_left floor, bottom_right floor, top_right floor]
-
-evaluate :: GLfloat -> Floor -> (Point -> Point) -> Floor
-evaluate x flr fun =
-    if snd tl > -1.0 then Floor (fun tl) (fun tr) (fun bl) (fun br) identifier colors
-    else sfloor identifier x 1.0
-    where tl = top_left flr
-          bl = bottom_left flr  
-          br = bottom_right flr
-          tr = top_right flr
-          identifier = id flr
-          colors = color3f flr
 
 moveDownSingle :: Floor -> GLfloat -> (Map Int Floor) -> (Map Int Floor)
 moveDownSingle floor y floors = moveDown'' floor 0.0 floors y
@@ -68,6 +56,17 @@ moveDown' random floors indicator = Data.Map.map (\f -> evaluate random f $ \(x,
 
 moveDown'' :: Floor -> GLfloat -> (Map Int Floor) -> GLfloat -> (Map Int Floor)
 moveDown'' floor random floors indicator = insert (id floor) (evaluate random floor $ \(x, y, z) -> (x, y - indicator, z)) floors
+
+evaluate :: GLfloat -> Floor -> (Point -> Point) -> Floor
+evaluate x flr fun =
+    if snd tl > -1.0 then Floor (fun tl) (fun tr) (fun bl) (fun br) identifier colors
+    else sfloor identifier x 1.0
+    where identifier = id flr
+          colors     = color3f flr 
+          tl         = top_left flr
+          bl         = bottom_left flr  
+          br         = bottom_right flr
+          tr         = top_right flr
 
 -- | Mock section
 --
