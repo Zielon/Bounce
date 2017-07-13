@@ -27,7 +27,7 @@ main = do
   createWindow "Bounce"
   reshapeCallback $= Just reshape
 
-  ball      <- newIORef $ Ball 0.9 0.9 0.0 0.1 0 0
+  ball      <- newIORef $ Ball 0.9 0.9 0.0 0.1 0.05 0 0
   delta     <- newIORef 0.0
   angle     <- newIORef 0
   force     <- newIORef 0
@@ -45,18 +45,18 @@ main = do
 
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do
-     threadDelay 7000   -- wait 7 ms
+     threadDelay 5000   -- wait 7 ms
      --moveDownAll 0.00005 generator floors
      updateGravity ball 0.009 -- dt
      updateKeysBindings keys force ball
 
   forkIO $ forever $ do
-     threadDelay 1
+     threadDelay 10
      collisionBoundaries ball
      collisionEdges ball floors
 
   forkIO $ forever $ do
-     threadDelay 1
+     threadDelay 10
      gridIntersect2D floors
 
   -- Main OpenGL loop with callbacks

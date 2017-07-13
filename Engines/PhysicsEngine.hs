@@ -17,6 +17,7 @@ import Data.Map
 import Engines.FloorEngine
 import API.CollisionTests
 import GameObjects.Ball
+import GameObjects.Positionable
 
 updateGravity :: IORef Ball -> Float -> IO ()
 updateGravity ball dt = do
@@ -50,21 +51,24 @@ collisionEdges ball dictionary = do
     forM_ floors' $ \f -> do
         ball' <- get ball
         let (x,y) = getPosition ball'
-            (min_x, min_y, _) = bottom_left f
-            (max_x, max_y, _) = top_right f
-
-        case ballTestAABB ball' f of
+            (min_x, min_y) = getMin f
+            (max_x, max_y) = getMax f
+            radius' = radius ball'
+        case testAABB ball' f of
             None  -> return ()
-            Left  -> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (earth vX, vY)) >> putStrLn "Left"
-            Right -> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (earth vX, vY)) >> putStrLn "Right"
+            Left  -> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (earth vX, vY))
+                                   >> ball $~! (\b -> setPosition b $ \(x,y) -> (min_x - radius', y))
+                                   >> putStrLn ("Left " ++ (show $ id f))
+            Right -> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (earth vX, vY)) 
+                                   >> ball $~! (\b -> setPosition b $ \(x,y) -> (max_x + radius', y)) 
+                                   >> putStrLn ("Right " ++ (show $ id f))
             Under -> ball $~! (\b -> updateScore b (id f))
-                                   >> (putStrLn "Under")
-                                   >> ball $~! (\b -> setPosition b $ \(x,y) -> (x, min_y - radius))
+                                   >> (putStrLn $ "Under " ++ (show $ id f))
+                                   >> ball $~! (\b -> setPosition b $ \(x,y) -> (x, min_y - radius'))
                                    >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY))
-                                   >> dictionary $~! (\d -> moveDownSingle f (-(abs (y + radius - min_y))) d) -- actually move up
+                                   >> dictionary $~! (\d -> moveDownSingle f (-(abs (y + radius' - min_y))) d) -- actually move up
             Over  -> ball $~! (\b -> updateScore b (id f))
-                                   >> (putStrLn "Over")
-                                   >> ball $~! (\b -> setPosition b $ \(x,y) -> (x, max_y + radius))
+                                   >> (putStrLn $ "Over " ++ (show $ id f))
+                                   >> ball $~! (\b -> setPosition b $ \(x,y) -> (x, max_y + radius'))
                                    >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY)) 
-                                   >> dictionary $~! (\d -> moveDownSingle f (abs (y - radius - max_y)) d)
-        where radius = 0.051
+                                   >> dictionary $~! (\d -> moveDownSingle f (abs (y - radius' - max_y)) d)

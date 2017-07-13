@@ -5,13 +5,16 @@ module GameObjects.Ball(
 
 import Graphics.UI.GLUT
 
+import GameObjects.Positionable
+
 data Ball = Ball {
-    getX         :: GLfloat,
-    getY         :: GLfloat,
-    getVelocityX :: GLfloat,
-    getVelocityY :: GLfloat,
-    getScore     :: Int,
-    getLastFloor :: Int
+    x         :: GLfloat,
+    y         :: GLfloat,
+    velocityX :: GLfloat,
+    velocityY :: GLfloat,
+    radius    :: GLfloat,
+    score     :: Int,
+    lastFloor :: Int
 }
 
 -- | Mainly setters and getters
@@ -23,19 +26,30 @@ class Bounceable a where
     setLastFloor :: a -> Int -> a
     updateScore  :: a -> Int -> a
 
+instance Positionable Ball where
+    getMin ball = ((x' - radius'), (y' - radius'))
+                  where x'      = x ball
+                        y'      = y ball
+                        radius' = radius ball
+
+    getMax ball = ((x' + radius'), (y' + radius'))
+                  where x'      = x ball
+                        y'      = y ball
+                        radius' = radius ball
+
 instance Bounceable Ball where
-    getPosition ball     = ((getX ball), (getY ball))
+    getPosition ball     = ((x ball), (y ball))
 
-    getVelocity ball     = ((getVelocityX ball), (getVelocityY ball))
+    getVelocity ball     = ((velocityX ball), (velocityY ball))
 
-    setPosition ball fun = Ball x y (getVelocityX ball) (getVelocityY ball) (getScore ball) (getLastFloor ball)
-                           where (x,y) = fun (getX ball, getY ball) 
+    setPosition ball fun = Ball x' y' (velocityX ball) (velocityY ball) (radius ball) (score ball) (lastFloor ball)
+                           where (x',y') = fun (x ball, y ball) 
 
-    setVelocity ball fun = Ball (getX ball) (getY ball) vX vY (getScore ball) (getLastFloor ball)
-                           where (vX, vY) = fun (getVelocityX ball, getVelocityY ball)
+    setVelocity ball fun = Ball (x ball) (y ball) vX vY (radius ball) (score ball) (lastFloor ball)
+                           where (vX, vY) = fun (velocityX ball, velocityY ball)
 
-    setLastFloor ball f  = Ball (getX ball) (getY ball) (getVelocityX ball) (getVelocityY ball) (getScore ball) f
+    setLastFloor ball f  = Ball (x ball) (y ball) (velocityX ball) (velocityY ball) (radius ball) (score ball) f
 
-    updateScore  ball f  = if (getLastFloor ball) /= f
-                           then Ball (getX ball) (getY ball) (getVelocityX ball) (getVelocityY ball) ((getScore ball) + 1) f
+    updateScore  ball f  = if (lastFloor ball) /= f
+                           then Ball (x ball) (y ball) (velocityX ball) (velocityY ball) (radius ball) ((score ball) + 1) f
                            else ball

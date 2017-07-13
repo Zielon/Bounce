@@ -3,6 +3,8 @@ module GameObjects.Floor where
 import Graphics.UI.GLUT
 import Prelude hiding (floor, fst, snd, id)
 
+import GameObjects.Positionable
+
 -- | (x,y,z)
 type Point = (GLfloat,GLfloat,GLfloat)
 
@@ -24,6 +26,21 @@ data Floor = Floor {
 class Floorable a where
     setColor :: a -> Point -> a
     setY     :: GLfloat -> GLfloat -> a -> a
+
+instance Eq Floor where
+    (==) a b = id a == id b
+    (/=) a b = id a /= id b
+
+instance Ord Floor where
+    compare a b = (id a) `compare` (id b)
+    (<) a b     = id a < id b
+    (>=) a b    = id a >= id b
+    (>) a b     = id a > id b
+    (<=) a b    = id a <= id b
+
+instance Positionable Floor where
+    getMin floor = (min_x, min_y) where (min_x, min_y, _) = bottom_left floor
+    getMax floor = (max_x, max_y) where (max_x, max_y, _) = top_right floor
 
 instance Floorable Floor where
     setColor floor color = Floor (top_left floor) (top_right floor) (bottom_left floor) (bottom_right floor) (id floor) color  

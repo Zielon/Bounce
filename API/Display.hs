@@ -51,7 +51,7 @@ display ball angle floors force = do
       getColor3f (1, 0, 1)
       translate $ Vector3 (0.65::GLfloat) (0.95::GLfloat) 0
       rasterPos (Vertex2 (0.0::GLfloat) (-0.025::GLfloat))
-      renderString Helvetica18 $ printf "Points %d" (getScore ball')
+      renderString Helvetica18 $ printf "Points %d" (score ball')
 
   -- | Floors
   forM_ floors' $ \f -> preservingMatrix $ do
