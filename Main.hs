@@ -45,18 +45,18 @@ main = do
 
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do
-     threadDelay 5000   -- wait 7 ms
-     --moveDownAll 0.00005 generator floors
+     threadDelay 5000   -- wait 5 ms
+     moveDownAll 0.00005 generator floors
      updateGravity ball 0.009 -- dt
      updateKeysBindings keys force ball
 
   forkIO $ forever $ do
-     threadDelay 10
+     threadDelay 4000
      collisionBoundaries ball
      collisionEdges ball floors
 
   forkIO $ forever $ do
-     threadDelay 10
+     threadDelay 4000
      gridIntersect2D floors
 
   -- Main OpenGL loop with callbacks

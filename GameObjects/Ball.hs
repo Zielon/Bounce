@@ -26,24 +26,13 @@ class Bounceable a where
     setLastFloor :: a -> Int -> a
     updateScore  :: a -> Int -> a
 
-instance Positionable Ball where
-    getMin ball = ((x' - radius'), (y' - radius'))
-                  where x'      = x ball
-                        y'      = y ball
-                        radius' = radius ball
-
-    getMax ball = ((x' + radius'), (y' + radius'))
-                  where x'      = x ball
-                        y'      = y ball
-                        radius' = radius ball
-
 instance Bounceable Ball where
     getPosition ball     = ((x ball), (y ball))
 
     getVelocity ball     = ((velocityX ball), (velocityY ball))
 
     setPosition ball fun = Ball x' y' (velocityX ball) (velocityY ball) (radius ball) (score ball) (lastFloor ball)
-                           where (x',y') = fun (x ball, y ball) 
+                           where (x',y') = fun (x ball, y ball)
 
     setVelocity ball fun = Ball (x ball) (y ball) vX vY (radius ball) (score ball) (lastFloor ball)
                            where (vX, vY) = fun (velocityX ball, velocityY ball)

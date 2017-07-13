@@ -54,21 +54,17 @@ collisionEdges ball dictionary = do
             (min_x, min_y) = getMin f
             (max_x, max_y) = getMax f
             radius' = radius ball'
-        case testAABB ball' f of
+        case checkBallCollision ball' f of
             None  -> return ()
             Left  -> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (earth vX, vY))
                                    >> ball $~! (\b -> setPosition b $ \(x,y) -> (min_x - radius', y))
-                                   >> putStrLn ("Left " ++ (show $ id f))
             Right -> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (earth vX, vY)) 
                                    >> ball $~! (\b -> setPosition b $ \(x,y) -> (max_x + radius', y)) 
-                                   >> putStrLn ("Right " ++ (show $ id f))
             Under -> ball $~! (\b -> updateScore b (id f))
-                                   >> (putStrLn $ "Under " ++ (show $ id f))
                                    >> ball $~! (\b -> setPosition b $ \(x,y) -> (x, min_y - radius'))
                                    >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY))
-                                   >> dictionary $~! (\d -> moveDownSingle f (-(abs (y + radius' - min_y))) d) -- actually move up
-            Over  -> ball $~! (\b -> updateScore b (id f))
-                                   >> (putStrLn $ "Over " ++ (show $ id f))
+                                   >> dictionary $~! (\d -> moveSingle f (-(abs (y + radius' - min_y))) d) -- actually move up
+            Top  -> ball $~! (\b -> updateScore b (id f))
                                    >> ball $~! (\b -> setPosition b $ \(x,y) -> (x, max_y + radius'))
                                    >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY)) 
-                                   >> dictionary $~! (\d -> moveDownSingle f (abs (y - radius' - max_y)) d)
+                                   >> dictionary $~! (\d -> moveSingle f (abs (y - radius' - max_y)) d)

@@ -32,7 +32,7 @@ updateKeysBindings refkeys force ball = do
   when(leftKey)      $ ball  $~! \b -> setVelocity b (\(x,y) -> (x - 0.05, y))
   when(rightKey)     $ ball  $~! \b -> setVelocity b (\(x,y) -> (x + 0.05, y))
   when(forceKey)     $ force $~! \f -> f + 0.1 > maxForce ? maxForce :? f + 0.1
-  when(not forceKey) $ ball  $~! (\b -> setVelocity b (\(vX,vY) -> vY >= -0.1 && vY <= 0.1 ? (vX, vY + gForce) :? (vX, vY))) >> force $~! (\f -> 0.0)
+  when(not forceKey) $ ball  $~! (\b -> setVelocity b (\(vX,vY) -> vY <= 0 ? (vX, vY - gForce) :? (vX, vY + gForce))) >> force $~! (\f -> 0.0)
 
   where maxForce = 10.0
 

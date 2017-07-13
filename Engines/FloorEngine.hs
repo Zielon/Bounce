@@ -4,7 +4,7 @@ module Engines.FloorEngine(
     getFloors, 
     getPoints, 
     moveDownAll,
-    moveDownSingle, 
+    moveSingle, 
     getMockedFloors) 
 where
 
@@ -23,8 +23,8 @@ getFloors list = fromList $ Prelude.map (\((x,y), i) -> (i, sfloor i x y)) $ zip
 getPoints :: Floor -> [Point]
 getPoints floor = [top_left floor, bottom_left floor, bottom_right floor, top_right floor]
 
-moveDownSingle :: Floor -> GLfloat -> (Map Int Floor) -> (Map Int Floor)
-moveDownSingle floor y floors = moveDown'' floor 0.0 floors y
+moveSingle :: Floor -> GLfloat -> (Map Int Floor) -> (Map Int Floor)
+moveSingle floor y floors = moveDown'' floor 0.0 floors y
 
 moveDownAll ::  GLfloat -> IORef StdGen -> IORef (Map Int Floor) -> IO ()
 moveDownAll y generator floors = do
@@ -35,9 +35,9 @@ moveDownAll y generator floors = do
 
 -- Floor [game element]
 -- r - width
--- t - thickness
+-- t - height
 gfloor :: Int -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> Floor
-gfloor id x y r t = Floor tl tr bl br id color
+gfloor id x y r t = Floor x y tl tr bl br id color (r*2) (t*2)
     where tl = ( x - r, y + t, 0.0)  -- | top left
           bl = ( x - r, y - t, 0.0)  -- | bottom left
           br = ( x + r, y - t, 0.0)  -- | bottom right
@@ -46,9 +46,9 @@ gfloor id x y r t = Floor tl tr bl br id color
 
 -- | Standard floor
 --
-sfloor i x y = gfloor i x y width thickness
-               where width     = 0.3
-                     thickness = 0.025
+sfloor i x y = gfloor i x y width height
+               where width  = 0.3
+                     height = 0.025
 
 -- | Private section
 --
@@ -59,15 +59,17 @@ moveDown'' :: Floor -> GLfloat -> (Map Int Floor) -> GLfloat -> (Map Int Floor)
 moveDown'' floor random floors indicator = insert (id floor) (evaluate random floor $ \(x, y, z) -> (x, y - indicator, z)) floors
 
 evaluate :: GLfloat -> Floor -> (Point -> Point) -> Floor
-evaluate x flr fun =
-    if snd tl > -1.0 then Floor (fun tl) (fun tr) (fun bl) (fun br) identifier colors
-    else sfloor identifier x 1.0
-    where identifier = id flr
-          colors     = color3f flr
-          tl         = top_left flr
-          bl         = bottom_left flr
-          br         = bottom_right flr
-          tr         = top_right flr
+evaluate random floor fun =
+    if snd tl > -1.0 then Floor x' y' (fun tl) (fun tr) (fun bl) (fun br) identifier colors (width floor) (height floor)
+    else sfloor identifier random 1.0
+    where identifier = id floor
+          colors     = color3f floor
+          tl         = top_left floor
+          bl         = bottom_left floor
+          br         = bottom_right floor
+          tr         = top_right floor
+          x'         = x floor 
+          y'         = y floor
 
 -- | Mock section
 --
