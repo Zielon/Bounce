@@ -74,4 +74,4 @@ evaluate random floor fun =
 -- | Mock section
 --
 getMockedFloors :: [(GLfloat, GLfloat)]
-getMockedFloors = [(-0.3, 0.8), (0.1, 0.5), (-0.2, 0.2), (-0.3, 0.7), (-0.1, 0.3), (0.0, 0.4)]
+getMockedFloors = [(0.1, 0.5), (-0.3, 0.8), (-0.2, 0.2), (-0.3, 0.7), (-0.1, 0.3), (0.0, 0.4)]

@@ -51,12 +51,12 @@ main = do
      updateKeysBindings keys force ball
 
   forkIO $ forever $ do
-     threadDelay 4000
+     threadDelay 10
      collisionBoundaries ball
      collisionEdges ball floors
 
   forkIO $ forever $ do
-     threadDelay 4000
+     threadDelay 10
      gridIntersect2D floors
 
   -- Main OpenGL loop with callbacks

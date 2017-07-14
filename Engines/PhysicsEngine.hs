@@ -66,5 +66,5 @@ collisionEdges ball dictionary = do
                                    >> dictionary $~! (\d -> moveSingle f (-(abs (y + radius' - min_y))) d) -- actually move up
             Top  -> ball $~! (\b -> updateScore b (id f))
                                    >> ball $~! (\b -> setPosition b $ \(x,y) -> (x, max_y + radius'))
-                                   >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY)) 
+                                   >> ball $~! (\b -> setVelocity b $ \(vX,vY) -> (vX, earth vY))
                                    >> dictionary $~! (\d -> moveSingle f (abs (y - radius' - max_y)) d)

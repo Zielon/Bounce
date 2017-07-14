@@ -4,7 +4,7 @@ import Graphics.UI.GLUT
 
 type Coords = (GLfloat, GLfloat)
 
-class Positionable a where
+class (Ord a, Eq a) => Positionable a where
     getMin    :: a -> Coords
     getMax    :: a -> Coords
     getCoord  :: a -> Coords
