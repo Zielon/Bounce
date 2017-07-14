@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Engines.PhysicsEngine (
+module Collision.PhysicsEngine (
     updateGravity, 
     collisionBoundaries, 
     collisionEdges) 
@@ -14,8 +14,10 @@ import Control.Concurrent
 import Text.Printf
 import Data.Map
 
+import Collision.AABB
+
 import Engines.FloorEngine
-import API.CollisionTests
+
 import GameObjects.Ball
 import GameObjects.Positionable
 

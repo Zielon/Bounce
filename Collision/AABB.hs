@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module API.CollisionTests(
+module Collision.AABB(
     Collision(..),
     testAABB,
     gridIntersect2D,

@@ -37,18 +37,18 @@ instance Eq Floor where
 
 instance Ord Floor where
     compare a b = (id a) `compare` (id b)
-    (<) a b     = id a < id b
+    (<)  a b    = id a <  id b
     (>=) a b    = id a >= id b
-    (>) a b     = id a > id b
+    (>)  a b    = id a >  id b
     (<=) a b    = id a <= id b
 
 instance Positionable Floor where
-    getMin floor   = (min_x, min_y) where (min_x, min_y, _) = bottom_left floor
-    getMax floor   = (max_x, max_y) where (max_x, max_y, _) = top_right floor
-    getX   floor   = x floor
-    getY   floor   = y floor
-    getCoord floor = (x floor, y floor)
-    getWidth floor = width floor
+    getMin floor    = (min_x, min_y) where (min_x, min_y, _) = bottom_left floor
+    getMax floor    = (max_x, max_y) where (max_x, max_y, _) = top_right floor
+    getX   floor    = x floor
+    getY   floor    = y floor
+    getCoord floor  = (x floor, y floor)
+    getWidth floor  = width floor
     getHeight floor = height floor
 
 instance Floorable Floor where

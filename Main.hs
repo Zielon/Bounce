@@ -12,9 +12,10 @@ import Data.Map
 import API.Display
 import API.Bindings
 import API.Keys
-import API.CollisionTests
 
-import Engines.PhysicsEngine
+import Collision.AABB
+import Collision.PhysicsEngine
+
 import Engines.FloorEngine
 
 import GameObjects.Ball
