@@ -45,7 +45,7 @@ testAABB a b =
 -- AABB ball collision
 checkBallCollision :: Ball -> Floor -> Collision
 checkBallCollision ball obj =
-    if vectorLenght (ball_x, ball_y) (nearestX, nearestY) > radius ball then None
+    if vecLenght (ball_x, ball_y) (nearestX, nearestY) > radius ball then None
     else if ball_y > nearestY then Top
     else if ball_y < nearestY then Under
     else if ball_x < nearestX then Left
