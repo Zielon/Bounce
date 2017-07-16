@@ -19,8 +19,10 @@ import Data.Set as S
 import GameObjects.Positionable
 import GameObjects.Floor
 import GameObjects.Ball
+
 import Engines.FloorEngine
-import API.Helpers
+
+import Collision.Helpers
 
 data Collision = Left | Right | Top | Under | None
     deriving (Eq, Show)
@@ -45,7 +47,7 @@ testAABB a b =
 -- AABB ball collision
 checkBallCollision :: Ball -> Floor -> Collision
 checkBallCollision ball obj =
-    if vecLenght (ball_x, ball_y) (nearestX, nearestY) > radius ball then None
+    if lenght (ball_x, ball_y) (nearestX, nearestY) > radius ball then None
     else if ball_y > nearestY then Top
     else if ball_y < nearestY then Under
     else if ball_x < nearestX then Left
@@ -53,7 +55,7 @@ checkBallCollision ball obj =
     else None
 
     where (ball_x, ball_y)  = getPosition ball
-          (obj_x, obj_y, _) = bottom_left obj
+          (obj_x, obj_y) = bottom_left obj
           nearestX = clamp ball_x obj_x (obj_x + getWidth obj)
           nearestY = clamp ball_y obj_y (obj_y + getHeight obj)
 

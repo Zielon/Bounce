@@ -8,7 +8,7 @@ module Engines.FloorEngine(
     getMockedFloors) 
 where
 
-import Prelude   hiding (snd, id, floor)
+import Prelude   hiding (id, floor)
 import Data.List hiding(insert)
 import Graphics.UI.GLUT
 import Data.IORef
@@ -16,6 +16,7 @@ import Data.Map
 import System.Random
 
 import GameObjects.Floor
+import GameObjects.General
 
 getFloors :: [(GLfloat, GLfloat)] -> (Map Int Floor)
 getFloors list = fromList $ Prelude.map (\((x,y), i) -> (i, sfloor i x y)) $ zip list [1..]
@@ -38,10 +39,10 @@ moveDownAll y generator floors = do
 -- t - height
 gfloor :: Int -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> Floor
 gfloor id x y r t = Floor x y tl tr bl br id color (r*2) (t*2)
-    where tl = ( x - r, y + t, 0.0)  -- | top left
-          bl = ( x - r, y - t, 0.0)  -- | bottom left
-          br = ( x + r, y - t, 0.0)  -- | bottom right
-          tr = ( x + r, y + t, 0.0)  -- | top right
+    where tl = ( x - r, y + t)  -- | top left
+          bl = ( x - r, y - t)  -- | bottom left
+          br = ( x + r, y - t)  -- | bottom right
+          tr = ( x + r, y + t)  -- | top right
           color = (((x+1)/2), ((y+1)/2), ((0+1)/2))
 
 -- | Standard floor
@@ -53,10 +54,10 @@ sfloor i x y = gfloor i x y width height
 -- | Private section
 --
 moveDown' :: GLfloat -> (Map Int Floor) -> GLfloat -> (Map Int Floor)
-moveDown' random floors indicator = Data.Map.map (\f -> evaluate random f $ \(x, y, z) -> (x, y - indicator, z)) floors
+moveDown' random floors indicator = Data.Map.map (\f -> evaluate random f $ \(x, y) -> (x, y - indicator)) floors
 
 moveDown'' :: Floor -> GLfloat -> (Map Int Floor) -> GLfloat -> (Map Int Floor)
-moveDown'' floor random floors indicator = insert (id floor) (evaluate random floor $ \(x, y, z) -> (x, y - indicator, z)) floors
+moveDown'' floor random floors indicator = insert (id floor) (evaluate random floor $ \(x, y) -> (x, y - indicator)) floors
 
 evaluate :: GLfloat -> Floor -> (Point -> Point) -> Floor
 evaluate random floor fun =
