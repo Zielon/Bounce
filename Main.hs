@@ -36,7 +36,7 @@ main = do
   force     <- newIORef 0
   keys      <- newIORef getKeys
   floors    <- newIORef $ getFloors $ getMockedFloors
-  polygons  <- newIORef $ M.fromList [(1, P.Polygon 1 [(0.1, 0.2), (0.2, 0.4), (0.1, 0.4), (0.4, 0.4)])]
+  polygons  <- newIORef $ M.fromList [(1, P.GamePolygon 1 [(0.1, 0.2), (0.2, 0.4), (0.1, 0.4), (0.4, 0.4)])]
 
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0

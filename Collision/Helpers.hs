@@ -3,7 +3,6 @@ module Collision.Helpers where
 import Data.List
 
 import Graphics.UI.GLUT
-import GameObjects.Polygon
 
 type Vector = (GLfloat, GLfloat)
 
@@ -32,14 +31,6 @@ perpendicular (x,y) = (-y, x)
 --
 dotProduct :: Vector -> Vector -> GLfloat
 dotProduct (x1, y1) (x2, y2) = x1 * x2 + y1 * y2
-
--- | Projection of each point on the axis to find the length on the perpendicular axis
---  @axis    - perpendicular vector to a selected axis
---  @polygon - the given polygon
---
-projection :: Vector -> Polygon -> (GLfloat, GLfloat)
-projection axis polygon = (minimum d, maximum d)
-    where d = map (\point -> dotProduct axis point) $ points polygon
 
 -- OPERATORS
 

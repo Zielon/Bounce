@@ -1,8 +1,11 @@
-module GameObjects.Positionable where
+module GameObjects.Positionable(
+    Positionable(..),
+    Coords
+) where
 
 import Graphics.UI.GLUT
 
-type Coords = (GLfloat, GLfloat)
+import GameObjects.Global
 
 class (Ord a, Eq a) => Positionable a where
     getMin    :: a -> Coords

@@ -1,10 +1,14 @@
-module GameObjects.Floor where
+module GameObjects.Floor(
+    Floor(..),
+    Floorable(..),
+    Point
+) where
 
 import Graphics.UI.GLUT
 import Prelude hiding (floor, id)
 
+import GameObjects.Global
 import GameObjects.Positionable
-import GameObjects.General
 
 data Floor = Floor { 
     x            :: GLfloat,
@@ -44,11 +48,13 @@ instance Positionable Floor where
     getHeight floor = height floor
 
 instance Floorable Floor where
-    setColor floor color = Floor (x floor) (y floor) (top_left floor) (top_right floor) (bottom_left floor) (bottom_right floor) (id floor) color (width floor) (height floor)
-    setY minY maxY floor = Floor (x floor) (y floor) (tl_x, maxY) (tr_x, maxY) (bl_x, minY) (br_x, minY) identifier color (width floor) (height floor)
-        where (tl_x, tl_y) = top_left floor
-              (bl_x, bl_y) = bottom_left floor  
-              (br_x, br_y) = bottom_right floor
-              (tr_x, tr_y) = top_right floor
-              identifier         = id floor
-              color              = color3f floor
+    setColor floor color = floor { color3f = color }
+    setY minY maxY floor = floor { top_left = (tl_x, maxY), 
+                                   top_right = (tr_x, maxY), 
+                                   bottom_left = (bl_x, minY), 
+                                   bottom_right = (br_x, minY)}
+
+        where (tl_x, _) = top_left floor
+              (bl_x, _) = bottom_left floor  
+              (br_x, _) = bottom_right floor
+              (tr_x, _) = top_right floor

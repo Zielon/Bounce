@@ -28,17 +28,9 @@ class Bounceable a where
 
 instance Bounceable Ball where
     getPosition ball     = ((x ball), (y ball))
-
     getVelocity ball     = ((velocityX ball), (velocityY ball))
-
-    setPosition ball fun = Ball x' y' (velocityX ball) (velocityY ball) (radius ball) (score ball) (lastFloor ball)
-                           where (x',y') = fun (x ball, y ball)
-
-    setVelocity ball fun = Ball (x ball) (y ball) vX vY (radius ball) (score ball) (lastFloor ball)
-                           where (vX, vY) = fun (velocityX ball, velocityY ball)
-
-    setLastFloor ball f  = Ball (x ball) (y ball) (velocityX ball) (velocityY ball) (radius ball) (score ball) f
-
-    updateScore  ball f  = if (lastFloor ball) /= f
-                           then Ball (x ball) (y ball) (velocityX ball) (velocityY ball) (radius ball) ((score ball) + 1) f
-                           else ball
+    setPosition ball fun = ball { x = _x, y = _y } where (_x, _y) = fun (x ball, y ball)
+    setVelocity ball fun = ball { velocityX = vX, velocityY = vY } where (vX, vY) = fun (velocityX ball, velocityY ball)
+    setLastFloor ball f  = ball { lastFloor = f }
+    updateScore  ball f  = if (lastFloor ball) /= f then ball { score = s + 1 } else ball
+                           where s = score ball

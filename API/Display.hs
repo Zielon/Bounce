@@ -39,7 +39,7 @@ display ball angle floors force = do
 
   let (x', y') = getPosition ball'
 
-  let polygon = P.Polygon 1 [(0.1, 0.2), (0.2, 0.4), (0.1, 0.4), (0.4, 0.4)]
+  let polygon = P.GamePolygon 1 [(0.1, 0.2), (0.2, 0.4), (0.1, 0.4), (0.4, 0.4)]
   renderPrimitive G.Polygon $ mapM_ (\(x, y) -> vertex $ Vertex3 x y 0) $ P.points polygon
 
   -- | Render section ----------------------

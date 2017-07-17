@@ -16,7 +16,6 @@ import Data.Map
 import System.Random
 
 import GameObjects.Floor
-import GameObjects.General
 
 getFloors :: [(GLfloat, GLfloat)] -> (Map Int Floor)
 getFloors list = fromList $ Prelude.map (\((x,y), i) -> (i, sfloor i x y)) $ zip list [1..]
