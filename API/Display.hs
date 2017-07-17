@@ -26,21 +26,22 @@ import Engines.FloorEngine
 display :: IORef Ball    ->
            IORef GLfloat ->
            IORef (Map Int Floor) ->
+           IORef (Map Int GamePolygon) ->
            IORef GLfloat ->
            DisplayCallback
-display ball angle floors force = do 
+display ball angle floors polygons force = do 
   clear [ColorBuffer, DepthBuffer] -- clear depth buffer, too
   clear [ColorBuffer]
   loadIdentity
   
-  ball'   <- get ball
-  force'  <- get force
-  floors' <- get floors
+  ball'     <- get ball
+  force'    <- get force
+  floors'   <- get floors
+  polygons' <- get polygons
 
   let (x', y') = getPosition ball'
 
-  let polygon = P.GamePolygon 1 [(0.1, 0.2), (0.2, 0.4), (0.1, 0.4), (0.4, 0.4)]
-  renderPrimitive G.Polygon $ mapM_ (\(x, y) -> vertex $ Vertex3 x y 0) $ P.points polygon
+  forM_ polygons' $ \polygon -> renderPrimitive G.Polygon $ mapM_ (\(x, y) -> vertex $ Vertex3 x y 0) $ P.points polygon
 
   -- | Render section ----------------------
 
@@ -60,13 +61,13 @@ display ball angle floors force = do
       renderString Helvetica18 $ printf "Points %d" (score ball')
 
   -- | Floors
-  forM_ floors' $ \f -> preservingMatrix $ do
-      renderPrimitive G.Polygon $ mapM_ (\(x, y) -> getColor3f' (color3f f) >> (vertex $ Vertex3 x y 0)) $ getPoints f
-      let (x,y) = top_left f
-      getColor3f (0, 0, 0)
-      translate $ Vector3 x y 0
-      rasterPos (Vertex2 (0.025::GLfloat) (-0.045::GLfloat))
-      renderString Helvetica18 $ printf "%d" (F.id f)
+  -- forM_ floors' $ \f -> preservingMatrix $ do
+  --     renderPrimitive G.Polygon $ mapM_ (\(x, y) -> getColor3f' (color3f f) >> (vertex $ Vertex3 x y 0)) $ getPoints f
+  --     let (x,y) = top_left f
+  --     getColor3f (0, 0, 0)
+  --     translate $ Vector3 x y 0
+  --     rasterPos (Vertex2 (0.025::GLfloat) (-0.045::GLfloat))
+  --     renderString Helvetica18 $ printf "%d" (F.id f)
 
   -- | Ball
   translate $ Vector3 x' y' 0

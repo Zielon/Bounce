@@ -9,13 +9,13 @@ import Data.Set
 
 import Collision.AABB
 import Collision.Operations as O
-
-import GameObjects.Polygon
+import GameObjects.Polygon  as P
 
 -- Segregating axis theorem
 polygonCollision :: IORef (Map Int GamePolygon) -> IO ()
 polygonCollision ioPolygons = do
-     polygons <- get ioPolygons
+     polygons  <- get ioPolygons
+     intersect <- newIORef False
      forM_ polygons $ \a -> do
          let a_edges = getEdges a
          forM_ polygons $ \b ->
@@ -25,5 +25,11 @@ polygonCollision ioPolygons = do
                     let axis = O.normalize $ perpendicular edge
                     let projectionA = projection axis a
                     let projectionB = projection axis b
-                    if intervalDistance projectionA projectionB > 0 then putStrLn "Intersect"
-                    else return ()
+
+                    if (intervalDistance projectionA projectionB) > 0 
+                    then intersect $~! (\b -> False) >> return ()    -- polygons are not intersecting
+                    else intersect $~! (\b -> True)
+
+                -- Print result
+                bool <- get intersect
+                putStrLn $ printf "Intersection A %d with B %d == %s" (P.id a) (P.id b) (show bool)

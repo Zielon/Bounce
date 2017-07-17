@@ -35,14 +35,16 @@ main = do
   angle     <- newIORef 0
   force     <- newIORef 0
   keys      <- newIORef getKeys
-  floors    <- newIORef $ getFloors $ getMockedFloors
-  polygons  <- newIORef $ M.fromList [(1, P.GamePolygon 1 [(0.1, 0.2), (0.2, 0.4), (0.1, 0.4), (0.4, 0.4)])]
+  floors    <- newIORef $ getFloors $ [] -- getMockedFloors
+  polygons  <- newIORef $ M.fromList [(1, P.GamePolygon 1 [(0.1, 0.2), (0.1, 0.4), (0.2, 0.4)]),
+                                      (2, P.GamePolygon 2 [(-0.5, 0.2), (-0.4, 0.4), (-0.5, 0.4)]),
+                                      (3, P.GamePolygon 3 [(-0.2, 0.6), (0.2, 0.8), (0.1, 0.6)])]
 
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0
   keyboardMouseCallback $= Just (keyboardMouse force ball keys)
   idleCallback          $= Just (idle angle delta)
-  displayCallback       $= display ball angle floors force
+  displayCallback       $= display ball angle floors polygons force
 
   -- Global handler for StdGen
   generator <- newIORef (mkStdGen 0)

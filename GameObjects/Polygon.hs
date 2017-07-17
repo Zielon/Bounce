@@ -20,7 +20,7 @@ data GamePolygon = GamePolygon {
 }
 
 instance Polygonable GamePolygon where
-    getEdges polygon = map (\(a, b) -> b -. a ) $ (edgefiy p) ++ [(head p, last p)]
+    getEdges polygon = map (\(a, b) -> (-.) b a ) $ (edgefiy p) ++ [(last p, head p)]
         where p = points polygon
 
 instance Eq GamePolygon where
@@ -40,7 +40,7 @@ instance Ord GamePolygon where
 --
 projection :: Vector -> GamePolygon -> (GLfloat, GLfloat)
 projection axis polygon = (minimum d, maximum d)
-    where d = map (\point -> dotProduct axis point) $ points polygon
+    where d = map (\point -> dotProduct point axis) $ points polygon
 
 -- PRIVATE
 

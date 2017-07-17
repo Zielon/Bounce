@@ -15,17 +15,17 @@ lenght :: Vector -> Vector -> GLfloat
 lenght (x1, y1) (x2, y2) = sqrt((x2 - x1)^2 + (y2-y1)^2)
 
 magnitude :: Vector -> GLfloat
-magnitude (x,y) = sqrt(x^2+y^2)
+magnitude (x, y) = sqrt(x*x + y*y)
 
 normalize :: Vector -> Vector
-normalize (x,y) = (x/m, y/m) where m = magnitude (x,y)
+normalize (x, y) = (x/m, y/m) where m = magnitude (x,y)
 
 -- | Get a perpendicular vector
 -- For a given vector the perpendicular vectors are (-y,x), (y,-x)
 -- where the dot product is 0; example (2,7) and (-7,2)
 --
 perpendicular :: Vector -> Vector
-perpendicular (x,y) = (-y, x)
+perpendicular (x, y) = (-y, x)
 
 -- | Scalar product of two vectors
 --
@@ -36,7 +36,7 @@ dotProduct (x1, y1) (x2, y2) = x1 * x2 + y1 * y2
 --   The distance will be negative if the intervals overlap
 --
 intervalDistance :: (GLfloat, GLfloat) -> (GLfloat, GLfloat) -> GLfloat
-intervalDistance (minA, maxA) (minB, maxB) = minA < minB ? minB - maxA :? minA - maxB
+intervalDistance (minA, maxA) (minB, maxB) = minA < minB ? (minB - maxA) :? (minA - maxB)
 
 -- OPERATORS
 
