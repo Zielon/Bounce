@@ -15,8 +15,8 @@ import GameObjects.Polygon  as P
 polygonCollision :: IORef (Map Int GamePolygon) -> IO ()
 polygonCollision ioPolygons = do
      polygons  <- get ioPolygons
-     intersect <- newIORef False
      forM_ polygons $ \a -> do
+         intersect <- newIORef True
          let a_edges = getEdges a
          forM_ polygons $ \b ->
              if a == b then return () else do
@@ -28,8 +28,9 @@ polygonCollision ioPolygons = do
 
                     if (intervalDistance projectionA projectionB) > 0 
                     then intersect $~! (\b -> False) >> return ()    -- polygons are not intersecting
-                    else intersect $~! (\b -> True)
+                    else intersect $~! (\b -> b)
 
                 -- Print result
                 bool <- get intersect
-                putStrLn $ printf "Intersection A %d with B %d == %s" (P.id a) (P.id b) (show bool)
+                if bool == True then putStrLn $ printf "Intersection A %d with B %d == %s" (P.id a) (P.id b) (show bool)
+                else return ()

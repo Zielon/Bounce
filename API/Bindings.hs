@@ -13,6 +13,8 @@ import Prelude hiding (lookup)
 import Control.Monad 
 
 import GameObjects.Ball
+import GameObjects.Polygon
+
 import API.Display
 import API.Keys
 import API.Ternary
@@ -36,10 +38,15 @@ updateKeysBindings refkeys force ball = do
 
   where maxForce = 10.0
 
-keyboardMouse :: IORef GLfloat -> IORef Ball -> IORef (Map GameKey Bool) -> KeyboardMouseCallback
-keyboardMouse force ball keys key state _ _ = do
+keyboardMouse :: IORef (Map GameKey Bool) -> IORef (Map Int GamePolygon) -> KeyboardMouseCallback
+keyboardMouse keys polygons key state _ _ = do
+  polygons' <- get polygons
+  let (Just z) = lookup 1 polygons'
+
   case key of
-      (SpecialKey KeyLeft)  -> state == Down ? (updateKey keys GameKeyLeft  True) :? (updateKey keys GameKeyLeft  False)
-      (SpecialKey KeyRight) -> state == Down ? (updateKey keys GameKeyRight True) :? (updateKey keys GameKeyRight False)
+      (SpecialKey KeyLeft)  -> polygons $~! (\p -> insert 1 (offset (-0.01, 0) z) p) --  state == Down ? (updateKey keys GameKeyLeft  True) :? (updateKey keys GameKeyLeft  False)
+      (SpecialKey KeyRight) -> polygons $~! (\p -> insert 1 (offset (0.01, 0) z) p) -- state == Down ? (updateKey keys GameKeyRight True) :? (updateKey keys GameKeyRight False)
       (Char ' ')            -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
+      (SpecialKey KeyUp)    -> polygons $~! (\p -> insert 1 (offset (0, 0.01) z) p)
+      (SpecialKey KeyDown)  -> polygons $~! (\p -> insert 1 (offset (0, -0.01) z) p)
       _                     -> return ()

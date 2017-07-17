@@ -42,7 +42,7 @@ main = do
 
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0
-  keyboardMouseCallback $= Just (keyboardMouse force ball keys)
+  keyboardMouseCallback $= Just (keyboardMouse keys polygons)
   idleCallback          $= Just (idle angle delta)
   displayCallback       $= display ball angle floors polygons force
 

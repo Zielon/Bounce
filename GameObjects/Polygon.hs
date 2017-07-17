@@ -2,7 +2,8 @@ module GameObjects.Polygon(
     GamePolygon(..),
     Polygonable(..),
     Vector,
-    projection
+    projection,
+    offset
 ) where
 
 import Prelude hiding (id)
@@ -12,7 +13,8 @@ import GameObjects.Global
 import Collision.Operations
 
 class Polygonable a where
-    getEdges :: a -> [Vector]
+    getEdges  :: a -> [Vector]
+    offset :: Vector -> a -> a
 
 data GamePolygon = GamePolygon {
     id     :: Int,
@@ -21,6 +23,8 @@ data GamePolygon = GamePolygon {
 
 instance Polygonable GamePolygon where
     getEdges polygon = map (\(a, b) -> (-.) b a ) $ (edgefiy p) ++ [(last p, head p)]
+        where p = points polygon
+    offset (x1, y1) polygon = polygon { points = (map (\(x2, y2) -> (x1 + x2, y1 + y2)) p) }
         where p = points polygon
 
 instance Eq GamePolygon where
