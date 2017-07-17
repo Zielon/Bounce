@@ -7,7 +7,7 @@ import Control.Monad
 import Text.Printf
 import System.Random
 import Data.List
-import Data.Map
+import Data.Map as M
 
 import API.Display
 import API.Bindings
@@ -15,10 +15,12 @@ import API.Keys
 
 import Collision.AABB
 import Collision.PhysicsEngine
+import Collision.SAT
 
 import Engines.FloorEngine
 
 import GameObjects.Ball
+import GameObjects.Polygon as P
 
 main :: IO ()
 main = do
@@ -34,7 +36,8 @@ main = do
   force     <- newIORef 0
   keys      <- newIORef getKeys
   floors    <- newIORef $ getFloors $ getMockedFloors
-  
+  polygons  <- newIORef $ M.fromList [(1, P.Polygon 1 [(0.1, 0.2), (0.2, 0.4), (0.1, 0.4), (0.4, 0.4)])]
+
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0
   keyboardMouseCallback $= Just (keyboardMouse force ball keys)
@@ -55,6 +58,7 @@ main = do
      threadDelay 10
      collisionBoundaries ball
      collisionEdges ball floors
+     polygonCollision polygons
 
   forkIO $ forever $ do
      threadDelay 10

@@ -24,7 +24,7 @@ import GameObjects.Polygon as P
 import Engines.FloorEngine
 
 display :: IORef Ball    ->
-           IORef GLfloat ->      
+           IORef GLfloat ->
            IORef (Map Int Floor) ->
            IORef GLfloat ->
            DisplayCallback

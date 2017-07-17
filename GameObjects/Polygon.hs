@@ -19,6 +19,3 @@ instance Ord Polygon where
     (>=) a b    = id a >= id b
     (>)  a b    = id a >  id b
     (<=) a b    = id a <= id b
-
--- getEdges :: Polygon -> [Point]
--- getEdges polygon = foldr (\(a,b) p -> a:b:p) [] $ points polygon
