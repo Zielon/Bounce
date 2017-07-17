@@ -22,7 +22,7 @@ import GameObjects.Ball
 
 import Engines.FloorEngine
 
-import Collision.Helpers
+import Collision.Operations
 
 data Collision = Left | Right | Top | Under | None
     deriving (Eq, Show)

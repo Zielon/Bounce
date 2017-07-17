@@ -1,7 +1,7 @@
 module GameObjects.Floor(
     Floor(..),
     Floorable(..),
-    Point
+    Vector
 ) where
 
 import Graphics.UI.GLUT
@@ -13,10 +13,10 @@ import GameObjects.Positionable
 data Floor = Floor { 
     x            :: GLfloat,
     y            :: GLfloat,
-    top_left     :: Point, 
-    top_right    :: Point,
-    bottom_left  :: Point,
-    bottom_right :: Point,
+    top_left     :: Vector, 
+    top_right    :: Vector,
+    bottom_left  :: Vector,
+    bottom_right :: Vector,
     id           :: Int,
     color3f      :: (GLfloat, GLfloat, GLfloat),
     width        :: GLfloat,

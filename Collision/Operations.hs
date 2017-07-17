@@ -1,10 +1,10 @@
-module Collision.Helpers where
+module Collision.Operations where
 
 import Data.List
 
+import API.Ternary
 import Graphics.UI.GLUT
-
-type Vector = (GLfloat, GLfloat)
+import GameObjects.Global
 
 clamp :: GLfloat -> GLfloat -> GLfloat -> GLfloat
 clamp v min max = Prelude.max min (Prelude.min max v)
@@ -31,6 +31,12 @@ perpendicular (x,y) = (-y, x)
 --
 dotProduct :: Vector -> Vector -> GLfloat
 dotProduct (x1, y1) (x2, y2) = x1 * x2 + y1 * y2
+
+-- | Calculate the distance between [minA, maxA] and [minB, maxB]
+--   The distance will be negative if the intervals overlap
+--
+intervalDistance :: (GLfloat, GLfloat) -> (GLfloat, GLfloat) -> GLfloat
+intervalDistance (minA, maxA) (minB, maxB) = minA < minB ? minB - maxA :? minA - maxB
 
 -- OPERATORS
 

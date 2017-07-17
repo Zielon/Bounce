@@ -15,7 +15,7 @@ import Control.Monad
 import GameObjects.Ball
 import API.Display
 import API.Keys
-import API.Helpers
+import API.Ternary
 
 reshape :: ReshapeCallback
 reshape size = do viewport $= (Position 0 0, size)

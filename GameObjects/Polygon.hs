@@ -1,7 +1,7 @@
 module GameObjects.Polygon(
     GamePolygon(..),
     Polygonable(..),
-    Point,
+    Vector,
     projection
 ) where
 
@@ -9,14 +9,14 @@ import Prelude hiding (id)
 import Graphics.UI.GLUT
 
 import GameObjects.Global
-import Collision.Helpers
+import Collision.Operations
 
 class Polygonable a where
-    getEdges :: a -> [Point]
+    getEdges :: a -> [Vector]
 
 data GamePolygon = GamePolygon {
     id     :: Int,
-    points :: [Point]
+    points :: [Vector]
 }
 
 instance Polygonable GamePolygon where
@@ -42,10 +42,9 @@ projection :: Vector -> GamePolygon -> (GLfloat, GLfloat)
 projection axis polygon = (minimum d, maximum d)
     where d = map (\point -> dotProduct axis point) $ points polygon
 
-
 -- PRIVATE
 
-edgefiy :: [Point] -> [(Point, Point)]
+edgefiy :: [Vector] -> [(Vector, Vector)]
 edgefiy [] = []
 edgefiy (s:e:[]) = [(s,e)]
 edgefiy (s:e:p) = (s, e) : edgefiy (e:p)

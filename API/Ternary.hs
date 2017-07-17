@@ -1,8 +1,4 @@
-module API.Helpers where
-
-import Graphics.UI.GLUT
-
-type Vector = (GLfloat, GLfloat)
+module API.Ternary where
 
 data Cond a = a :? a
  

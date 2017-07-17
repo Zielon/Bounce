@@ -1,6 +1,6 @@
 module GameObjects.Positionable(
     Positionable(..),
-    Coords
+    Vector
 ) where
 
 import Graphics.UI.GLUT
@@ -8,9 +8,9 @@ import Graphics.UI.GLUT
 import GameObjects.Global
 
 class (Ord a, Eq a) => Positionable a where
-    getMin    :: a -> Coords
-    getMax    :: a -> Coords
-    getCoord  :: a -> Coords
+    getMin    :: a -> Vector
+    getMax    :: a -> Vector
+    getCoord  :: a -> Vector
     getX      :: a -> GLfloat
     getY      :: a -> GLfloat
     getWidth  :: a -> GLfloat

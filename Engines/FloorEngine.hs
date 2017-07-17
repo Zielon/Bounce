@@ -1,6 +1,6 @@
 module Engines.FloorEngine(
     Floor(Floor, top_left, top_right, bottom_left, id), 
-    Point, 
+    Vector, 
     getFloors, 
     getPoints, 
     moveDownAll,
@@ -20,7 +20,7 @@ import GameObjects.Floor
 getFloors :: [(GLfloat, GLfloat)] -> (Map Int Floor)
 getFloors list = fromList $ Prelude.map (\((x,y), i) -> (i, sfloor i x y)) $ zip list [1..]
 
-getPoints :: Floor -> [Point]
+getPoints :: Floor -> [Vector]
 getPoints floor = [top_left floor, bottom_left floor, bottom_right floor, top_right floor]
 
 moveSingle :: Floor -> GLfloat -> (Map Int Floor) -> (Map Int Floor)
@@ -58,7 +58,7 @@ moveDown' random floors indicator = Data.Map.map (\f -> evaluate random f $ \(x,
 moveDown'' :: Floor -> GLfloat -> (Map Int Floor) -> GLfloat -> (Map Int Floor)
 moveDown'' floor random floors indicator = insert (id floor) (evaluate random floor $ \(x, y) -> (x, y - indicator)) floors
 
-evaluate :: GLfloat -> Floor -> (Point -> Point) -> Floor
+evaluate :: GLfloat -> Floor -> (Vector -> Vector) -> Floor
 evaluate random floor fun =
     if snd tl > -1.0 then Floor x' y' (fun tl) (fun tr) (fun bl) (fun br) identifier colors (width floor) (height floor)
     else sfloor identifier random 1.0
