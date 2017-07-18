@@ -37,9 +37,9 @@ main = do
   keys      <- newIORef getKeys
   floors    <- newIORef $ getFloors $ [] -- getMockedFloors
   polygons  <- newIORef $ M.fromList [(1, P.GamePolygon 1 (0,0) [(0.1, 0.2), (0.1, 0.4), (0.2, 0.4)]),
-                                      (2, P.GamePolygon 2 (0,0) [(-0.5, -0.6), (-0.4, 0.4), (-0.5, 0.4)]),
+                                      (4, P.GamePolygon 4 (0,0) [(-0.5, -0.6), (-0.4, 0.4), (-0.5, 0.4)]),
                                       (3, P.GamePolygon 3 (0,0) [(0.5, -0.6), (0.4, 0.0), (0.5, 0.0)]),
-                                      (4, P.GamePolygon 4 (0,0) [(-0.2, 0.6), (0.2, 0.8), (0.1, 0.6)])]
+                                      (2, P.GamePolygon 2 (0,0) [(-0.2, 0.6), (0.2, 0.8), (0.1, 0.6)])]
 
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0
@@ -56,12 +56,13 @@ main = do
      moveDownAll 0.00005 generator floors
      updateGravity ball 0.009 -- dt
      updateKeysBindings keys force ball
+     polygonCollision polygons
 
   forkIO $ forever $ do
      threadDelay 10
      collisionBoundaries ball
      collisionEdges ball floors
-     polygonCollision polygons
+     
 
   forkIO $ forever $ do
      threadDelay 10

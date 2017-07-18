@@ -60,10 +60,10 @@ keyboardMouse keys polygons key state _ _ = do
   let (Just z) = lookup i polygons'
 
   case key of
-      (SpecialKey KeyLeft)  -> polygons $~! (\p -> insert (P.id z) (P.setVelocity (-0.01, 0) z) p)
-      (SpecialKey KeyRight) -> polygons $~! (\p -> insert (P.id z) (P.setVelocity (0.01, 0) z) p)
-      (SpecialKey KeyUp)    -> polygons $~! (\p -> insert (P.id z) (P.setVelocity (0, 0.01) z) p)
-      (SpecialKey KeyDown)  -> polygons $~! (\p -> insert (P.id z) (P.setVelocity (0, -0.01) z) p)
+      (SpecialKey KeyLeft)  -> polygons $~! (\p -> insert (P.id z) (P.setVelocity (-0.02, 0) z) p)
+      (SpecialKey KeyRight) -> polygons $~! (\p -> insert (P.id z) (P.setVelocity (0.02, 0) z) p)
+      (SpecialKey KeyUp)    -> polygons $~! (\p -> insert (P.id z) (P.setVelocity (0, 0.02) z) p)
+      (SpecialKey KeyDown)  -> polygons $~! (\p -> insert (P.id z) (P.setVelocity (0, -0.02) z) p)
       (Char ' ')            -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
       (Char '1')            -> state == Down ? (updateKey keys GameKeyOne True) :? (updateKey keys GameKeyOne False)
       (Char '2')            -> state == Down ? (updateKey keys GameKeyTwo True) :? (updateKey keys GameKeyTwo False)
