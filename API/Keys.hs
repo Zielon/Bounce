@@ -9,11 +9,15 @@ import Data.IORef
 import Data.Bool
 import Data.Map
 
-data GameKey = GameKeyLeft | GameKeyRight | GameKeyForce 
+data GameKey = GameKeyLeft | GameKeyRight | GameKeyForce | GameKeyOne | GameKeyTwo | GameKeyThree | GameKeyFour
     deriving (Eq, Ord)
 
 getKeys :: Map GameKey Bool
-getKeys = fromList [ (GameKeyLeft,  False),
+getKeys = fromList [ (GameKeyOne,   False),
+                     (GameKeyTwo,   False),
+                     (GameKeyThree, False),
+                     (GameKeyFour,  False),
+                     (GameKeyLeft,  False),
                      (GameKeyRight, False), 
                      (GameKeyForce, False)]
 

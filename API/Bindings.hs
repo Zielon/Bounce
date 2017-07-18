@@ -9,7 +9,8 @@ import Data.IORef
 import Data.Fixed
 import Data.Bool
 import Data.Map
-import Prelude hiding (lookup)
+import Data.List           hiding (lookup, insert)
+import Prelude             hiding (lookup)
 import Control.Monad 
 
 import GameObjects.Ball    as B
@@ -41,12 +42,31 @@ updateKeysBindings refkeys force ball = do
 keyboardMouse :: IORef (Map GameKey Bool) -> IORef (Map Int GamePolygon) -> KeyboardMouseCallback
 keyboardMouse keys polygons key state _ _ = do
   polygons' <- get polygons
-  let (Just z) = lookup 1 polygons'
+  keys'     <- get keys
+  index     <- newIORef 1
+
+  let value = find (\(k ,v) -> v == True) $ toList keys'
+
+  case value of
+    Nothing       -> return ()
+    (Just (k, b)) -> case k of 
+                        GameKeyOne   -> index $~! (\i -> 1)
+                        GameKeyTwo   -> index $~! (\i -> 2)
+                        GameKeyThree -> index $~! (\i -> 3)
+                        GameKeyFour  -> index $~! (\i -> 4)
+                        _            -> return ()
+  i <- get index
+
+  let (Just z) = lookup i polygons'
 
   case key of
-      (SpecialKey KeyLeft)  -> polygons $~! (\p -> insert 1 (P.setVelocity (-0.01, 0) z) p) --  state == Down ? (updateKey keys GameKeyLeft  True) :? (updateKey keys GameKeyLeft  False)
-      (SpecialKey KeyRight) -> polygons $~! (\p -> insert 1 (P.setVelocity (0.01, 0) z) p) -- state == Down ? (updateKey keys GameKeyRight True) :? (updateKey keys GameKeyRight False)
+      (SpecialKey KeyLeft)  -> polygons $~! (\p -> insert (P.id z) (P.setVelocity (-0.01, 0) z) p)
+      (SpecialKey KeyRight) -> polygons $~! (\p -> insert (P.id z) (P.setVelocity (0.01, 0) z) p)
+      (SpecialKey KeyUp)    -> polygons $~! (\p -> insert (P.id z) (P.setVelocity (0, 0.01) z) p)
+      (SpecialKey KeyDown)  -> polygons $~! (\p -> insert (P.id z) (P.setVelocity (0, -0.01) z) p)
       (Char ' ')            -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
-      (SpecialKey KeyUp)    -> polygons $~! (\p -> insert 1 (P.setVelocity (0, 0.01) z) p)
-      (SpecialKey KeyDown)  -> polygons $~! (\p -> insert 1 (P.setVelocity (0, -0.01) z) p)
+      (Char '1')            -> state == Down ? (updateKey keys GameKeyOne True) :? (updateKey keys GameKeyOne False)
+      (Char '2')            -> state == Down ? (updateKey keys GameKeyTwo True) :? (updateKey keys GameKeyTwo False)
+      (Char '3')            -> state == Down ? (updateKey keys GameKeyThree True) :? (updateKey keys GameKeyThree False)
+      (Char '4')            -> state == Down ? (updateKey keys GameKeyFour True) :? (updateKey keys GameKeyFour False)
       _                     -> return ()
