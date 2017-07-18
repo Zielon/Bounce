@@ -35,13 +35,19 @@ dotProduct (x1, y1) (x2, y2) = x1 * x2 + y1 * y2
 -- | Calculate the distance between [minA, maxA] and [minB, maxB]
 --   The distance will be negative if the intervals overlap
 --
-intervalDistance :: (GLfloat, GLfloat) -> (GLfloat, GLfloat) -> GLfloat
-intervalDistance (minA, maxA) (minB, maxB) = minA < minB ? (minB - maxA) :? (minA - maxB)
+calculateIntervalDistance :: (GLfloat, GLfloat) -> (GLfloat, GLfloat) -> GLfloat
+calculateIntervalDistance (minA, maxA) (minB, maxB) = minA < minB ? (minB - maxA) :? (minA - maxB)
 
 -- OPERATORS
+
+(--.) :: Vector -> Vector
+(--.) (x, y) = (-x, -y)
 
 (+.) :: Vector -> Vector -> Vector
 (+.) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
 
 (-.) :: Vector -> Vector -> Vector
 (-.) (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
+
+(*.) :: Vector -> GLfloat -> Vector
+(*.) (x1, y1) a = (x1 * a, y1 * a)

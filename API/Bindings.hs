@@ -12,8 +12,8 @@ import Data.Map
 import Prelude hiding (lookup)
 import Control.Monad 
 
-import GameObjects.Ball
-import GameObjects.Polygon
+import GameObjects.Ball    as B
+import GameObjects.Polygon as P
 
 import API.Display
 import API.Keys
@@ -31,10 +31,10 @@ updateKeysBindings refkeys force ball = do
   let (Just rightKey) = lookup GameKeyRight keys
   let (Just forceKey) = lookup GameKeyForce keys
 
-  when(leftKey)      $ ball  $~! \b -> setVelocity b (\(x,y) -> (x - 0.05, y))
-  when(rightKey)     $ ball  $~! \b -> setVelocity b (\(x,y) -> (x + 0.05, y))
+  when(leftKey)      $ ball  $~! \b -> B.setVelocity b (\(x,y) -> (x - 0.05, y))
+  when(rightKey)     $ ball  $~! \b -> B.setVelocity b (\(x,y) -> (x + 0.05, y))
   when(forceKey)     $ force $~! \f -> f + 0.1 > maxForce ? maxForce :? f + 0.1
-  when(not forceKey) $ ball  $~! (\b -> setVelocity b (\(vX,vY) -> vY <= 0 ? (vX, vY - gForce) :? (vX, vY + gForce))) >> force $~! (\f -> 0.0)
+  when(not forceKey) $ ball  $~! (\b -> B.setVelocity b (\(vX,vY) -> vY <= 0 ? (vX, vY - gForce) :? (vX, vY + gForce))) >> force $~! (\f -> 0.0)
 
   where maxForce = 10.0
 
@@ -44,9 +44,9 @@ keyboardMouse keys polygons key state _ _ = do
   let (Just z) = lookup 1 polygons'
 
   case key of
-      (SpecialKey KeyLeft)  -> polygons $~! (\p -> insert 1 (offset (-0.01, 0) z) p) --  state == Down ? (updateKey keys GameKeyLeft  True) :? (updateKey keys GameKeyLeft  False)
-      (SpecialKey KeyRight) -> polygons $~! (\p -> insert 1 (offset (0.01, 0) z) p) -- state == Down ? (updateKey keys GameKeyRight True) :? (updateKey keys GameKeyRight False)
+      (SpecialKey KeyLeft)  -> polygons $~! (\p -> insert 1 (P.setVelocity (-0.01, 0) z) p) --  state == Down ? (updateKey keys GameKeyLeft  True) :? (updateKey keys GameKeyLeft  False)
+      (SpecialKey KeyRight) -> polygons $~! (\p -> insert 1 (P.setVelocity (0.01, 0) z) p) -- state == Down ? (updateKey keys GameKeyRight True) :? (updateKey keys GameKeyRight False)
       (Char ' ')            -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
-      (SpecialKey KeyUp)    -> polygons $~! (\p -> insert 1 (offset (0, 0.01) z) p)
-      (SpecialKey KeyDown)  -> polygons $~! (\p -> insert 1 (offset (0, -0.01) z) p)
+      (SpecialKey KeyUp)    -> polygons $~! (\p -> insert 1 (P.setVelocity (0, 0.01) z) p)
+      (SpecialKey KeyDown)  -> polygons $~! (\p -> insert 1 (P.setVelocity (0, -0.01) z) p)
       _                     -> return ()
