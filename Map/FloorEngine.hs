@@ -1,4 +1,4 @@
-module Engines.FloorEngine(
+module Map.FloorEngine(
     Floor(Floor, top_left, top_right, bottom_left, id), 
     Vector, 
     getFloors, 

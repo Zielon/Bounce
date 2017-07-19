@@ -12,12 +12,13 @@ import Data.Map as M
 import API.Display
 import API.Bindings
 import API.Keys
+import API.Ternary
 
 import Collision.AABB
 import Collision.PhysicsEngine
 import Collision.SAT
 
-import Engines.FloorEngine
+import Map.FloorEngine
 
 import GameObjects.Ball
 import GameObjects.Polygon as P
@@ -37,6 +38,7 @@ main = do
   keys      <- newIORef getKeys
   floors    <- newIORef $ getFloors $ [] -- getMockedFloors
   polygons  <- newIORef $ M.fromList [(1, P.GamePolygon 1 (0,0) [(0.1, 0.2), (0.1, 0.4), (0.2, 0.4)]),
+                                      (5, P.GamePolygon 5 (0,0) [(-0.8, -0.8), (-0.6, -0.7), (0.8, -0.8), (0.8, -0.7)]),
                                       (4, P.GamePolygon 4 (0,0) [(-0.5, -0.6), (-0.4, 0.4), (-0.5, 0.4)]),
                                       (3, P.GamePolygon 3 (0,0) [(0.5, -0.6), (0.4, 0.0), (0.5, 0.0)]),
                                       (2, P.GamePolygon 2 (0,0) [(-0.2, 0.6), (0.2, 0.8), (0.1, 0.6)])]
@@ -56,6 +58,7 @@ main = do
      moveDownAll 0.00005 generator floors
      updateGravity ball 0.009 -- dt
      updateKeysBindings keys force ball
+     polygons $~! \p -> M.map (\v-> (P.id v) /= 5 ? setOffset (0, -0.0005) v :? v) p 
 
   forkIO $ forever $ do
      threadDelay 10

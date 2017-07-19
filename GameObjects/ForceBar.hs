@@ -1,6 +1,6 @@
 module GameObjects.ForceBar where
 
-import Engines.FloorEngine
+import Map.FloorEngine
 import Graphics.UI.GLUT
 
 getBar :: Float -> Floor

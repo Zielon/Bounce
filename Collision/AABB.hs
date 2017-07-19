@@ -20,7 +20,7 @@ import GameObjects.Positionable
 import GameObjects.Floor
 import GameObjects.Ball
 
-import Engines.FloorEngine
+import Map.FloorEngine
 
 import Collision.Operations
 

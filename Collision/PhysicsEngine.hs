@@ -16,7 +16,7 @@ import Data.Map
 
 import Collision.AABB
 
-import Engines.FloorEngine
+import Map.FloorEngine
 
 import GameObjects.Ball
 import GameObjects.Positionable

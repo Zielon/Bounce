@@ -21,7 +21,7 @@ import GameObjects.Floor   as F
 import GameObjects.ForceBar
 import GameObjects.Polygon as P
 
-import Engines.FloorEngine
+import Map.FloorEngine
 
 display :: IORef Ball    ->
            IORef GLfloat ->
