@@ -45,7 +45,7 @@ collisionBoundaries ball = do
     when (x > 0.95 ) $ ball $~! \b -> setPosition b $ \(x,y) -> (0.95, y)
     when (x < -0.95) $ ball $~! \b -> setPosition b $ \(x,y) -> (-0.95, y)
 
--- | Collisin for the ball with floors
+-- | Collision for the ball with floors
 --
 collisionEdges :: IORef Ball -> IORef (Map Int Floor) -> IO ()
 collisionEdges ball dictionary = do

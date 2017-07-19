@@ -56,13 +56,12 @@ main = do
      moveDownAll 0.00005 generator floors
      updateGravity ball 0.009 -- dt
      updateKeysBindings keys force ball
-     polygonCollision polygons
 
   forkIO $ forever $ do
      threadDelay 10
      collisionBoundaries ball
      collisionEdges ball floors
-     
+     polygonCollision polygons
 
   forkIO $ forever $ do
      threadDelay 10

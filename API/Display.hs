@@ -3,8 +3,8 @@ module API.Display (
   display)
 where
 
-import Prelude hiding (id)
-import Graphics.UI.GLUT as G
+import Prelude            hiding (id)
+import Graphics.UI.GLUT   as G
 import Graphics.UI.GLUT.Fonts
 import Control.Monad
 import Data.IORef
@@ -41,9 +41,10 @@ display ball angle floors polygons force = do
 
   let (x', y') = getPosition ball'
 
-  forM_ polygons' $ \polygon -> renderPrimitive G.Polygon $ mapM_ (\(x, y) -> vertex $ Vertex3 x y 0) $ P.points polygon
-
   -- | Render section ----------------------
+
+  -- | Polygons
+  forM_ polygons' $ \polygon -> P.draw polygon
 
   -- | Force Bar
   preservingMatrix $ do

@@ -21,8 +21,8 @@ normalize :: Vector -> Vector
 normalize (x, y) = (x/m, y/m) where m = magnitude (x,y)
 
 -- | Get a perpendicular vector
--- For a given vector the perpendicular vectors are (-y,x), (y,-x)
--- where the dot product is 0; example (2,7) and (-7,2)
+--   For a given vector the perpendicular vectors are (-y,x), (y,-x)
+--   where the dot product is 0; example (2,7) and (-7,2)
 --
 perpendicular :: Vector -> Vector
 perpendicular (x, y) = (-y, x)

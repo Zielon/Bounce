@@ -47,6 +47,7 @@ keyboardMouse keys polygons key state _ _ = do
 
   let value = find (\(k ,v) -> v == True) $ toList keys'
 
+  -- TODO delete this part
   case value of
     Nothing       -> return ()
     (Just (k, b)) -> case k of 

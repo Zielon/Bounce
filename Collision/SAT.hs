@@ -6,67 +6,69 @@ import Control.Monad
 import Text.Printf
 import Data.List            as L
 import Data.Map             as M
-import Data.Set
 
+import API.Ternary
 import Collision.AABB
 import Collision.Operations as O
 import GameObjects.Polygon  as P
 
--- Segregating axis theorem
+
+-- | Segregating axis theorem
+--
 polygonCollision :: IORef (Map Int GamePolygon) -> IO ()
 polygonCollision ioPolygons = do
      polygons <- get ioPolygons
-     forM_ (L.map (\(k, v) -> k) $ M.toList polygons) $ \i -> do
+     forM_ (L.map (\(k, v) -> k) $ M.toList polygons) $ \i -> do    -- Use keys from the dictionary
          forM_ polygons $ \b -> do
-            polygons  <- get ioPolygons         -- Each time fetch the newset postion of Polygon A
+            polygons  <- get ioPolygons                             -- Each time we need to fetch the newest position of the Polygon A
             let (Just a) = M.lookup i polygons
-                a_edges = getEdges a
-                a_id = P.id a
+                a_edges  = getEdges a
+
             intersect           <- newIORef True
             willIntersect       <- newIORef True
             translationAxis     <- newIORef (0,0)
             intervalDistance    <- newIORef 0.0
-            minIntervalDistance <- newIORef 9999999999.9 -- Infinity
-            if a == b then return () else do
-            let b_edges = getEdges b
-            forM_ (a_edges ++ b_edges) $ \edge -> do 
-                let axis = O.normalize $ perpendicular edge
-                let (minA, maxA) = projection axis a
-                let projectionB  = projection axis b
+            minIntervalDistance <- newIORef _INFINITY
 
-                if (calculateIntervalDistance (minA, maxA) projectionB) > 0 
-                then intersect $~! (\b -> False) >> return ()    -- polygons are not intersecting
-                else intersect $~! (\b -> b)
+            a == b ? return () :? do
+                let b_edges = getEdges b
+                forM_ (a_edges ++ b_edges) $ \edge -> do 
+                    let axis = O.normalize $ perpendicular edge
+                        projectionB  = projection axis b
+                        (minA, maxA) = projection axis a
+                       
+                    calculateIntervalDistance (minA, maxA) projectionB > 0 ? intersect $~! (\b -> False) :? return ()
 
-                let projectionV = dotProduct axis (velocity a)
+                    let projectionV = dotProduct axis (velocity a)
 
-                if projectionV < 0 
-                then intervalDistance $~! (\i -> calculateIntervalDistance (minA + projectionV, maxA) projectionB)
-                else intervalDistance $~! (\i -> calculateIntervalDistance (minA, maxA + projectionV) projectionB)
+                    if projectionV < 0 
+                    then intervalDistance $~! (\i -> calculateIntervalDistance (minA + projectionV, maxA) projectionB)
+                    else intervalDistance $~! (\i -> calculateIntervalDistance (minA, maxA + projectionV) projectionB)
 
-                iD  <- get intervalDistance
-                if iD > 0 then willIntersect $~! (\b -> False) else return ()
+                    id  <- get intervalDistance
+                    id > 0 ? willIntersect $~! (\b -> False) :? return ()
 
-                rI  <- get intersect
-                rWi <- get willIntersect
+                    isIntersect     <- get intersect
+                    goingToIntersec <- get willIntersect
 
-                intervalDistance $~! (\i -> abs i)
-
-                if rI == True || rWi == True
-                then do
-                    distance    <- get intervalDistance
-                    minDistance <- get minIntervalDistance
-                    if distance < minDistance then do
-                        minIntervalDistance $~! (\d -> distance) >> translationAxis $~! (\a -> axis)
-                        let d = (getCenter a) -. (getCenter b)
-                        when ((dotProduct d axis) < 0) $ translationAxis $~! (\a -> (--.) a)
+                    if isIntersect == True || goingToIntersec == True then do
+                        intervalDistance $~! (\i -> abs i)
+                        distance    <- get intervalDistance
+                        minDistance <- get minIntervalDistance
+                        if distance < minDistance then do
+                            minIntervalDistance $~! (\d -> distance) >> translationAxis $~! (\a -> axis)
+                            let d = (getCenter a) -. (getCenter b)                                  -- We ara translating the A polygon according to the vector (A-B) [which points from B to A]
+                            when ((dotProduct d axis) < 0) $ translationAxis $~! (\a -> (--.) a)    -- Negative dot product [(A-B)·Axis] means that the axis and [A-B] do not point in the same direction
+                        else return ()                                                              -- By negating the translation axis we change the pointing direction
                     else return ()
-                else return ()
 
             wI  <- get willIntersect
             ta  <- get translationAxis
             mid <- get minIntervalDistance
+            
+            let mtv = (velocity a) +. (ta *. mid)    -- The minimum translation vector is used to push the polygons appart.
 
-            if wI == True 
-            then ioPolygons $~! (\p -> M.insert (P.id a) (P.setOffset ((velocity a) +. (ta *. mid)) (P.setVelocity (0,0) a)) p)
-            else ioPolygons $~! (\p -> M.insert (P.id a) (P.setOffset (velocity a) (P.setVelocity (0,0) a)) p)
+            wI == True ? ioPolygons $~! (\p -> M.insert (P.id a) (P.setOffset mtv          (P.setVelocity (0,0) a)) p) :? 
+                         ioPolygons $~! (\p -> M.insert (P.id a) (P.setOffset (velocity a) (P.setVelocity (0,0) a)) p)
+
+    where _INFINITY = 999999999.9
