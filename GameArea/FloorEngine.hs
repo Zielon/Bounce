@@ -1,4 +1,4 @@
-module Map.FloorEngine(
+module GameArea.FloorEngine(
     Floor(Floor, top_left, top_right, bottom_left, id), 
     Vector, 
     getFloors, 
@@ -15,7 +15,7 @@ import Data.IORef
 import Data.Map
 import System.Random
 
-import GameObjects.Floor
+import GameObjects.Objects.Floor
 
 getFloors :: [(GLfloat, GLfloat)] -> (Map Int Floor)
 getFloors list = fromList $ Prelude.map (\((x,y), i) -> (i, sfloor i x y)) $ zip list [1..]

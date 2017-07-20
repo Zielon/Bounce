@@ -16,12 +16,12 @@ import Data.Map
 import API.Points
 import API.Environment
 
-import GameObjects.Ball
-import GameObjects.Floor   as F
-import GameObjects.ForceBar
-import GameObjects.Polygon as P
+import GameObjects.Objects.Ball
+import GameObjects.Objects.Floor   as F
+import GameObjects.Objects.ForceBar
+import GameObjects.Objects.Polygon as P
 
-import Map.FloorEngine
+import GameArea.FloorEngine
 
 display :: IORef Ball    ->
            IORef GLfloat ->

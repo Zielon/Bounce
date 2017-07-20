@@ -13,8 +13,8 @@ import Data.List           hiding (lookup, insert)
 import Prelude             hiding (lookup)
 import Control.Monad 
 
-import GameObjects.Ball    as B
-import GameObjects.Polygon as P
+import GameObjects.Objects.Ball    as B
+import GameObjects.Objects.Polygon as P
 
 import API.Display
 import API.Keys

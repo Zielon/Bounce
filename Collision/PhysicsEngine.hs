@@ -16,9 +16,9 @@ import Data.Map
 
 import Collision.AABB
 
-import Map.FloorEngine
+import GameArea.FloorEngine
 
-import GameObjects.Ball
+import GameObjects.Objects.Ball
 import GameObjects.Positionable
 
 updateGravity :: IORef Ball -> Float -> IO ()

@@ -10,7 +10,7 @@ import Data.Map             as M
 import API.Ternary
 import Collision.AABB
 import Collision.Operations as O
-import GameObjects.Polygon  as P
+import GameObjects.Objects.Polygon  as P
 
 
 -- | Segregating axis theorem

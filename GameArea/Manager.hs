@@ -1,4 +1,4 @@
-module Map.Manager where
+module GameArea.Manager where
 
 import Graphics.UI.GLUT
 import Data.IORef

@@ -1,4 +1,4 @@
-module GameObjects.Ball(
+module GameObjects.Objects.Ball(
     Ball(..),
     Bounceable(..)
 ) where

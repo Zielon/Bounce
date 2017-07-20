@@ -1,4 +1,4 @@
-module GameObjects.Polygon(
+module GameObjects.Objects.Polygon(
     GamePolygon(..),
     Polygonable(..),
     Vector,

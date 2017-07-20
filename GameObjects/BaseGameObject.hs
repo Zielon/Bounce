@@ -1,8 +1,8 @@
-module GameObject.Object where
+module GameObject.BaseGameObject where
 
 import GameObjects.Global
 
--- | The general class instantiated by every map object
+-- | The general class instantiated by every game object
 -- |
 class Object a where
     setOffset   :: Vector -> a -> a

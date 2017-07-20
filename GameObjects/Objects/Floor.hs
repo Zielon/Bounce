@@ -1,4 +1,4 @@
-module GameObjects.Floor(
+module GameObjects.Objects.Floor(
     Floor(..),
     Floorable(..),
     Vector

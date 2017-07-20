@@ -18,10 +18,10 @@ import Collision.AABB
 import Collision.PhysicsEngine
 import Collision.SAT
 
-import Map.FloorEngine
+import GameArea.FloorEngine
 
-import GameObjects.Ball
-import GameObjects.Polygon as P
+import GameObjects.Objects.Ball
+import GameObjects.Objects.Polygon as P
 
 main :: IO ()
 main = do

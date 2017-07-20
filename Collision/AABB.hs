@@ -17,10 +17,10 @@ import Data.Map as M
 import Data.Set as S
 
 import GameObjects.Positionable
-import GameObjects.Floor
-import GameObjects.Ball
+import GameObjects.Objects.Floor
+import GameObjects.Objects.Ball
 
-import Map.FloorEngine
+import GameArea.FloorEngine
 
 import Collision.Operations
 
