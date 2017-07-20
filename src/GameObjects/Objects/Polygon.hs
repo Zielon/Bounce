@@ -1,8 +1,7 @@
 module GameObjects.Objects.Polygon(
     GamePolygon(..),
     Polygonable(..),
-    Vector,
-    projection
+    Vector
 ) where
 
 import Prelude hiding (id)
@@ -10,15 +9,13 @@ import Graphics.UI.GLUT     as G
 import Data.List
 import Text.Printf
 
-import GameObjects.Global
+import GameObjects.Objects.BaseClass
+
 import Collision.Operations
 
 class Polygonable a where
     getEdges    :: a -> [Vector]
-    getCenter   :: a -> Vector
-    setOffset   :: Vector -> a -> a
-    setVelocity :: Vector -> a -> a
-    draw        :: a -> IO ()
+    projection  :: Vector -> a -> (GLfloat, GLfloat)
 
 data GamePolygon = GamePolygon {
     id       :: Int,
@@ -27,8 +24,16 @@ data GamePolygon = GamePolygon {
 }
 
 instance Polygonable GamePolygon where
-    setVelocity v polygon = polygon { velocity = v }
+
+    -- | Projection of each point on the axis to find the length on the perpendicular axis
+    --  @axis    - perpendicular vector to a selected axis
+    --  @polygon - the given polygon
+    --
+    projection axis polygon = (minimum d, maximum d) where d = map (\point -> dotProduct point axis) $ points polygon
     getEdges polygon = map (\(a, b) -> (-.) b a ) $ (edgefiy p) ++ [(last p, head p)]           where p = points polygon
+
+instance BaseClass GamePolygon where
+    setVelocity v polygon = polygon { velocity = v }
     setOffset (x1, y1) polygon = polygon { points = (map (\(x2, y2) -> (x1 + x2, y1 + y2)) p) } where p = points polygon
     getCenter polygon = (totalX/count, totalY/count)
         where p      = points polygon
@@ -54,14 +59,6 @@ instance Ord GamePolygon where
     (>=) a b    = id a >= id b
     (>)  a b    = id a >  id b
     (<=) a b    = id a <= id b
-
--- | Projection of each point on the axis to find the length on the perpendicular axis
---  @axis    - perpendicular vector to a selected axis
---  @polygon - the given polygon
---
-projection :: Vector -> GamePolygon -> (GLfloat, GLfloat)
-projection axis polygon = (minimum d, maximum d)
-    where d = map (\point -> dotProduct point axis) $ points polygon
 
 -- PRIVATE
 

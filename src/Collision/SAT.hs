@@ -4,14 +4,14 @@ import Graphics.UI.GLUT
 import Data.IORef
 import Control.Monad
 import Text.Printf
-import Data.List            as L
-import Data.Map             as M
+import Data.List                     as L
+import Data.Map                      as M
 
 import API.Ternary
 import Collision.AABB
-import Collision.Operations as O
-import GameObjects.Objects.Polygon  as P
-
+import Collision.Operations          as O
+import GameObjects.Objects.Polygon   as P
+import GameObjects.Objects.BaseClass as B
 
 -- | Segregating axis theorem
 --
@@ -68,7 +68,7 @@ polygonCollision ioPolygons = do
             
             let mtv = (velocity a) +. (ta *. mid)    -- The minimum translation vector is used to push the polygons appart.
 
-            wI == True ? ioPolygons $~! (\p -> M.insert (P.id a) (P.setOffset mtv          (P.setVelocity (0,0) a)) p) :? 
-                         ioPolygons $~! (\p -> M.insert (P.id a) (P.setOffset (velocity a) (P.setVelocity (0,0) a)) p)
+            wI == True ? ioPolygons $~! (\p -> M.insert (P.id a) (B.setOffset mtv          (B.setVelocity (0,0) a)) p) :? 
+                         ioPolygons $~! (\p -> M.insert (P.id a) (B.setOffset (velocity a) (B.setVelocity (0,0) a)) p)
 
     where _INFINITY = 999999999.9

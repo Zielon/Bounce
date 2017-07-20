@@ -19,7 +19,8 @@ import API.Environment
 import GameObjects.Objects.Ball
 import GameObjects.Objects.Floor   as F
 import GameObjects.Objects.ForceBar
-import GameObjects.Objects.Polygon as P
+import GameObjects.Objects.Polygon   as P
+import GameObjects.Objects.BaseClass
 
 import GameArea.FloorEngine
 
@@ -44,7 +45,7 @@ display ball angle floors polygons force = do
   -- | Render section ----------------------
 
   -- | Polygons
-  forM_ polygons' $ \polygon -> P.draw polygon
+  forM_ polygons' $ \polygon -> draw polygon
 
   -- | Force Bar
   preservingMatrix $ do

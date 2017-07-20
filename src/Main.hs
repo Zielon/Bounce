@@ -21,6 +21,7 @@ import Collision.SAT
 import GameArea.FloorEngine
 
 import GameObjects.Objects.Ball
+import GameObjects.Objects.BaseClass
 import GameObjects.Objects.Polygon as P
 
 main :: IO ()
@@ -38,7 +39,7 @@ main = do
   keys      <- newIORef getKeys
   floors    <- newIORef $ getFloors $ [] -- getMockedFloors
   polygons  <- newIORef $ M.fromList [(1, P.GamePolygon 1 (0,0) [(0.1, 0.2), (0.1, 0.4), (0.2, 0.4)]),
-                                      (5, P.GamePolygon 5 (0,0) [(-0.8, -0.8), (-0.6, -0.7), (0.8, -0.8), (0.8, -0.7)]),
+                                      (5, P.GamePolygon 5 (0,0) [(-0.8, -0.8), (-0.8, -0.7),(0.8, -0.7), (0.8, -0.8)]),
                                       (4, P.GamePolygon 4 (0,0) [(-0.5, -0.6), (-0.4, 0.4), (-0.5, 0.4)]),
                                       (3, P.GamePolygon 3 (0,0) [(0.5, -0.6), (0.4, 0.0), (0.5, 0.0)]),
                                       (2, P.GamePolygon 2 (0,0) [(-0.2, 0.6), (0.2, 0.8), (0.1, 0.6)])]
@@ -52,13 +53,15 @@ main = do
   -- Global handler for StdGen
   generator <- newIORef (mkStdGen 0)
 
+  -- ===== THREAD SECTION =====
+
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do
      threadDelay 5000   -- wait 5 ms
      moveDownAll 0.00005 generator floors
      updateGravity ball 0.009 -- dt
      updateKeysBindings keys force ball
-     polygons $~! \p -> M.map (\v-> (P.id v) /= 5 ? setOffset (0, -0.0005) v :? v) p 
+     polygons $~! \p -> M.map (\v-> (P.id v) /= 5 ? setOffset (0, -0.00005) v :? v) p 
 
   forkIO $ forever $ do
      threadDelay 10
