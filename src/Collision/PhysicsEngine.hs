@@ -18,6 +18,7 @@ import Collision.AABB
 
 import GameArea.FloorEngine
 
+import GameObjects.Objects.Floor as Floor
 import GameObjects.Objects.Ball
 import GameObjects.Objects.BaseClass
 import GameObjects.Positionable
@@ -66,11 +67,11 @@ collisionEdges ball dictionary = do
                                    >> ball $~! (\b -> setOffset (min_x - radius', y) b)
             Right -> ball $~! (\b -> setVelocity (earth vX, vY) b) 
                                    >> ball $~! (\b -> setOffset (max_x + radius', y) b) 
-            Under -> ball $~! (\b -> updateScore b (id f))
+            Under -> ball $~! (\b -> updateScore b (Floor.id f))
                                    >> ball $~! (\b -> setOffset (x, min_y - radius') b)
                                    >> ball $~! (\b -> setVelocity (vX, earth vY) b)
                                    >> dictionary $~! (\d -> moveSingle f (-(abs (y + radius' - min_y))) d) -- actually move up
-            Top  -> ball $~! (\b -> updateScore b (id f))
+            Top  -> ball $~! (\b -> updateScore b (Floor.id f))
                                    >> ball $~! (\b -> setOffset (x, max_y + radius') b)
                                    >> ball $~! (\b -> setVelocity (vX, earth vY) b)
                                    >> dictionary $~! (\d -> moveSingle f (abs (y - radius' - max_y)) d)

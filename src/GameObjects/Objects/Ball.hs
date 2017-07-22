@@ -5,10 +5,13 @@ module GameObjects.Objects.Ball(
 ) where
 
 import Graphics.UI.GLUT
+import Prelude hiding (id)
+import Text.Printf
 
 import GameObjects.Objects.BaseClass
 
 data Ball = Ball {
+    id        :: Int,
     center    :: Vector,
     velocity  :: Vector,
     radius    :: GLfloat,
@@ -16,6 +19,8 @@ data Ball = Ball {
     lastFloor :: Int
 }
 
+-- | Class characteristic only for the Ball object
+--
 class Bounceable a where
     setLastFloor :: a -> Int -> a
     updateScore  :: a -> Int -> a
@@ -34,8 +39,22 @@ instance BaseClass Ball where
             scale 0.5 0.5 (0.5::GLfloat)
             getColor3f 1 0 0
             renderObject Solid $ Sphere' 0.1 64 64
+            getColor3f (-1) (-1) (-1)
+            rasterPos (Vertex2 (-0.03::GLfloat) (-0.03::GLfloat))
+            renderString Helvetica18 $ printf "%d" (id ball)
 
 instance Bounceable Ball where
     setLastFloor ball f  = ball { lastFloor = f }
     updateScore  ball f  = if (lastFloor ball) /= f then ball { score = s + 1 } else ball
                            where s = score ball
+
+instance Eq Ball where
+    (==) a b = id a == id b
+    (/=) a b = id a /= id b
+
+instance Ord Ball where
+    compare a b = (id a) `compare` (id b)
+    (<)  a b    = id a <  id b
+    (>=) a b    = id a >= id b
+    (>)  a b    = id a >  id b
+    (<=) a b    = id a <= id b

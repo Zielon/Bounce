@@ -13,14 +13,16 @@ import GameObjects.Objects.BaseClass
 
 import Collision.Operations
 
-class Polygonable a where
-    getEdges    :: a -> [Vector]
-
 data GamePolygon = GamePolygon {
     id       :: Int,
     velocity :: Vector,
     points   :: [Vector]
 }
+
+-- | Class characteristic only for the Polygon object
+--
+class Polygonable a where
+    getEdges    :: a -> [Vector]
 
 instance Polygonable GamePolygon where
     getEdges polygon = map (\(a, b) -> (-.) b a ) $ (edgefiy p) ++ [(last p, head p)]           where p = points polygon
@@ -42,7 +44,6 @@ instance BaseClass GamePolygon where
             rasterPos (Vertex2 (0.0::GLfloat) (0.0::GLfloat))
             renderString Helvetica18 $ printf "%d" (id polygon)
         where (x, y) = getCenter polygon
-              
 
     -- | Projection of each point on the axis to find the length on the perpendicular axis
     --  @axis    - perpendicular vector to a selected axis

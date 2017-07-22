@@ -12,13 +12,16 @@ type Vector = (GLfloat, GLfloat)
 -- | The general class instantiated by every game's object
 -- |
 class BaseClass a where
+
     -- SETTERS
     setOffset   :: Vector -> a -> a
     setVelocity :: Vector -> a -> a
+
     -- GETTERS
     getVelocity :: a -> Vector
     getCenter   :: a -> Vector
     getPoints   :: a -> [Vector]
+
     -- OTHERS
     projection  :: Vector -> a -> (GLfloat, GLfloat)
     draw        :: a -> IO ()

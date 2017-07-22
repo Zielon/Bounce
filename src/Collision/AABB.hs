@@ -17,8 +17,8 @@ import Data.Map as M
 import Data.Set as S
 
 import GameObjects.Positionable
-import GameObjects.Objects.Floor
-import GameObjects.Objects.Ball
+import GameObjects.Objects.Floor    as Floor
+import GameObjects.Objects.Ball     as Ball
 import GameObjects.Objects.BaseClass
 
 import GameArea.FloorEngine
@@ -65,7 +65,7 @@ gridIntersect2D dictionary = do
     floors <- get dictionary
     grid   <- newIORef $ (M.fromList [] :: Map (Int, Int) [Int])
     forM_  (sortBy (\(_, a) (_, b) -> getY a `compare` getY b) $ M.toList floors) $ \(_, a) -> do
-        let i = (id a)
+        let i = (Floor.id a)
             (a_min_x, a_min_y) = getMin a
             (a_max_x, a_max_y) = getMax a
             xRange = [Prelude.floor(a_min_x/h)..Prelude.ceiling(a_max_x/h)]
@@ -86,5 +86,5 @@ gridIntersect2D dictionary = do
                 let (_, min_y) = getMin a
                     (_, max_y) = getMax a
                 case testAABB a b of
-                    Top   -> dictionary $~! (\d -> M.insert (id b) (setY (min_y - 0.05) (min_y) b) d)
+                    Top   -> dictionary $~! (\d -> M.insert (Floor.id b) (setY (min_y - 0.05) (min_y) b) d)
                     _     -> return ()
