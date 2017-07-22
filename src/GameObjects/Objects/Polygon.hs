@@ -15,7 +15,6 @@ import Collision.Operations
 
 class Polygonable a where
     getEdges    :: a -> [Vector]
-    projection  :: Vector -> a -> (GLfloat, GLfloat)
 
 data GamePolygon = GamePolygon {
     id       :: Int,
@@ -24,17 +23,13 @@ data GamePolygon = GamePolygon {
 }
 
 instance Polygonable GamePolygon where
-
-    -- | Projection of each point on the axis to find the length on the perpendicular axis
-    --  @axis    - perpendicular vector to a selected axis
-    --  @polygon - the given polygon
-    --
-    projection axis polygon = (minimum d, maximum d) where d = map (\point -> dotProduct point axis) $ points polygon
     getEdges polygon = map (\(a, b) -> (-.) b a ) $ (edgefiy p) ++ [(last p, head p)]           where p = points polygon
 
 instance BaseClass GamePolygon where
     setVelocity v polygon = polygon { velocity = v }
     setOffset (x1, y1) polygon = polygon { points = (map (\(x2, y2) -> (x1 + x2, y1 + y2)) p) } where p = points polygon
+    getVelocity polygon = velocity polygon
+    getPoints polygon = points polygon
     getCenter polygon = (totalX/count, totalY/count)
         where p      = points polygon
               count  = realToFrac (length p)
@@ -46,8 +41,14 @@ instance BaseClass GamePolygon where
             translate $ Vector3 x y 0
             rasterPos (Vertex2 (0.0::GLfloat) (0.0::GLfloat))
             renderString Helvetica18 $ printf "%d" (id polygon)
-        where (x, y)           = getCenter polygon
-              getColor3f x y z = color $ Color3 ((x+1)/2) ((y+1)/2) (((z+1)/2) :: GLfloat)
+        where (x, y) = getCenter polygon
+              
+
+    -- | Projection of each point on the axis to find the length on the perpendicular axis
+    --  @axis    - perpendicular vector to a selected axis
+    --  @polygon - the given polygon
+    --
+    projection axis polygon = (minimum d, maximum d) where d = map (\point -> dotProduct point axis) $ points polygon
 
 instance Eq GamePolygon where
     (==) a b = id a == id b

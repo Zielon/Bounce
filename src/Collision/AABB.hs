@@ -19,6 +19,7 @@ import Data.Set as S
 import GameObjects.Positionable
 import GameObjects.Objects.Floor
 import GameObjects.Objects.Ball
+import GameObjects.Objects.BaseClass
 
 import GameArea.FloorEngine
 
@@ -54,7 +55,7 @@ checkBallCollision ball obj =
     else if ball_x > nearestX then Right
     else None
 
-    where (ball_x, ball_y)  = getPosition ball
+    where (ball_x, ball_y)  = getCenter ball
           (obj_x, obj_y) = bottom_left obj
           nearestX = clamp ball_x obj_x (obj_x + getWidth obj)
           nearestY = clamp ball_y obj_y (obj_y + getHeight obj)

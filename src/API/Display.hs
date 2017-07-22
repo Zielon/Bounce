@@ -17,10 +17,10 @@ import API.Points
 import API.Environment
 
 import GameObjects.Objects.Ball
-import GameObjects.Objects.Floor   as F
+import GameObjects.Objects.Floor     as F
 import GameObjects.Objects.ForceBar
 import GameObjects.Objects.Polygon   as P
-import GameObjects.Objects.BaseClass
+import GameObjects.Objects.BaseClass as Base
 
 import GameArea.FloorEngine
 
@@ -40,7 +40,7 @@ display ball angle floors polygons force = do
   floors'   <- get floors
   polygons' <- get polygons
 
-  let (x', y') = getPosition ball'
+  let (x', y') = getCenter ball'
 
   -- | Render section ----------------------
 
@@ -50,7 +50,7 @@ display ball angle floors polygons force = do
   -- | Force Bar
   preservingMatrix $ do
       getColor3f (1, 0, 0)
-      renderPrimitive G.Polygon $ mapM_ (\(x, y) -> vertex $ Vertex3 x y 0) $ getPoints $ getBar force'
+      renderPrimitive G.Polygon $ mapM_ (\(x, y) -> vertex $ Vertex3 x y 0) $ GameArea.FloorEngine.getPoints $ getBar force'
       translate $ Vector3 (-0.95::GLfloat) (0.95::GLfloat) 0
       rasterPos (Vertex2 (0.0::GLfloat) (-0.025::GLfloat))
       renderString Helvetica18 $ printf "%.1f%%" (force' * 10)
@@ -72,13 +72,8 @@ display ball angle floors polygons force = do
   --     renderString Helvetica18 $ printf "%d" (F.id f)
 
   -- | Ball
-  translate $ Vector3 x' y' 0
-  preservingMatrix $ do
-    a <- get angle
-    scale 0.5 0.5 (0.5::GLfloat)
-    getColor3f (1, 0, 0)
-    renderObject Solid $ Sphere' 0.1 64 64
-  
+  draw ball'
+
   swapBuffers
   where 
     getColor3f :: (Float, Float, Float) -> IO ()

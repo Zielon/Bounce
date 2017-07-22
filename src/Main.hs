@@ -32,7 +32,7 @@ main = do
   createWindow "Bounce"
   reshapeCallback $= Just reshape
 
-  ball      <- newIORef $ Ball 0.9 0.9 0.0 0.1 0.05 0 0
+  ball      <- newIORef $ Ball (0.9, 0.9) (0.0, 0.1) 0.05 0 0
   delta     <- newIORef 0.0
   angle     <- newIORef 0
   force     <- newIORef 0

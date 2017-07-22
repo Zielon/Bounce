@@ -28,15 +28,18 @@ updateKeysBindings :: IORef (Map GameKey Bool) -> IORef GLfloat -> IORef Ball ->
 updateKeysBindings refkeys force ball = do
   keys   <- get refkeys
   gForce <- get force
+  ball'  <- get ball
 
   let (Just leftKey)  = lookup GameKeyLeft  keys
   let (Just rightKey) = lookup GameKeyRight keys
   let (Just forceKey) = lookup GameKeyForce keys
+  let (x,y)    = getCenter ball' 
+  let (vX, vY) = getVelocity ball'
 
-  when(leftKey)      $ ball  $~! \b -> Ball.setVelocity b (\(x,y) -> (x - 0.05, y))
-  when(rightKey)     $ ball  $~! \b -> Ball.setVelocity b (\(x,y) -> (x + 0.05, y))
+  when(leftKey)      $ ball  $~! \b -> Base.setVelocity (x - 0.05, y) b
+  when(rightKey)     $ ball  $~! \b -> Base.setVelocity (x + 0.05, y) b
   when(forceKey)     $ force $~! \f -> f + 0.1 > maxForce ? maxForce :? f + 0.1
-  when(not forceKey) $ ball  $~! (\b -> Ball.setVelocity b (\(vX,vY) -> vY <= 0 ? (vX, vY - gForce) :? (vX, vY + gForce))) >> force $~! (\f -> 0.0)
+  when(not forceKey) $ ball  $~! (\b -> Base.setVelocity (vY <= 0 ? (vX, vY - gForce) :? (vX, vY + gForce)) b) >> force $~! (\f -> 0.0)
 
   where maxForce = 10.0
 
