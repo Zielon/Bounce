@@ -1,6 +1,7 @@
 module GameObjects.Objects.Ball(
     Ball(..),
     Bounceable(..),
+    GameObject(..),
     Vector
 ) where
 
@@ -8,7 +9,7 @@ import Graphics.UI.GLUT
 import Prelude hiding (id)
 import Text.Printf
 
-import GameObjects.Objects.BaseClass
+import GameObjects.GameObject
 
 data Ball = Ball {
     id        :: Int,
@@ -25,12 +26,14 @@ class Bounceable a where
     setLastFloor :: a -> Int -> a
     updateScore  :: a -> Int -> a
 
-instance BaseClass Ball where 
+instance GameObject Ball where 
     setOffset vector ball = ball { center = vector }
     setVelocity vector ball = ball { velocity = vector }
     getVelocity ball = velocity ball
     getCenter ball = center ball
     getPoints ball = [center ball]
+    getId ball = id ball
+    getEdges ball = []      -- TODO
     projection vector axis = (0.0, 0.0) -- TODO 
     draw ball = do
         let (x,y) = center ball

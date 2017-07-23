@@ -15,7 +15,6 @@ import Control.Monad
 
 import GameObjects.Objects.Ball      as Ball
 import GameObjects.Objects.Polygon   as Polygon
-import GameObjects.Objects.BaseClass as Base
 
 import API.Display
 import API.Keys
@@ -24,26 +23,27 @@ import API.Ternary
 reshape :: ReshapeCallback
 reshape size = do viewport $= (Position 0 0, size)
 
-updateKeysBindings :: IORef (Map GameKey Bool) -> IORef GLfloat -> IORef Ball -> IO ()
-updateKeysBindings refkeys force ball = do
+updateKeysBindings :: IORef (Map GameKey Bool) -> IORef GLfloat -> IORef (Map Int Ball) -> IO ()
+updateKeysBindings refkeys force balls = do
   keys   <- get refkeys
   gForce <- get force
-  ball'  <- get ball
+  balls'  <- get balls
 
   let (Just leftKey)  = lookup GameKeyLeft  keys
   let (Just rightKey) = lookup GameKeyRight keys
   let (Just forceKey) = lookup GameKeyForce keys
-  let (x,y)    = getCenter ball' 
-  let (vX, vY) = getVelocity ball'
+  return ()
+  -- let (x,y)    = getCenter ball' 
+  -- let (vX, vY) = getVelocity ball'
 
-  when(leftKey)      $ ball  $~! \b -> Base.setVelocity (x - 0.05, y) b
-  when(rightKey)     $ ball  $~! \b -> Base.setVelocity (x + 0.05, y) b
-  when(forceKey)     $ force $~! \f -> f + 0.1 > maxForce ? maxForce :? f + 0.1
-  when(not forceKey) $ ball  $~! (\b -> Base.setVelocity (vY <= 0 ? (vX, vY - gForce) :? (vX, vY + gForce)) b) >> force $~! (\f -> 0.0)
+  -- when(leftKey)      $ ball  $~! \b -> setVelocity (x - 0.05, y) b
+  -- when(rightKey)     $ ball  $~! \b -> setVelocity (x + 0.05, y) b
+  -- when(forceKey)     $ force $~! \f -> f + 0.1 > maxForce ? maxForce :? f + 0.1
+  -- when(not forceKey) $ ball  $~! (\b -> setVelocity (vY <= 0 ? (vX, vY - gForce) :? (vX, vY + gForce)) b) >> force $~! (\f -> 0.0)
 
   where maxForce = 10.0
 
-keyboardMouse :: IORef (Map GameKey Bool) -> IORef (Map Int GamePolygon) -> KeyboardMouseCallback
+keyboardMouse :: (GameObject a) => IORef (Map GameKey Bool) -> IORef (Map Int a) -> KeyboardMouseCallback
 keyboardMouse keys polygons key state _ _ = do
   polygons' <- get polygons
   keys'     <- get keys
@@ -65,10 +65,10 @@ keyboardMouse keys polygons key state _ _ = do
   let (Just z) = lookup i polygons'
 
   case key of
-      (SpecialKey KeyLeft)  -> polygons $~! (\p -> insert (Polygon.id z) (Base.setVelocity (-0.02, 0) z) p)
-      (SpecialKey KeyRight) -> polygons $~! (\p -> insert (Polygon.id z) (Base.setVelocity (0.02, 0) z) p)
-      (SpecialKey KeyUp)    -> polygons $~! (\p -> insert (Polygon.id z) (Base.setVelocity (0, 0.02) z) p)
-      (SpecialKey KeyDown)  -> polygons $~! (\p -> insert (Polygon.id z) (Base.setVelocity (0, -0.02) z) p)
+      (SpecialKey KeyLeft)  -> polygons $~! (\p -> insert (getId z) (setVelocity (-0.02, 0) z) p)
+      (SpecialKey KeyRight) -> polygons $~! (\p -> insert (getId z) (setVelocity (0.02, 0) z) p)
+      (SpecialKey KeyUp)    -> polygons $~! (\p -> insert (getId z) (setVelocity (0, 0.02) z) p)
+      (SpecialKey KeyDown)  -> polygons $~! (\p -> insert (getId z) (setVelocity (0, -0.02) z) p)
       (Char ' ')            -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
       (Char '1')            -> state == Down ? (updateKey keys GameKeyOne True) :? (updateKey keys GameKeyOne False)
       (Char '2')            -> state == Down ? (updateKey keys GameKeyTwo True) :? (updateKey keys GameKeyTwo False)

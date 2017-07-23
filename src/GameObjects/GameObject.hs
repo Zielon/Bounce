@@ -1,6 +1,6 @@
-module GameObjects.Objects.BaseClass(
+module GameObjects.GameObject(
     Vector,
-    BaseClass(..),
+    GameObject(..),
     getColor3f
 ) where
 
@@ -11,7 +11,7 @@ type Vector = (GLfloat, GLfloat)
 
 -- | The general class instantiated by every game's object
 -- |
-class BaseClass a where
+class GameObject a where
 
     -- SETTERS
     setOffset   :: Vector -> a -> a
@@ -21,6 +21,8 @@ class BaseClass a where
     getVelocity :: a -> Vector
     getCenter   :: a -> Vector
     getPoints   :: a -> [Vector]
+    getId       :: a -> Int
+    getEdges    :: a -> [Vector]
 
     -- OTHERS
     projection  :: Vector -> a -> (GLfloat, GLfloat)

@@ -8,14 +8,12 @@ import Data.List                     as L
 import Data.Map                      as M
 
 import API.Ternary
-import Collision.AABB
-import Collision.Operations          as O
+import Collision.VectorOperations    as O
 import GameObjects.Objects.Polygon   as P
-import GameObjects.Objects.BaseClass as B
 
 -- | Segregating axis theorem
 --
-polygonCollision :: IORef (Map Int GamePolygon) -> IO ()
+polygonCollision :: (Eq a, Ord a, GameObject a) => IORef (Map Int a) -> IO ()
 polygonCollision ioPolygons = do
      polygons <- get ioPolygons
      forM_ (L.map (\(k, v) -> k) $ M.toList polygons) $ \i -> do    -- Use keys from the dictionary
@@ -39,7 +37,7 @@ polygonCollision ioPolygons = do
                        
                     calculateIntervalDistance (minA, maxA) projectionB > 0 ? intersect $~! (\b -> False) :? return ()
 
-                    let projectionV = dotProduct axis (velocity a)
+                    let projectionV = dotProduct axis (getVelocity a)
 
                     if projectionV < 0 
                     then intervalDistance $~! (\i -> calculateIntervalDistance (minA + projectionV, maxA) projectionB)
@@ -66,9 +64,12 @@ polygonCollision ioPolygons = do
             ta  <- get translationAxis
             mid <- get minIntervalDistance
             
-            let mtv = (velocity a) +. (ta *. mid)    -- The minimum translation vector is used to push the polygons appart.
+            let mtv = (getVelocity a) +. (ta *. mid) -- The minimum translation vector is used to push the polygons appart.
+            let id = getId a
 
-            wI == True ? ioPolygons $~! (\p -> M.insert (P.id a) (B.setOffset mtv          (B.setVelocity (0,0) a)) p) :? 
-                         ioPolygons $~! (\p -> M.insert (P.id a) (B.setOffset (velocity a) (B.setVelocity (0,0) a)) p)
+            postRedisplay Nothing
+            
+            wI == True ? ioPolygons $~! (\p -> M.insert id (setOffset mtv             (setVelocity (0,0) a)) p) :? 
+                         ioPolygons $~! (\p -> M.insert id (setOffset (getVelocity a) (setVelocity (0,0) a)) p)
 
     where _INFINITY = 999999999.9

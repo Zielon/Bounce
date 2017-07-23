@@ -1,10 +1,10 @@
-module Collision.Operations where
+module Collision.VectorOperations where
 
 import Data.List
 
 import API.Ternary
 import Graphics.UI.GLUT
-import GameObjects.Global
+import GameObjects.GameObject
 
 clamp :: GLfloat -> GLfloat -> GLfloat -> GLfloat
 clamp v min max = Prelude.max min (Prelude.min max v)

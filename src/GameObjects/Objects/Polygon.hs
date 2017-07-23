@@ -1,6 +1,6 @@
 module GameObjects.Objects.Polygon(
     GamePolygon(..),
-    Polygonable(..),
+    GameObject(..),
     Vector
 ) where
 
@@ -9,9 +9,9 @@ import Graphics.UI.GLUT     as G
 import Data.List
 import Text.Printf
 
-import GameObjects.Objects.BaseClass
+import GameObjects.GameObject
 
-import Collision.Operations
+import Collision.VectorOperations
 
 data GamePolygon = GamePolygon {
     id       :: Int,
@@ -19,17 +19,11 @@ data GamePolygon = GamePolygon {
     points   :: [Vector]
 }
 
--- | Class characteristic only for the Polygon object
---
-class Polygonable a where
-    getEdges    :: a -> [Vector]
-
-instance Polygonable GamePolygon where
-    getEdges polygon = map (\(a, b) -> (-.) b a ) $ (edgefiy p) ++ [(last p, head p)]           where p = points polygon
-
-instance BaseClass GamePolygon where
+instance GameObject GamePolygon where
     setVelocity v polygon = polygon { velocity = v }
     setOffset (x1, y1) polygon = polygon { points = (map (\(x2, y2) -> (x1 + x2, y1 + y2)) p) } where p = points polygon
+    getEdges polygon = map (\(a, b) -> (-.) b a ) $ (edgefiy p) ++ [(last p, head p)]           where p = points polygon
+    getId polygon = id polygon
     getVelocity polygon = velocity polygon
     getPoints polygon = points polygon
     getCenter polygon = (totalX/count, totalY/count)

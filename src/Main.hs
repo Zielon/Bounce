@@ -18,10 +18,7 @@ import Collision.AABB
 import Collision.PhysicsEngine
 import Collision.SAT
 
-import GameArea.FloorEngine
-
 import GameObjects.Objects.Ball
-import GameObjects.Objects.BaseClass
 import GameObjects.Objects.Polygon as P
 
 main :: IO ()
@@ -32,12 +29,15 @@ main = do
   createWindow "Bounce"
   reshapeCallback $= Just reshape
 
-  ball      <- newIORef $ Ball 1 (0.9, 0.9) (0.0, 0.1) 0.05 0 0
   delta     <- newIORef 0.0
   angle     <- newIORef 0
   force     <- newIORef 0
   keys      <- newIORef getKeys
-  floors    <- newIORef $ getFloors $ [] -- getMockedFloors
+
+  balls     <- newIORef $ M.fromList [(1, Ball 1 (0.9, 0.9) (0.0, 0.1) 0.05 0 0),
+                                      (2, Ball 2 (0.8, 0.8) (0.0, 0.2) 0.05 0 0), 
+                                      (3, Ball 3 (0.3, 0.7) (0.0, 0.3) 0.05 0 0)]
+
   polygons  <- newIORef $ M.fromList [(1, P.GamePolygon 1 (0,0) [(0.1, 0.2), (0.1, 0.4), (0.2, 0.4)]),
                                       (5, P.GamePolygon 5 (0,0) [(-0.8, -0.8), (-0.8, -0.7),(0.8, -0.7), (0.8, -0.8)]),
                                       (4, P.GamePolygon 4 (0,0) [(-0.5, -0.6), (-0.4, 0.4), (-0.5, 0.4)]),
@@ -47,8 +47,8 @@ main = do
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0
   keyboardMouseCallback $= Just (keyboardMouse keys polygons)
-  idleCallback          $= Just (idle angle delta)
-  displayCallback       $= display ball angle floors polygons force
+  idleCallback          $= Just (idle)
+  displayCallback       $= display balls polygons force
 
   -- Global handler for StdGen
   generator <- newIORef (mkStdGen 0)
@@ -57,21 +57,15 @@ main = do
 
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do
-     threadDelay 5000   -- wait 5 ms
-     moveDownAll 0.00005 generator floors
-     updateGravity ball 0.009 -- dt
-     updateKeysBindings keys force ball
-     polygons $~! \p -> M.map (\v-> (P.id v) /= 5 ? setOffset (0, -0.00005) v :? v) p 
+     threadDelay 4000
+     updateGravity balls 0.009 -- dt
+     updateKeysBindings keys force balls
+     polygons $~! \p -> M.map (\v-> (P.id v) /= 5 ? setOffset (0, -0.00005) v :? v) p
 
   forkIO $ forever $ do
      threadDelay 10
-     collisionBoundaries ball
-     collisionEdges ball floors
+     collisionBoundaries balls
      polygonCollision polygons
-
-  forkIO $ forever $ do
-     threadDelay 10
-     gridIntersect2D floors
 
   -- Main OpenGL loop with callbacks
   mainLoop

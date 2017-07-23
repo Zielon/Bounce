@@ -2,8 +2,7 @@
 
 module Collision.PhysicsEngine (
     updateGravity, 
-    collisionBoundaries, 
-    collisionEdges) 
+    collisionBoundaries) 
 where
 
 import Graphics.UI.GLUT hiding (None)
@@ -16,20 +15,19 @@ import Data.Map
 
 import Collision.AABB
 
-import GameArea.FloorEngine
-
-import GameObjects.Objects.Floor as Floor
 import GameObjects.Objects.Ball
-import GameObjects.Objects.BaseClass
-import GameObjects.Positionable
+import GameObjects.GameObject
 
-updateGravity :: IORef Ball -> Float -> IO ()
-updateGravity b dt = do
-    ball <- get b
-    let (vX, vY) = getVelocity ball
-    let (x, y)   = getCenter ball
-    b $~! \b -> setVelocity (vX, (vY + acc * dt)) b
-    b $~! \b -> setOffset ((x + vX * dt), ((y + vY * dt) + 0.5 * acc * dt ^ 2)) b
+updateGravity :: (GameObject a) => IORef (Map Int a) -> Float -> IO ()
+updateGravity balls dt = do
+    b_ <- get balls
+    forM_ b_ $ \ball -> do
+        let (vX, vY) = getVelocity ball
+            (x, y)   = getCenter ball
+            id       = getId ball
+            v        = vY + acc * dt
+            ball_v = setVelocity (vX, v) ball
+        balls $~! (\b -> insert id (setOffset ((x + vX * dt), ((y + v * dt) + 0.5 * acc * dt ^ 2)) ball_v) b) 
     where acc = -9.80665
 
 earth :: Float -> Float
@@ -37,41 +35,14 @@ earth v = v * (ball - earth) / (ball + earth)
           where ball  = 50.0
                 earth = 500.0
 
-collisionBoundaries :: IORef Ball -> IO ()
-collisionBoundaries ball = do
-    ball' <- get ball
-    let (x,y) = getCenter ball'
-    let (vX, vY) = getVelocity ball'
-    when (y < -0.95) $ ball $~! \b -> setVelocity (vX, earth vY) b
-    when (x > 0.95  || x < -0.95) $ ball $~! \b -> setVelocity (earth vX, vY) b
-    -- Move back the ball when overstep the boundaries
-    when (y < -0.95) $ ball $~! \b -> setOffset (x, -0.95) b
-    when (x > 0.95 ) $ ball $~! \b -> setOffset (0.95,  y) b
-    when (x < -0.95) $ ball $~! \b -> setOffset (-0.95, y) b
-
--- | Collision for the ball with floors
---
-collisionEdges :: IORef Ball -> IORef (Map Int Floor) -> IO ()
-collisionEdges ball dictionary = do
-    floors' <- get dictionary
-    forM_ floors' $ \f -> do
-        ball' <- get ball
-        let (x,y) = getCenter ball'
-            (min_x, min_y) = getMin f
-            (max_x, max_y) = getMax f
-            radius' = radius ball'
-            (vX, vY) = getVelocity ball'
-        case checkBallCollision ball' f of
-            None  -> return ()
-            Left  -> ball $~! (\b -> setVelocity (earth vX, vY) b)
-                                   >> ball $~! (\b -> setOffset (min_x - radius', y) b)
-            Right -> ball $~! (\b -> setVelocity (earth vX, vY) b) 
-                                   >> ball $~! (\b -> setOffset (max_x + radius', y) b) 
-            Under -> ball $~! (\b -> updateScore b (Floor.id f))
-                                   >> ball $~! (\b -> setOffset (x, min_y - radius') b)
-                                   >> ball $~! (\b -> setVelocity (vX, earth vY) b)
-                                   >> dictionary $~! (\d -> moveSingle f (-(abs (y + radius' - min_y))) d) -- actually move up
-            Top  -> ball $~! (\b -> updateScore b (Floor.id f))
-                                   >> ball $~! (\b -> setOffset (x, max_y + radius') b)
-                                   >> ball $~! (\b -> setVelocity (vX, earth vY) b)
-                                   >> dictionary $~! (\d -> moveSingle f (abs (y - radius' - max_y)) d)
+collisionBoundaries :: (GameObject a) => IORef (Map Int a) -> IO ()
+collisionBoundaries balls = do
+    b_ <- get balls
+    forM_ b_ $ \ball -> do
+        let (x, y)   = getCenter ball
+            (vX, vY) = getVelocity ball
+            id       = getId ball
+        when (y < -0.95) $ balls $~! \b -> insert id (setVelocity (vX, earth vY) (setOffset (x, -0.95) ball)) b
+        when (x > 0.95 ) $ balls $~! \b -> insert id (setOffset (0.95, y)  ball) b
+        when (x < -0.95) $ balls $~! \b -> insert id (setOffset (-0.95, y) ball) b
+        when (x > 0.95  || x < -0.95) $ balls $~! \b ->  insert id (setVelocity (earth vX, vY) ball) b
