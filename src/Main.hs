@@ -20,6 +20,8 @@ import Collision.SAT
 
 import GameObjects.Objects.Ball
 import GameObjects.Objects.Polygon as P
+import GameObjects.GameEnum        as Type
+import Factory.Producer            as Factory
 
 main :: IO ()
 main = do
@@ -33,16 +35,8 @@ main = do
   angle     <- newIORef 0
   force     <- newIORef 0
   keys      <- newIORef getKeys
-
-  balls     <- newIORef $ M.fromList [(1, Ball 1 (0.9, 0.9) (0.0, 0.1) 0.05 0 0),
-                                      (2, Ball 2 (0.8, 0.8) (0.0, 0.2) 0.05 0 0), 
-                                      (3, Ball 3 (0.3, 0.7) (0.0, 0.3) 0.05 0 0)]
-
-  polygons  <- newIORef $ M.fromList [(1, P.GamePolygon 1 (0,0) [(0.1, 0.2), (0.1, 0.4), (0.2, 0.4)]),
-                                      (5, P.GamePolygon 5 (0,0) [(-0.8, -0.8), (-0.8, -0.7),(0.8, -0.7), (0.8, -0.8)]),
-                                      (4, P.GamePolygon 4 (0,0) [(-0.5, -0.6), (-0.4, 0.4), (-0.5, 0.4)]),
-                                      (3, P.GamePolygon 3 (0,0) [(0.5, -0.6), (0.4, 0.0), (0.5, 0.0)]),
-                                      (2, P.GamePolygon 2 (0,0) [(-0.2, 0.6), (0.2, 0.8), (0.1, 0.6)])]
+  balls     <- newIORef $ M.fromList $ Factory.createBallObjects
+  polygons  <- newIORef $ M.fromList $ Factory.createPolygonObjects
 
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0

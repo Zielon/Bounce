@@ -1,11 +1,13 @@
 module GameObjects.GameObject(
     Vector,
     GameObject(..),
+    GameEnum,
     getColor3f
 ) where
 
 import Graphics.UI.GLUT
 import Data.List
+import GameObjects.GameEnum
 
 type Vector = (GLfloat, GLfloat)
 
@@ -28,4 +30,5 @@ class GameObject a where
     projection  :: Vector -> a -> (GLfloat, GLfloat)
     draw        :: a -> IO ()
 
+getColor3f :: GLfloat -> GLfloat -> GLfloat -> IO ()
 getColor3f x y z = color $ Color3 ((x+1)/2) ((y+1)/2) (((z+1)/2) :: GLfloat)
