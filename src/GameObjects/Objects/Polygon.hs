@@ -10,7 +10,7 @@ import Data.List
 import Text.Printf
 
 import GameObjects.GameObject
-
+import Common.Drawable
 import Collision.VectorOperations
 
 data GamePolygon = GamePolygon {
@@ -44,6 +44,9 @@ instance GameObject GamePolygon where
     --  @polygon - the given polygon
     --
     projection axis polygon = (minimum d, maximum d) where d = map (\point -> dotProduct point axis) $ points polygon
+
+instance Drawable_ GamePolygon where
+    render polygon = draw polygon
 
 instance Eq GamePolygon where
     (==) a b = id a == id b

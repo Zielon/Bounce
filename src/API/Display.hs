@@ -22,7 +22,7 @@ import Widgets.Widget              as W
 
 display :: IORef (Map Int Ball) ->
            IORef (Map Int GamePolygon) ->
-           IORef (Map WidgetType Widget) ->
+           IORef (Map Int Widget) ->
            IORef GLfloat ->
            DisplayCallback
 display balls polygons widgets force = do 

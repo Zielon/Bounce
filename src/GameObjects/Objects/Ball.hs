@@ -10,6 +10,7 @@ import Prelude hiding (id)
 import Text.Printf
 
 import GameObjects.GameObject
+import Common.Drawable
 
 data Ball = Ball {
     id        :: Int,
@@ -50,6 +51,9 @@ instance Bounceable Ball where
     setLastFloor ball f  = ball { lastFloor = f }
     updateScore  ball f  = if (lastFloor ball) /= f then ball { score = s + 1 } else ball
                            where s = score ball
+
+instance Drawable_ Ball where
+    render ball = draw ball
 
 instance Eq Ball where
     (==) a b = id a == id b

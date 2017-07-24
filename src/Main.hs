@@ -20,6 +20,8 @@ import Collision.SAT
 
 import Widgets.Widget
 
+import Common.Drawable
+
 import GameObjects.Objects.Ball
 import GameObjects.Objects.Polygon as P
 import GameObjects.GameEnum        as Type
@@ -38,9 +40,11 @@ main = do
   force     <- newIORef 0
   keys      <- newIORef getKeys
   widgets   <- newIORef getWidgetsMap
-  balls     <- newIORef $ M.fromList $ Factory.createBallObjects
-  polygons  <- newIORef $ M.fromList $ Factory.createPolygonObjects
+  balls     <- newIORef getBallsMap
+  polygons  <- newIORef getPolygonsMap
   
+  --toRender  <- newIORef [balls, widgets, polygons]
+
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0
   keyboardMouseCallback $= Just (keyboardMouse keys polygons)
