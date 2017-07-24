@@ -1,2 +1,0 @@
-module Widgets.PointsBar where
-

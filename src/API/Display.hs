@@ -15,15 +15,17 @@ import Data.Map
 
 import API.Environment
 
-import GameObjects.Objects.Ball
-import GameObjects.Objects.Polygon
+import GameObjects.Objects.Ball    as B
+import GameObjects.Objects.Polygon as P
 import GameObjects.GameObject
+import Widgets.Widget              as W
 
 display :: IORef (Map Int Ball) ->
            IORef (Map Int GamePolygon) ->
+           IORef (Map WidgetType Widget) ->
            IORef GLfloat ->
            DisplayCallback
-display balls polygons force = do 
+display balls polygons widgets force = do 
   clear [ColorBuffer, DepthBuffer] -- clear depth buffer, too
   clear [ColorBuffer]
   loadIdentity
@@ -31,22 +33,20 @@ display balls polygons force = do
   balls'    <- get balls
   polygons' <- get polygons
   force'    <- get force
+  widgets'  <- get widgets
 
   -- | Render section ----------------------
 
   -- | Polygons
-  forM_ polygons' $ \polygon -> draw polygon
+  forM_ polygons' $ \polygon -> P.draw polygon
 
   -- | Ball
-  forM_ balls' $ \ball -> draw ball
+  forM_ balls' $ \ball -> B.draw ball
+
+  -- | Widgets
+  forM_ widgets' $ \(Widget w) -> W.draw w
 
   swapBuffers
-  where 
-    getColor3f :: (Float, Float, Float) -> IO ()
-    getColor3f (r, g, b) = color $ Color3 r g (b :: GLfloat)
-
-    getColor3f' :: (GLfloat, GLfloat, GLfloat) -> IO ()
-    getColor3f' (r, g, b) = color $ Color3 r g (b :: GLfloat)
 
 idle :: IdleCallback
 idle = do postRedisplay Nothing

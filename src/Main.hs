@@ -18,6 +18,8 @@ import Collision.AABB
 import Collision.PhysicsEngine
 import Collision.SAT
 
+import Widgets.Widget
+
 import GameObjects.Objects.Ball
 import GameObjects.Objects.Polygon as P
 import GameObjects.GameEnum        as Type
@@ -35,14 +37,15 @@ main = do
   angle     <- newIORef 0
   force     <- newIORef 0
   keys      <- newIORef getKeys
+  widgets   <- newIORef getWidgetsMap
   balls     <- newIORef $ M.fromList $ Factory.createBallObjects
   polygons  <- newIORef $ M.fromList $ Factory.createPolygonObjects
-
+  
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0
   keyboardMouseCallback $= Just (keyboardMouse keys polygons)
   idleCallback          $= Just (idle)
-  displayCallback       $= display balls polygons force
+  displayCallback       $= display balls polygons widgets force
 
   -- Global handler for StdGen
   generator <- newIORef (mkStdGen 0)
