@@ -4,7 +4,7 @@ module GameObjects.GameObject(
     Vector,
     GameObject_(..),
     GameObject(..),
-    ObjectType(..),
+    Type(..),
     getColor3f
 ) where
 
@@ -13,7 +13,7 @@ import Data.List
 
 type Vector = (GLfloat, GLfloat)
 
-data ObjectType = PolygonType | BallType deriving (Eq, Ord)
+data Type = PolygonType | BallType deriving (Eq, Ord)
 
 -- | The general class instantiated by every game's object
 -- |
@@ -29,7 +29,7 @@ class GameObject_ a where
     getPoints   :: a -> [Vector]
     getId       :: a -> Int
     getEdges    :: a -> [Vector]
-    getType     :: a -> ObjectType
+    getType     :: a -> Type
 
     -- OTHERS
     projection  :: Vector -> a -> (GLfloat, GLfloat)

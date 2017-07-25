@@ -2,7 +2,7 @@ module GameObjects.Objects.Polygon(
     GamePolygon(..),
     GameObject(..),
     GameObject_(..),
-    ObjectType(..),
+    Type(..),
     Vector
 ) where
 

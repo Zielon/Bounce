@@ -33,14 +33,10 @@ main = do
   createWindow "Bounce"
   reshapeCallback $= Just reshape
 
-  delta     <- newIORef 0.0
-  angle     <- newIORef 0
-  force     <- newIORef 0
-  keys      <- newIORef getKeys
-  widgets   <- newIORef getWidgetsMap
-  arena     <- newIORef getArenaObjectsMap
-  
-  --toRender  <- newIORef [balls, widgets, polygons]
+  force    <- newIORef 0
+  keys     <- newIORef getKeys
+  widgets  <- newIORef getWidgetsMap
+  arena    <- newIORef getArenaObjectsMap
 
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0

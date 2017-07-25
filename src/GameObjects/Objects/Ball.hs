@@ -2,8 +2,7 @@ module GameObjects.Objects.Ball(
     Ball(..),
     Bounceable(..),
     GameObject(..),
-    GameObject_(..),
-    ObjectType(..),
+    Type(..),
     Vector
 ) where
 
