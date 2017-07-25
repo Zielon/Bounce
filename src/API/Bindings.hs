@@ -23,11 +23,11 @@ import API.Ternary
 reshape :: ReshapeCallback
 reshape size = do viewport $= (Position 0 0, size)
 
-updateKeysBindings :: IORef (Map GameKey Bool) -> IORef GLfloat -> IORef (Map Int Ball) -> IO ()
+updateKeysBindings :: IORef (Map GameKey Bool) -> IORef GLfloat -> IORef (Map Int GameObject) -> IO ()
 updateKeysBindings refkeys force balls = do
   keys   <- get refkeys
   gForce <- get force
-  balls'  <- get balls
+  balls' <- get balls
 
   let (Just leftKey)  = lookup GameKeyLeft  keys
   let (Just rightKey) = lookup GameKeyRight keys
@@ -43,9 +43,9 @@ updateKeysBindings refkeys force balls = do
 
   where maxForce = 10.0
 
-keyboardMouse :: (GameObject a) => IORef (Map GameKey Bool) -> IORef (Map Int a) -> KeyboardMouseCallback
-keyboardMouse keys polygons key state _ _ = do
-  polygons' <- get polygons
+keyboardMouse :: IORef (Map GameKey Bool) -> IORef (Map Int GameObject) -> KeyboardMouseCallback
+keyboardMouse keys arena key state _ _ = do
+  arena'    <- get arena
   keys'     <- get keys
   index     <- newIORef 1
 
@@ -62,16 +62,16 @@ keyboardMouse keys polygons key state _ _ = do
                         _            -> return ()
   i <- get index
 
-  let (Just z) = lookup i polygons'
-
-  case key of
-      (SpecialKey KeyLeft)  -> polygons $~! (\p -> insert (getId z) (setVelocity (-0.02, 0) z) p)
-      (SpecialKey KeyRight) -> polygons $~! (\p -> insert (getId z) (setVelocity (0.02, 0) z) p)
-      (SpecialKey KeyUp)    -> polygons $~! (\p -> insert (getId z) (setVelocity (0, 0.02) z) p)
-      (SpecialKey KeyDown)  -> polygons $~! (\p -> insert (getId z) (setVelocity (0, -0.02) z) p)
-      (Char ' ')            -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
-      (Char '1')            -> state == Down ? (updateKey keys GameKeyOne True) :? (updateKey keys GameKeyOne False)
-      (Char '2')            -> state == Down ? (updateKey keys GameKeyTwo True) :? (updateKey keys GameKeyTwo False)
-      (Char '3')            -> state == Down ? (updateKey keys GameKeyThree True) :? (updateKey keys GameKeyThree False)
-      (Char '4')            -> state == Down ? (updateKey keys GameKeyFour True) :? (updateKey keys GameKeyFour False)
-      _                     -> return ()
+  case lookup i arena' of
+    Nothing             -> return ()
+    Just (GameObject z) -> case key of
+                              (SpecialKey KeyLeft)  -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (-0.02, 0) z)) p)
+                              (SpecialKey KeyRight) -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (0.02, 0) z)) p)
+                              (SpecialKey KeyUp)    -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (0, 0.02) z)) p)
+                              (SpecialKey KeyDown)  -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (0, -0.02) z)) p)
+                              (Char ' ')            -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
+                              (Char '1')            -> state == Down ? (updateKey keys GameKeyOne True) :? (updateKey keys GameKeyOne False)
+                              (Char '2')            -> state == Down ? (updateKey keys GameKeyTwo True) :? (updateKey keys GameKeyTwo False)
+                              (Char '3')            -> state == Down ? (updateKey keys GameKeyThree True) :? (updateKey keys GameKeyThree False)
+                              (Char '4')            -> state == Down ? (updateKey keys GameKeyFour True) :? (updateKey keys GameKeyFour False)
+                              _                     -> return ()

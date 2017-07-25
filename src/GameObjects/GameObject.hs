@@ -1,5 +1,8 @@
+{-# LANGUAGE ExistentialQuantification #-}
+
 module GameObjects.GameObject(
     Vector,
+    GameObject_(..),
     GameObject(..),
     GameEnum,
     getColor3f
@@ -13,7 +16,7 @@ type Vector = (GLfloat, GLfloat)
 
 -- | The general class instantiated by every game's object
 -- |
-class GameObject a where
+class GameObject_ a where
 
     -- SETTERS
     setOffset   :: Vector -> a -> a
@@ -29,6 +32,8 @@ class GameObject a where
     -- OTHERS
     projection  :: Vector -> a -> (GLfloat, GLfloat)
     draw        :: a -> IO ()
+
+data GameObject = forall a. GameObject_ a => GameObject a
 
 getColor3f :: GLfloat -> GLfloat -> GLfloat -> IO ()
 getColor3f x y z = color $ Color3 ((x+1)/2) ((y+1)/2) (((z+1)/2) :: GLfloat)

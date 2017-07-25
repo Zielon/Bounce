@@ -2,6 +2,7 @@ module GameObjects.Objects.Ball(
     Ball(..),
     Bounceable(..),
     GameObject(..),
+    GameObject_(..),
     Vector
 ) where
 
@@ -11,6 +12,7 @@ import Text.Printf
 
 import GameObjects.GameObject
 import Common.Drawable
+import Collision.VectorOperations
 
 data Ball = Ball {
     id        :: Int,
@@ -27,14 +29,16 @@ class Bounceable a where
     setLastFloor :: a -> Int -> a
     updateScore  :: a -> Int -> a
 
-instance GameObject Ball where 
+instance GameObject_ Ball where 
     setOffset vector ball = ball { center = vector }
     setVelocity vector ball = ball { velocity = vector }
     getVelocity ball = velocity ball
     getCenter ball = center ball
     getPoints ball = [center ball]
     getId ball = id ball
-    getEdges ball = []      -- TODO
+    getEdges ball = [(-.) (x, y + r) (x, y - r), (-.) (x + r, y) (x - r, y)] 
+        where (x,y) = center ball
+              r     = radius ball
     projection vector axis = (0.0, 0.0) -- TODO 
     draw ball = do
         let (x,y) = center ball

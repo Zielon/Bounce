@@ -14,7 +14,6 @@ import API.Bindings
 import API.Keys
 import API.Ternary
 
-import Collision.AABB
 import Collision.PhysicsEngine
 import Collision.SAT
 
@@ -40,16 +39,15 @@ main = do
   force     <- newIORef 0
   keys      <- newIORef getKeys
   widgets   <- newIORef getWidgetsMap
-  balls     <- newIORef getBallsMap
-  polygons  <- newIORef getPolygonsMap
+  arena     <- newIORef getArenaObjectsMap
   
   --toRender  <- newIORef [balls, widgets, polygons]
 
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0
-  keyboardMouseCallback $= Just (keyboardMouse keys polygons)
+  keyboardMouseCallback $= Just (keyboardMouse keys arena)
   idleCallback          $= Just (idle)
-  displayCallback       $= display balls polygons widgets force
+  displayCallback       $= display arena widgets force
 
   -- Global handler for StdGen
   generator <- newIORef (mkStdGen 0)
@@ -59,14 +57,13 @@ main = do
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do
      threadDelay 4000
-     updateGravity balls 0.009 -- dt
-     updateKeysBindings keys force balls
-     polygons $~! \p -> M.map (\v-> (P.id v) /= 5 ? setOffset (0, -0.00005) v :? v) p
+--     updateGravity arena 0.009 -- dt
+     updateKeysBindings keys force arena
+   --  arena $~! \p -> M.map (\(GameObject v) -> (GameObject (setOffset (0, -0.00005) v))) p
 
   forkIO $ forever $ do
      threadDelay 10
-     collisionBoundaries balls
-     polygonCollision polygons
+     polygonCollision arena
 
   -- Main OpenGL loop with callbacks
   mainLoop

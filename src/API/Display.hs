@@ -15,33 +15,28 @@ import Data.Map
 
 import API.Environment
 
-import GameObjects.Objects.Ball    as B
-import GameObjects.Objects.Polygon as P
-import GameObjects.GameObject
+import GameObjects.Objects.Ball
+import GameObjects.Objects.Polygon
+import GameObjects.GameObject      as G
 import Widgets.Widget              as W
 
-display :: IORef (Map Int Ball) ->
-           IORef (Map Int GamePolygon) ->
+display :: IORef (Map Int GameObject) ->
            IORef (Map Int Widget) ->
            IORef GLfloat ->
            DisplayCallback
-display balls polygons widgets force = do 
+display arena widgets force = do 
   clear [ColorBuffer, DepthBuffer] -- clear depth buffer, too
   clear [ColorBuffer]
   loadIdentity
 
-  balls'    <- get balls
-  polygons' <- get polygons
+  arena'    <- get arena
   force'    <- get force
   widgets'  <- get widgets
 
   -- | Render section ----------------------
 
-  -- | Polygons
-  forM_ polygons' $ \polygon -> P.draw polygon
-
-  -- | Ball
-  forM_ balls' $ \ball -> B.draw ball
+  -- | Arena objects
+  forM_ arena' $ \(GameObject o) -> (G.draw o)
 
   -- | Widgets
   forM_ widgets' $ \(Widget w) -> W.draw w

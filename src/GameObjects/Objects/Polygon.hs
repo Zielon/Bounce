@@ -1,6 +1,7 @@
 module GameObjects.Objects.Polygon(
     GamePolygon(..),
     GameObject(..),
+    GameObject_(..),
     Vector
 ) where
 
@@ -19,7 +20,7 @@ data GamePolygon = GamePolygon {
     points   :: [Vector]
 }
 
-instance GameObject GamePolygon where
+instance GameObject_ GamePolygon where
     setVelocity v polygon = polygon { velocity = v }
     setOffset (x1, y1) polygon = polygon { points = (map (\(x2, y2) -> (x1 + x2, y1 + y2)) p) } where p = points polygon
     getEdges polygon = map (\(a, b) -> (-.) b a ) $ (edgefiy p) ++ [(last p, head p)]           where p = points polygon
