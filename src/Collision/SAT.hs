@@ -11,6 +11,7 @@ import API.Ternary
 import Collision.VectorOperations    as O
 import GameObjects.Objects.Polygon   as P
 import GameObjects.Objects.Ball      as B
+import GameObjects.GameObject
 
 -- | Segregating axis theorem for polygons
 --
@@ -31,7 +32,7 @@ polygonCollision ioPolygons = do
                     intervalDistance    <- newIORef 0.0
                     minIntervalDistance <- newIORef _INFINITY
 
-                    (getId a) == (getId b) ? return () :? do
+                    getId a == getId b ? return () :? do
                         let b_edges = getEdges b
                         forM_ (a_edges ++ b_edges) $ \edge -> do 
                             let axis = O.normalize $ perpendicular edge
@@ -72,7 +73,9 @@ polygonCollision ioPolygons = do
 
                     postRedisplay Nothing
                     
-                    wI == True ? ioPolygons $~! (\p -> M.insert id (GameObject (setOffset mtv             (setVelocity (0,0) a))) p) :? 
-                                 ioPolygons $~! (\p -> M.insert id (GameObject (setOffset (getVelocity a) (setVelocity (0,0) a))) p)
+                    if getType a /= BallType && getType b /= BallType then do   -- Only for polygons | For now.. TODO Collision with cirles
+                        wI == True ? ioPolygons $~! (\p -> M.insert id (GameObject (setOffset mtv             (setVelocity (0,0) a))) p) :? 
+                                    ioPolygons $~! (\p -> M.insert id (GameObject (setOffset (getVelocity a) (setVelocity (0,0) a))) p)
+                    else return ()
 
     where _INFINITY = 999999999.9

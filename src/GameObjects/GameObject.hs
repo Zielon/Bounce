@@ -4,15 +4,16 @@ module GameObjects.GameObject(
     Vector,
     GameObject_(..),
     GameObject(..),
-    GameEnum,
+    ObjectType(..),
     getColor3f
 ) where
 
 import Graphics.UI.GLUT
 import Data.List
-import GameObjects.GameEnum
 
 type Vector = (GLfloat, GLfloat)
+
+data ObjectType = PolygonType | BallType deriving (Eq, Ord)
 
 -- | The general class instantiated by every game's object
 -- |
@@ -28,6 +29,7 @@ class GameObject_ a where
     getPoints   :: a -> [Vector]
     getId       :: a -> Int
     getEdges    :: a -> [Vector]
+    getType     :: a -> ObjectType
 
     -- OTHERS
     projection  :: Vector -> a -> (GLfloat, GLfloat)

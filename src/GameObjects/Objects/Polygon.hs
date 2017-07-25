@@ -2,6 +2,7 @@ module GameObjects.Objects.Polygon(
     GamePolygon(..),
     GameObject(..),
     GameObject_(..),
+    ObjectType(..),
     Vector
 ) where
 
@@ -27,6 +28,7 @@ instance GameObject_ GamePolygon where
     getId polygon = id polygon
     getVelocity polygon = velocity polygon
     getPoints polygon = points polygon
+    getType polygon = PolygonType
     getCenter polygon = (totalX/count, totalY/count)
         where p      = points polygon
               count  = realToFrac (length p)

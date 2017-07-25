@@ -23,7 +23,6 @@ import Common.Drawable
 
 import GameObjects.Objects.Ball
 import GameObjects.Objects.Polygon as P
-import GameObjects.GameEnum        as Type
 import Factory.Producer            as Factory
 
 main :: IO ()
@@ -57,12 +56,13 @@ main = do
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do
      threadDelay 4000
---     updateGravity arena 0.009 -- dt
+     updateGravity arena 0.009 -- dt
      updateKeysBindings keys force arena
-   --  arena $~! \p -> M.map (\(GameObject v) -> (GameObject (setOffset (0, -0.00005) v))) p
+     arena $~! \p -> M.map (\(GameObject v) -> getType v /= BallType ? (GameObject (setOffset (0, -0.00005) v)) :? (GameObject v)) p
 
   forkIO $ forever $ do
-     threadDelay 10
+     threadDelay 1000
+     collisionBoundaries arena
      polygonCollision arena
 
   -- Main OpenGL loop with callbacks

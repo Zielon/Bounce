@@ -3,6 +3,7 @@ module GameObjects.Objects.Ball(
     Bounceable(..),
     GameObject(..),
     GameObject_(..),
+    ObjectType(..),
     Vector
 ) where
 
@@ -36,6 +37,7 @@ instance GameObject_ Ball where
     getCenter ball = center ball
     getPoints ball = [center ball]
     getId ball = id ball
+    getType ball = BallType
     getEdges ball = [(-.) (x, y + r) (x, y - r), (-.) (x + r, y) (x - r, y)] 
         where (x,y) = center ball
               r     = radius ball
