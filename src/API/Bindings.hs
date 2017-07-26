@@ -65,10 +65,10 @@ keyboardMouse keys arena key state _ _ = do
   case lookup i arena' of
     Nothing             -> return ()
     Just (GameObject z) -> case key of
-                              (SpecialKey KeyLeft)  -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (-0.02, 0) z)) p)
-                              (SpecialKey KeyRight) -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (0.02, 0) z)) p)
-                              (SpecialKey KeyUp)    -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (0, 0.02) z)) p)
-                              (SpecialKey KeyDown)  -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (0, -0.02) z)) p)
+                              (SpecialKey KeyLeft)  -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (-0.01, 0) z)) p)
+                              (SpecialKey KeyRight) -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (0.01, 0) z)) p)
+                              (SpecialKey KeyUp)    -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (0, 0.01) z)) p)
+                              (SpecialKey KeyDown)  -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (0, -0.01) z)) p)
                               (Char ' ')            -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
                               (Char '1')            -> state == Down ? (updateKey keys GameKeyOne True) :? (updateKey keys GameKeyOne False)
                               (Char '2')            -> state == Down ? (updateKey keys GameKeyTwo True) :? (updateKey keys GameKeyTwo False)

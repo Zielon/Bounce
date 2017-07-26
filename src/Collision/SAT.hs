@@ -16,15 +16,38 @@ import Collision.VectorOperations    as O
 import GameObjects.GameObject
 
 -- | The polygon with polytgon collision
+--
 polygonsCircleCollision :: GameObject -> GameObject -> IORef (Map Int GameObject) -> IO ()
-polygonsCircleCollision a b ioObjects = do return ()
+polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
+    objects <- get ioObjects
+    getId a == getId b ? return () :? do
+        let a_points = getPoints a
+            a_edges  = (P.edgefiy a_points) ++ [(last a_points, head a_points)] 
+            b_center = getCenter b
+        forM_ a_edges $ \(vertex, nextVertex) -> do
+            let axis = b_center -. vertex
+                edge = nextVertex -. vertex
+                dot  = dotProduct edge axis
+                radius = getRadius b
+            if (magnitude axis) - radius <= 0 
+            then putStrLn $ printf "Collision outside the Voroni Regions | %d" (getId a)
+            else if dot >= 0 && dot <= squered edge
+                then do
+                    let projection = vertex +. (edge *. (dot / squered edge))
+                        center_vector = projection -. b_center
+                    if magnitude center_vector <= radius
+                    then putStrLn $ printf "Collision inside the Voroni Regions | %d" (getId a)
+                    else putStrLn $ printf "No %d" (getId a)
+            else return ()
+    where squered (x,y) = x*x + y*y
 
 -- | The polygon with polytgon collision
+--
 polygonsCollision :: GameObject -> GameObject -> IORef (Map Int GameObject) -> IO ()
 polygonsCollision (GameObject a) (GameObject b) ioObjects = do
     intersect           <- newIORef True
     willIntersect       <- newIORef True
-    translationAxis     <- newIORef (0,0)
+    translationAxis     <- newIORef (0, 0)
     intervalDistance    <- newIORef 0.0
     minIntervalDistance <- newIORef _INFINITY
 

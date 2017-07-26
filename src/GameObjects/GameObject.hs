@@ -30,6 +30,7 @@ class GameObject_ a where
     getId       :: a -> Int
     getEdges    :: a -> [Vector]
     getType     :: a -> Type
+    getRadius   :: a -> GLfloat
 
     -- OTHERS
     projection  :: Vector -> a -> (GLfloat, GLfloat)

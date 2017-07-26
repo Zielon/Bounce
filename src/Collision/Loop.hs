@@ -14,7 +14,7 @@ import GameObjects.Objects.Polygon   as P
 import GameObjects.Objects.Ball      as B
 import GameObjects.GameObject
 
--- | Segregating axis theorem for objects
+-- | Segregating axis theorem for arena's objects
 --
 collisionLoop :: IORef (Map Int GameObject) -> IO ()
 collisionLoop ioObjects = do
@@ -31,4 +31,6 @@ collisionLoop ioObjects = do
 
                     if typeA == PolygonType && typeB == PolygonType 
                     then polygonsCollision       (GameObject a) (GameObject b) ioObjects
+                    else if typeA == BallType
+                    then polygonsCircleCollision (GameObject b) (GameObject a) ioObjects
                     else polygonsCircleCollision (GameObject a) (GameObject b) ioObjects

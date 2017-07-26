@@ -9,6 +9,7 @@ module GameObjects.Objects.Ball(
 import Graphics.UI.GLUT
 import Prelude hiding (id)
 import Text.Printf
+import GHC.Float
 
 import GameObjects.GameObject
 import Common.Drawable
@@ -37,17 +38,17 @@ instance GameObject_ Ball where
     getPoints ball = [center ball]
     getId ball = id ball
     getType ball = BallType
-    getEdges ball = [(-.) (x, y - r) (x, y + r), (-.) (x - r, y) (x + r, y)] 
-        where (x,y) = center ball
-              r     = radius ball
-    projection vector axis = (0.0, 0.0) -- TODO 
+    getRadius ball = radius ball
+    getEdges ball = error "Not impelented exception"
+    projection vector axis = error "Not impelented exception"
     draw ball = do
         let (x,y) = center ball
+            diameter = (radius ball * 2.0)
         preservingMatrix $ do
             translate $ Vector3 x y 0
             scale 0.5 0.5 (0.5::GLfloat)
             getColor3f 1 0 0
-            renderObject Solid $ Sphere' 0.1 64 64
+            renderObject Solid $ Sphere' (float2Double diameter) 64 64
             getColor3f (-1) (-1) (-1)
             rasterPos (Vertex2 (-0.03::GLfloat) (-0.03::GLfloat))
             renderString Helvetica18 $ printf "%d" (id ball)

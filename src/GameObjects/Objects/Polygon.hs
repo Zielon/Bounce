@@ -3,7 +3,8 @@ module GameObjects.Objects.Polygon(
     GameObject(..),
     GameObject_(..),
     Type(..),
-    Vector
+    Vector,
+    edgefiy
 ) where
 
 import Prelude hiding (id)
@@ -29,6 +30,7 @@ instance GameObject_ GamePolygon where
     getVelocity polygon = velocity polygon
     getPoints polygon = points polygon
     getType polygon = PolygonType
+    getRadius polygon = error "Not implemented exception"
     getCenter polygon = (totalX/count, totalY/count)
         where p      = points polygon
               count  = realToFrac (length p)
@@ -61,8 +63,6 @@ instance Ord GamePolygon where
     (>=) a b    = id a >= id b
     (>)  a b    = id a >  id b
     (<=) a b    = id a <= id b
-
--- PRIVATE
 
 edgefiy :: [Vector] -> [(Vector, Vector)]
 edgefiy [] = []

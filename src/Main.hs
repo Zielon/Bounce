@@ -29,7 +29,7 @@ main :: IO ()
 main = do
   (_progName, _args) <- getArgsAndInitialize
   initialDisplayMode $= [WithDepthBuffer, DoubleBuffered]
-  initialWindowSize $= Size 600 600
+  initialWindowSize $= Size 800 800
   createWindow "Bounce"
   reshapeCallback $= Just reshape
 
@@ -52,9 +52,9 @@ main = do
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do
      threadDelay 4000
-     updateGravity arena 0.009 -- dt
+  --   updateGravity arena 0.009 -- dt
      updateKeysBindings keys force arena
-     arena $~! \p -> M.map (\(GameObject v) -> getType v /= BallType ? (GameObject (setOffset (0, -0.00005) v)) :? (GameObject v)) p
+  --   arena $~! \p -> M.map (\(GameObject v) -> getType v /= BallType ? (GameObject (setOffset (0, -0.00005) v)) :? (GameObject v)) p
 
   forkIO $ forever $ do
      threadDelay 1000
