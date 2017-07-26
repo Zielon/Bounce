@@ -15,7 +15,7 @@ import API.Keys
 import API.Ternary
 
 import Collision.PhysicsEngine
-import Collision.SAT
+import Collision.Loop
 
 import Widgets.Widget
 
@@ -59,7 +59,7 @@ main = do
   forkIO $ forever $ do
      threadDelay 1000
      collisionBoundaries arena
-     polygonCollision arena
+     collisionLoop arena
 
   -- Main OpenGL loop with callbacks
   mainLoop

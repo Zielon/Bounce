@@ -37,7 +37,7 @@ instance GameObject_ Ball where
     getPoints ball = [center ball]
     getId ball = id ball
     getType ball = BallType
-    getEdges ball = [(-.) (x, y + r) (x, y - r), (-.) (x + r, y) (x - r, y)] 
+    getEdges ball = [(-.) (x, y - r) (x, y + r), (-.) (x - r, y) (x + r, y)] 
         where (x,y) = center ball
               r     = radius ball
     projection vector axis = (0.0, 0.0) -- TODO 
