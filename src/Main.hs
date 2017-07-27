@@ -58,7 +58,7 @@ main = do
 
   forkIO $ forever $ do
      threadDelay 1000
-     collisionBoundaries arena
+   --  collisionBoundaries arena
      collisionLoop arena
 
   -- Main OpenGL loop with callbacks

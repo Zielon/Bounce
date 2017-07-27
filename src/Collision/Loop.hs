@@ -19,18 +19,26 @@ import GameObjects.GameObject
 collisionLoop :: IORef (Map Int GameObject) -> IO ()
 collisionLoop ioObjects = do
      objects <- get ioObjects
-     forM_ (L.map (\(k, v) -> k) $ M.toList objects) $ \i -> do    -- Use keys from the dictionary
-         forM_ objects $ \(GameObject b) -> do
+     let ids = (L.map (\(k, v) -> k) $ M.toList objects)
+     forM_ ids $ \i -> do    -- Use keys from the dictionary
+         forM_ ids $ \j -> do
             objects  <- get ioObjects                              -- Each time we need to fetch the newest position of the Polygon A
             case M.lookup i objects of
                 Nothing             -> return ()
                 Just (GameObject a) -> do
-                    let id = getId a
-                        typeA = getType a
-                        typeB = getType b
+                    case M.lookup j objects of
+                         Nothing             -> return ()
+                         Just (GameObject b) -> do
+                            let typeA = getType a
+                                typeB = getType b
+                                idA   = getId a
+                                idB   = getId b
 
-                    if typeA == PolygonType && typeB == PolygonType 
-                    then polygonsCollision       (GameObject a) (GameObject b) ioObjects
-                    else if typeA == BallType
-                    then polygonsCircleCollision (GameObject b) (GameObject a) ioObjects
-                    else polygonsCircleCollision (GameObject a) (GameObject b) ioObjects
+                            -- Choose the rigth collision test according to an object type
+                            if typeA == PolygonType && typeB == PolygonType
+                                then polygonsCollision (GameObject a) (GameObject b) ioObjects
+                            else if typeB == PolygonType && typeA == BallType
+                                then polygonsCircleCollision (GameObject b) (GameObject a) ioObjects
+                            else if typeA == PolygonType && typeB == BallType
+                                then polygonsCircleCollision (GameObject a) (GameObject b) ioObjects
+                            else circlesCollision (GameObject a) (GameObject b) ioObjects

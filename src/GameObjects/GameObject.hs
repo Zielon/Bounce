@@ -13,7 +13,7 @@ import Data.List
 
 type Vector = (GLfloat, GLfloat)
 
-data Type = PolygonType | BallType deriving (Eq, Ord)
+data Type = PolygonType | BallType deriving (Eq, Ord, Show)
 
 -- | The general class instantiated by every game's object
 -- |

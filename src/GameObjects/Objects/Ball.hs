@@ -31,15 +31,15 @@ class Bounceable a where
     updateScore  :: a -> Int -> a
 
 instance GameObject_ Ball where 
-    setOffset vector ball = ball { center = vector }
+    setOffset (x1, y1) ball = ball { center = (x1 + x2, y1 + y2) } where (x2, y2) = center ball
     setVelocity vector ball = ball { velocity = vector }
     getVelocity ball = velocity ball
     getCenter ball = center ball
-    getPoints ball = [center ball]
     getId ball = id ball
     getType ball = BallType
     getRadius ball = radius ball
-    getEdges ball = error "Not impelented exception"
+    getPoints ball         = error "Not impelented exception"
+    getEdges ball          = error "Not impelented exception"
     projection vector axis = error "Not impelented exception"
     draw ball = do
         let (x,y) = center ball
