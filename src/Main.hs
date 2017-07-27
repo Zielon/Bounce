@@ -57,7 +57,7 @@ main = do
   --   arena $~! \p -> M.map (\(GameObject v) -> getType v /= BallType ? (GameObject (setOffset (0, -0.00005) v)) :? (GameObject v)) p
 
   forkIO $ forever $ do
-     threadDelay 1000
+     threadDelay 10
    --  collisionBoundaries arena
      collisionLoop arena
 

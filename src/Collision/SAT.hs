@@ -20,26 +20,24 @@ import GameObjects.GameObject
 --
 circlesCollision :: GameObject -> GameObject -> IORef (Map Int GameObject) -> IO ()
 circlesCollision (GameObject a) (GameObject b) ioObjects = do
-    objects <- get ioObjects
     getId a == getId b ? return () :? do
         let a_radius = getRadius a
             a_center = getCenter a
             b_radius = getRadius b
             b_center = getCenter b
             axis = b_center -. a_center
-            mtv = axis *. abs(b_radius - a_radius)
+            mtv = (getVelocity a) +. ((O.normalize axis) *. abs(magnitude axis - b_radius - a_radius))
         if magnitude axis <= b_radius + a_radius
-            then ioObjects $~! (\p -> M.insert (getId b) (GameObject (setOffset mtv (setVelocity (0,0) b))) p)
-        else     ioObjects $~! (\p -> M.insert (getId b) (GameObject (setOffset (getVelocity b) (setVelocity (0,0) b))) p)
+        then ioObjects $~! (\p -> M.insert (getId b) (GameObject (setOffset mtv (setVelocity (0,0) b))) p)
+        else ioObjects $~! (\p -> M.insert (getId b) (GameObject (setOffset (getVelocity b) (setVelocity (0,0) b))) p)
 
 -- | A polygon with ball collision
 --
 polygonsCircleCollision :: GameObject -> GameObject -> IORef (Map Int GameObject) -> IO ()
 polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
+
     intersect           <- newIORef True
-    willIntersect       <- newIORef True
     translationAxis     <- newIORef (0, 0)
-    intervalDistance    <- newIORef 0.0
     minIntervalDistance <- newIORef _INFINITY
 
     getId a == getId b ? return () :? do
@@ -51,30 +49,30 @@ polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
                 edge = nextVertex -. vertex
                 dot  = dotProduct edge axis
                 radius = getRadius b
-            if (magnitude axis) - radius <= 0 
-            then do                                    -- Collision outside the Voroni Regions
-                intervalDistance $~! (\i -> abs i)
-                distance    <- get intervalDistance
+            if magnitude axis - radius <= 0 
+            then do -- Collision outside the Voroni Regions
                 minDistance <- get minIntervalDistance
-                if distance < minDistance then do
-                    minIntervalDistance $~! (\d -> distance) >> translationAxis $~! (\a -> axis)
-                    let d = (getCenter a) -. (getCenter b)
-                    when ((dotProduct d axis) < 0) $ translationAxis $~! (\a -> (--.) a)
-                else return ()
+                let distance = magnitude axis - radius
+                intersect $~! (\b -> True)
+                distance < minDistance ? minIntervalDistance $~! (\d -> distance) >> translationAxis $~! (\a -> O.normalize axis) :? return ()
             else if dot >= 0 && dot <= squered edge
                 then do
                     let projection = vertex +. (edge *. (dot / squered edge))
                         center_vector = projection -. b_center
                     if magnitude center_vector <= radius
-                    then return () -- Collision inside the Voroni Regions
+                    then do -- Collision inside the Voroni Regions
+                        minDistance <- get minIntervalDistance
+                        let distance = abs(radius - magnitude center_vector)
+                        intersect $~! (\b -> True)
+                        distance < minDistance ? minIntervalDistance $~! (\d -> distance) >> translationAxis $~! (\a -> O.normalize center_vector) :? return ()
                     else return ()
             else return ()
 
-    wI  <- get willIntersect
+    wI  <- get intersect
     ta  <- get translationAxis
     mid <- get minIntervalDistance
     
-    let mtv = (getVelocity a) +. (ta *. mid) -- The minimum translation vector is used to push the polygons appart.
+    let mtv = (getVelocity a) +. (ta *. mid) -- The minimum translation vector.
     let id = getId a
 
     wI == True ? ioObjects $~! (\p -> M.insert id (GameObject (setOffset mtv             (setVelocity (0,0) a))) p) :? 
