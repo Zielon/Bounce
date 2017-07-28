@@ -41,4 +41,4 @@ collisionLoop ioObjects = do
                                 then polygonsCircleCollision (GameObject b) (GameObject a) ioObjects
                             else if typeA == PolygonType && typeB == BallType
                                 then polygonsCircleCollision (GameObject a) (GameObject b) ioObjects
-                            else circlesCollision (GameObject a) (GameObject b) ioObjects
+                            else idA > idB ? circlesCollision (GameObject a) (GameObject b) ioObjects :? circlesCollision (GameObject b) (GameObject a) ioObjects

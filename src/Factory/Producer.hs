@@ -15,11 +15,11 @@ ball :: Int -> Vector -> Vector -> GLfloat -> Int -> Int -> GameObject
 ball i p v r s f = GameObject (Ball i p v r s f)
 
 getArenaObjectsMap :: Map Int GameObject
-getArenaObjectsMap = fromList [ (1, polygon 1 (0.0, 0.0) [(0.1, 0.2), (0.1, 0.4), (0.2, 0.4)]),
+getArenaObjectsMap = fromList [ (6, polygon 6 (0.0, 0.0) [(0.1, 0.2), (0.1, 0.4), (0.2, 0.4)]),
                                 (5, polygon 5 (0.0, 0.0) [(-0.8, -0.8), (-0.8, -0.7),(0.8, -0.7), (0.8, -0.8)]),
                                 (4, polygon 4 (0.0, 0.0) [(-0.5, -0.6), (-0.4, 0.4), (-0.5, 0.4)]),
                                 (8, polygon 8 (0.0, 0.0) [(0.5, -0.6), (0.4, 0.0), (0.5, 0.0)]),
-                                (6, polygon 6 (0.0, 0.0) [(-0.2, 0.6), (0.2, 0.8), (0.1, 0.6)]),
+                                (1, polygon 1 (0.0, 0.0) [(-0.2, 0.6), (0.2, 0.8), (0.1, 0.6)]),
                                 -- Balls section
                                 (14, ball 14 (0.4, 0.4) (0.0, 0.0)  0.1 0 0),
                                 (2, ball 2 (0.7, 0.8) (0.0, 0.0) 0.12 0 0),

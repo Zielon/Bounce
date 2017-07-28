@@ -16,7 +16,7 @@ import GameObjects.Objects.Ball      as B
 import Collision.VectorOperations    as O
 import GameObjects.GameObject
 
--- | A ball with ball collison
+-- | A ball with a ball collison
 --
 circlesCollision :: GameObject -> GameObject -> IORef (Map Int GameObject) -> IO ()
 circlesCollision (GameObject a) (GameObject b) ioObjects = do
@@ -26,23 +26,23 @@ circlesCollision (GameObject a) (GameObject b) ioObjects = do
             b_radius = getRadius b
             b_center = getCenter b
             axis = b_center -. a_center
-            mtv = (getVelocity a) +. ((O.normalize axis) *. abs(magnitude axis - b_radius - a_radius))
+            mtv = (getVelocity b) +. ((O.normalize axis) *. abs(magnitude axis - b_radius - a_radius))
         if magnitude axis <= b_radius + a_radius
         then ioObjects $~! (\p -> M.insert (getId b) (GameObject (setOffset mtv (setVelocity (0,0) b))) p)
         else ioObjects $~! (\p -> M.insert (getId b) (GameObject (setOffset (getVelocity b) (setVelocity (0,0) b))) p)
 
--- | A polygon with ball collision
+-- | A polygon with a ball collision
 --
 polygonsCircleCollision :: GameObject -> GameObject -> IORef (Map Int GameObject) -> IO ()
 polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
 
-    intersect           <- newIORef True
+    intersect           <- newIORef False
     translationAxis     <- newIORef (0, 0)
     minIntervalDistance <- newIORef _INFINITY
 
     getId a == getId b ? return () :? do
         let a_points = getPoints a
-            a_edges  = (P.edgefiy a_points) ++ [(last a_points, head a_points)] 
+            a_edges  = (P.edgefiy a_points) ++ [(last a_points, head a_points)]
             b_center = getCenter b
         forM_ a_edges $ \(vertex, nextVertex) -> do
             let axis = b_center -. vertex
@@ -81,7 +81,7 @@ polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
     where _INFINITY = 999999999.9 
           squered (x,y) = x*x + y*y
 
--- | A polygon with polygon collision
+-- | A polygon with a polygon collision
 --
 polygonsCollision :: GameObject -> GameObject -> IORef (Map Int GameObject) -> IO ()
 polygonsCollision (GameObject a) (GameObject b) ioObjects = do

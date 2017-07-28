@@ -38,9 +38,9 @@ instance GameObject_ Ball where
     getId ball = id ball
     getType ball = BallType
     getRadius ball = radius ball
-    getPoints ball         = error "Not impelented exception"
-    getEdges ball          = error "Not impelented exception"
-    projection vector axis = error "Not impelented exception"
+    getPoints ball         = error "Not implemented exception"
+    getEdges ball          = error "Not implemented exception"
+    projection vector axis = error "Not implemented exception"
     draw ball = do
         let (x,y) = center ball
             diameter = (radius ball * 2.0)
