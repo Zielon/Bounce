@@ -15,6 +15,7 @@ import Data.Map
 
 import GameObjects.Objects.Ball
 import GameObjects.GameObject
+import Collision.Helpers
 
 updateGravity :: IORef (Map Int GameObject) -> Float -> IO ()
 updateGravity objects dt = do
@@ -29,7 +30,7 @@ updateGravity objects dt = do
                     newGame  = setVelocity (vX, v) game
                     newX     = vX * dt
                     newY     = v * dt + 0.5 * acc * dt ^ 2
-                objects $~! (\b -> insert (getId game) (GameObject (setOffset (newX, newY) newGame)) b)
+                objects ^& (\b -> insert (getId game) (GameObject (setOffset (newX, newY) newGame)) b)
     where acc = -9.80665
 
 earth :: Float -> Float
@@ -50,7 +51,7 @@ collisionBoundaries objects = do
                                 radius   = getRadius game
                                 min      = (-1.0 + radius)
                                 max      = (1.0 - radius)
-                            when (y < min) $ objects $~! \b -> insert id (GameObject (setOffset (0, min - y) (setVelocity (vX, earth vY) game))) b
-                            -- when (x > max) $ objects $~! \b -> insert id (GameObject (setOffset (max, y)  game)) b
-                            -- when (x < min) $ objects $~! \b -> insert id (GameObject (setOffset (min, y) game)) b
-                            -- when (x > max || x < min) $ objects $~! \b -> insert id (GameObject (setVelocity (earth vX, vY) game)) b
+                            when (y < min) $ objects ^& \b -> insert id (GameObject (setOffset (0, min - y) (setVelocity (vX, earth vY) game))) b
+                            -- when (x > max) $ objects ^& \b -> insert id (GameObject (setOffset (max, y)  game)) b
+                            -- when (x < min) $ objects ^& \b -> insert id (GameObject (setOffset (min, y) game)) b
+                            -- when (x > max || x < min) $ objects ^& \b -> insert id (GameObject (setVelocity (earth vX, vY) game)) b

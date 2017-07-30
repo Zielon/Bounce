@@ -15,6 +15,7 @@ import GameObjects.Objects.Polygon   as P
 import GameObjects.Objects.Ball      as B
 import Collision.VectorOperations    as O
 import GameObjects.GameObject
+import Collision.Helpers
 
 -- | A ball with a ball collison
 --
@@ -28,8 +29,8 @@ circlesCollision (GameObject a) (GameObject b) ioObjects = do
             axis = b_center -. a_center
             mtv = (getVelocity b) +. ((O.normalize axis) *. abs(magnitude axis - b_radius - a_radius))  -- The minimum translation vector.
         if magnitude axis <= b_radius + a_radius
-        then ioObjects $~! (\p -> M.insert (getId b) (GameObject (setOffset mtv b)) p)
-        else return ()
+        then ioObjects ^& (\p -> M.insert (getId b) (GameObject (setOffset mtv b)) p)
+        else ioObjects ^& (\p -> M.insert (getId b) (GameObject (setOffset (getVelocity b) (setVelocity (0,0) b))) p)
 
 -- | A polygon with a ball collision
 --
@@ -59,8 +60,8 @@ polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
                     magnitude center_vector > radius ? return () :? do
                         minDistance <- get minIntervalDistance
                         let distance = abs(radius - magnitude center_vector)
-                        intersect $~! (\b -> True)
-                        distance < minDistance ? minIntervalDistance $~! (\d -> distance) >> translationAxis $~! (\a -> O.normalize center_vector) :? return ()
+                        intersect ^& (\b -> True)
+                        distance < minDistance ? minIntervalDistance ^& (\d -> distance) >> translationAxis ^& (\a -> O.normalize center_vector) :? return ()
                 else return ()
 
         -- Check for a collision outside the Voroni Regions
@@ -73,8 +74,8 @@ polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
                 magnitude axis - radius > 0 ? return () :? do
                     minDistance <- get minIntervalDistance
                     let distance = magnitude axis - radius
-                    intersect $~! (\b -> True)
-                    distance < minDistance ? minIntervalDistance $~! (\d -> distance) >> translationAxis $~! (\a -> O.normalize axis) :? return ()
+                    intersect ^& (\b -> True)
+                    distance < minDistance ? minIntervalDistance ^& (\d -> distance) >> translationAxis ^& (\a -> O.normalize axis) :? return ()
 
     wI  <- get intersect
     ta  <- get translationAxis
@@ -83,8 +84,8 @@ polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
     let mtv = (getVelocity a) +. (ta *. mid) -- The minimum translation vector.
     let id = getId a
 
-    wI == True ? ioObjects $~! (\p -> M.insert id (GameObject (setOffset mtv             (setVelocity (0,0) a))) p) :? 
-                 ioObjects $~! (\p -> M.insert id (GameObject (setOffset (getVelocity a) (setVelocity (0,0) a))) p)
+    wI == True ? ioObjects ^& (\p -> M.insert id (GameObject (setOffset mtv             (setVelocity (0,0) a))) p) :? 
+                 ioObjects ^& (\p -> M.insert id (GameObject (setOffset (getVelocity a) (setVelocity (0,0) a))) p)
 
     where _INFINITY = 999999999.9 
           squered (x,y) = x*x + y*y
@@ -107,28 +108,28 @@ polygonsCollision (GameObject a) (GameObject b) ioObjects = do
                 projectionB  = projection axis b
                 (minA, maxA) = projection axis a
             
-            calculateIntervalDistance (minA, maxA) projectionB > 0 ? intersect $~! (\b -> False) :? return ()
+            calculateIntervalDistance (minA, maxA) projectionB > 0 ? intersect ^& (\b -> False) :? return ()
 
             let projectionV = dotProduct axis (getVelocity a)
 
             if projectionV < 0 
-            then intervalDistance $~! (\i -> calculateIntervalDistance (minA + projectionV, maxA) projectionB)
-            else intervalDistance $~! (\i -> calculateIntervalDistance (minA, maxA + projectionV) projectionB)
+            then intervalDistance ^& (\i -> calculateIntervalDistance (minA + projectionV, maxA) projectionB)
+            else intervalDistance ^& (\i -> calculateIntervalDistance (minA, maxA + projectionV) projectionB)
 
             id  <- get intervalDistance
-            id > 0 ? willIntersect $~! (\b -> False) :? return ()
+            id > 0 ? willIntersect ^& (\b -> False) :? return ()
 
             isIntersect     <- get intersect
             goingToIntersec <- get willIntersect
 
             if isIntersect == True || goingToIntersec == True then do
-                intervalDistance $~! (\i -> abs i)
+                intervalDistance ^& (\i -> abs i)
                 distance    <- get intervalDistance
                 minDistance <- get minIntervalDistance
                 if distance < minDistance then do
-                    minIntervalDistance $~! (\d -> distance) >> translationAxis $~! (\a -> axis)
+                    minIntervalDistance ^& (\d -> distance) >> translationAxis ^& (\a -> axis)
                     let d = (getCenter a) -. (getCenter b)                                  -- We ara translating the A polygon according to the vector (A-B) [which points from B to A]
-                    when ((dotProduct d axis) < 0) $ translationAxis $~! (\a -> (--.) a)    -- Negative dot product [(A-B)·Axis] means that the axis and [A-B] do not point in the same direction
+                    when ((dotProduct d axis) < 0) $ translationAxis ^& (\a -> (--.) a)    -- Negative dot product [(A-B)·Axis] means that the axis and [A-B] do not point in the same direction
                 else return ()                                                              -- By negating the translation axis we change the pointing direction
             else return ()
 
@@ -139,7 +140,7 @@ polygonsCollision (GameObject a) (GameObject b) ioObjects = do
     let mtv = (getVelocity a) +. (ta *. mid) -- The minimum translation vector is used to push the polygons appart.
     let id = getId a
 
-    wI == True ? ioObjects $~! (\p -> M.insert id (GameObject (setOffset mtv             (setVelocity (0,0) a))) p) :? 
-                 ioObjects $~! (\p -> M.insert id (GameObject (setOffset (getVelocity a) (setVelocity (0,0) a))) p)
+    wI == True ? ioObjects ^& (\p -> M.insert id (GameObject (setOffset mtv             (setVelocity (0,0) a))) p) :? 
+                 ioObjects ^& (\p -> M.insert id (GameObject (setOffset (getVelocity a) (setVelocity (0,0) a))) p)
 
     where _INFINITY = 999999999.9
