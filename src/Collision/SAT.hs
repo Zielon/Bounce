@@ -26,9 +26,9 @@ circlesCollision (GameObject a) (GameObject b) ioObjects = do
             b_radius = getRadius b
             b_center = getCenter b
             axis = b_center -. a_center
-            mtv = (getVelocity b) +. ((O.normalize axis) *. abs(magnitude axis - b_radius - a_radius))
+            mtv = (getVelocity b) +. ((O.normalize axis) *. abs(magnitude axis - b_radius - a_radius))  -- The minimum translation vector.
         if magnitude axis <= b_radius + a_radius
-        then ioObjects $~! (\p -> M.insert (getId b) (GameObject (setOffset mtv (setVelocity (0,0) b))) p)
+        then ioObjects $~! (\p -> M.insert (getId b) (GameObject (setOffset mtv b)) p)
         else ioObjects $~! (\p -> M.insert (getId b) (GameObject (setOffset (getVelocity b) (setVelocity (0,0) b))) p)
 
 -- | A polygon with a ball collision
@@ -44,29 +44,37 @@ polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
         let a_points = getPoints a
             a_edges  = (P.edgefiy a_points) ++ [(last a_points, head a_points)]
             b_center = getCenter b
+            radius = getRadius b
+
+        -- Check for a collision inside the Voroni Regions
         forM_ a_edges $ \(vertex, nextVertex) -> do
-            let axis = b_center -. vertex
-                edge = nextVertex -. vertex
-                dot  = dotProduct edge axis
-                radius = getRadius b
-            if magnitude axis - radius <= 0 
-            then do -- Collision outside the Voroni Regions
-                minDistance <- get minIntervalDistance
-                let distance = magnitude axis - radius
-                intersect $~! (\b -> True)
-                distance < minDistance ? minIntervalDistance $~! (\d -> distance) >> translationAxis $~! (\a -> O.normalize axis) :? return ()
-            else if dot >= 0 && dot <= squered edge
-                then do
+            i <- get intersect
+            i == True ? return () :? do
+                let axis = b_center -. vertex
+                    edge = nextVertex -. vertex
+                    dot  = dotProduct edge axis
+                if dot >= 0 && dot <= squered edge && squered edge /= 0 then do
                     let projection = vertex +. (edge *. (dot / squered edge))
                         center_vector = projection -. b_center
-                    if magnitude center_vector <= radius
-                    then do -- Collision inside the Voroni Regions
+                    magnitude center_vector > radius ? return () :? do
                         minDistance <- get minIntervalDistance
                         let distance = abs(radius - magnitude center_vector)
                         intersect $~! (\b -> True)
                         distance < minDistance ? minIntervalDistance $~! (\d -> distance) >> translationAxis $~! (\a -> O.normalize center_vector) :? return ()
-                    else return ()
-            else return ()
+                else return ()
+
+        -- Check for a collision outside the Voroni Regions
+        forM_ a_edges $ \(vertex, nextVertex) -> do
+            i <- get intersect
+            i == True ? return () :? do
+                let axis = b_center -. vertex
+                    edge = nextVertex -. vertex
+                    dot  = dotProduct edge axis
+                magnitude axis - radius > 0 ? return () :? do
+                    minDistance <- get minIntervalDistance
+                    let distance = magnitude axis - radius
+                    intersect $~! (\b -> True)
+                    distance < minDistance ? minIntervalDistance $~! (\d -> distance) >> translationAxis $~! (\a -> O.normalize axis) :? return ()
 
     wI  <- get intersect
     ta  <- get translationAxis

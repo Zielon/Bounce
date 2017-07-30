@@ -52,13 +52,13 @@ main = do
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do
      threadDelay 4000
-  --   updateGravity arena 0.009 -- dt
+ --    updateGravity arena 0.000009 -- dt
      updateKeysBindings keys force arena
   --   arena $~! \p -> M.map (\(GameObject v) -> getType v /= BallType ? (GameObject (setOffset (0, -0.00005) v)) :? (GameObject v)) p
 
   forkIO $ forever $ do
      threadDelay 10
-   --  collisionBoundaries arena
+     collisionBoundaries arena
      collisionLoop arena
 
   -- Main OpenGL loop with callbacks
