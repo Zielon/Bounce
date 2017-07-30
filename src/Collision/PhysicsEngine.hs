@@ -25,12 +25,11 @@ updateGravity objects dt = do
             BallType    -> do
                 let (vX, vY) = getVelocity game
                     (x, y)   = getCenter game
-                    id       = getId game
                     v        = vY + acc * dt
-                    game_v   = setVelocity (vX, v) game
-                    newVx    = x + vX * dt
-                    newVy    = (y + v * dt) + 0.5 * acc * dt ^ 2
-                objects $~! (\b -> insert id (GameObject (setOffset (newVx, newVy) game_v)) b)
+                    newGame  = setVelocity (vX, v) game
+                    newX     = vX * dt
+                    newY     = v * dt + 0.5 * acc * dt ^ 2
+                objects $~! (\b -> insert (getId game) (GameObject (setOffset (newX, newY) newGame)) b)
     where acc = -9.80665
 
 earth :: Float -> Float
@@ -48,7 +47,10 @@ collisionBoundaries objects = do
                             let (x, y)   = getCenter game
                                 (vX, vY) = getVelocity game
                                 id       = getId game
-                            when (y < -0.95) $ objects $~! \b -> insert id (GameObject (setVelocity (vX, earth vY) (setOffset (x, -0.95) game))) b
-                            when (x > 0.95 ) $ objects $~! \b -> insert id (GameObject (setOffset (0.95, y)  game)) b
-                            when (x < -0.95) $ objects $~! \b -> insert id (GameObject (setOffset (-0.95, y) game)) b
-                            when (x > 0.95  || x < -0.95) $ objects $~! \b -> insert id (GameObject (setVelocity (earth vX, vY) game)) b
+                                radius   = getRadius game
+                                min      = (-1.0 + radius)
+                                max      = (1.0 - radius)
+                            when (y < min) $ objects $~! \b -> insert id (GameObject (setOffset (0, min - y) (setVelocity (vX, earth vY) game))) b
+                            -- when (x > max) $ objects $~! \b -> insert id (GameObject (setOffset (max, y)  game)) b
+                            -- when (x < min) $ objects $~! \b -> insert id (GameObject (setOffset (min, y) game)) b
+                            -- when (x > max || x < min) $ objects $~! \b -> insert id (GameObject (setVelocity (earth vX, vY) game)) b

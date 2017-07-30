@@ -29,7 +29,7 @@ circlesCollision (GameObject a) (GameObject b) ioObjects = do
             mtv = (getVelocity b) +. ((O.normalize axis) *. abs(magnitude axis - b_radius - a_radius))  -- The minimum translation vector.
         if magnitude axis <= b_radius + a_radius
         then ioObjects $~! (\p -> M.insert (getId b) (GameObject (setOffset mtv b)) p)
-        else ioObjects $~! (\p -> M.insert (getId b) (GameObject (setOffset (getVelocity b) (setVelocity (0,0) b))) p)
+        else return ()
 
 -- | A polygon with a ball collision
 --
