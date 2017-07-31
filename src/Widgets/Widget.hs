@@ -13,10 +13,10 @@ import Widgets.WidgetObject
 
 -- Smart constructors
 
-forceBar :: Int -> Widget
+forceBar :: Float -> Widget
 forceBar v = Widget (ForceBar v)
 
-pointsBar :: Int -> Widget
+pointsBar :: Float -> Widget
 pointsBar v = Widget (PointsBar v)
 
 getWidgetsMap :: Map Int Widget

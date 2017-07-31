@@ -53,8 +53,8 @@ main = do
   forkIO $ forever $ do
      threadDelay 4000
    --  updateGravity arena 0.0009 -- dt
-   --  updateKeysBindings keys force arena
-  --   arena $~! \p -> M.map (\(GameObject v) -> getType v /= BallType ? (GameObject (setOffset (0, -0.00005) v)) :? (GameObject v)) p
+     updateKeysBindings keys force arena widgets
+     arena $~! \p -> M.map (\(GameObject v) -> getType v /= BallType ? (GameObject (setOffset (0, -0.00005) v)) :? (GameObject v)) p
 
   forkIO $ forever $ do
      threadDelay 500

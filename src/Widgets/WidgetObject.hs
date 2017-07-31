@@ -10,8 +10,8 @@ import Graphics.UI.GLUT
 
 class Widget_ a where
     draw     :: a -> IO ()
-    getValue :: a -> Int
-    setValue :: Int -> a -> a
+    getValue :: a -> Float
+    setValue :: Float -> a -> a
 
 data Widget = forall a. Widget_ a => Widget a
 

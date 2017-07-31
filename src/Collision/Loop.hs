@@ -20,9 +20,9 @@ collisionLoop :: IORef (Map Int GameObject) -> IO ()
 collisionLoop ioObjects = do
      objects <- get ioObjects
      let ids = (L.map (\(k, v) -> k) $ M.toList objects)
-     forM_ ids $ \i -> do    -- Use keys from the dictionary
+     forM_ ids $ \i -> do              -- Use keys from the dictionary
          forM_ ids $ \j -> do
-            objects  <- get ioObjects                              -- Each time we need to fetch the newest position of the Polygon A
+            objects  <- get ioObjects  -- Each time we need to fetch the newest position of the Polygon A
             case M.lookup i objects of
                 Nothing             -> return ()
                 Just (GameObject a) -> do
@@ -41,4 +41,4 @@ collisionLoop ioObjects = do
                                 then polygonsCircleCollision (GameObject b) (GameObject a) ioObjects
                             else if typeA == PolygonType && typeB == BallType
                                 then polygonsCircleCollision (GameObject a) (GameObject b) ioObjects
-                            else idA > idB ? circlesCollision (GameObject a) (GameObject b) ioObjects :? circlesCollision (GameObject b) (GameObject a) ioObjects
+                            else idA < idB ? circlesCollision (GameObject a) (GameObject b) ioObjects :? circlesCollision (GameObject b) (GameObject a) ioObjects

@@ -9,7 +9,7 @@ import Widgets.WidgetObject
 import Common.Drawable
 
 data PointsBar = PointsBar {
-    value :: Int
+    value :: Float
 }
 
 instance Widget_ PointsBar where
@@ -19,7 +19,7 @@ instance Widget_ PointsBar where
                         getColor3f 1 0 1
                         translate $ Vector3 (0.65::GLfloat) (0.95::GLfloat) 0
                         rasterPos (Vertex2 (0.0::GLfloat) (-0.025::GLfloat))
-                        renderString Helvetica18 $ printf "Points %d" (value pointsBar)
+                        renderString Helvetica18 $ printf "Points %f" (value pointsBar)
 
 instance Drawable_ PointsBar where
     render pointsBar = draw pointsBar

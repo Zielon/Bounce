@@ -13,6 +13,7 @@ import Data.List           hiding (lookup, insert)
 import Prelude             hiding (lookup)
 import Control.Monad 
 
+import Widgets.Widget
 import GameObjects.Objects.Ball      as Ball
 import GameObjects.Objects.Polygon   as Polygon
 
@@ -23,22 +24,27 @@ import API.Ternary
 reshape :: ReshapeCallback
 reshape size = do viewport $= (Position 0 0, size)
 
-updateKeysBindings :: IORef (Map GameKey Bool) -> IORef GLfloat -> IORef (Map Int GameObject) -> IO ()
-updateKeysBindings refkeys force balls = do
-  keys   <- get refkeys
-  gForce <- get force
-  balls' <- get balls
+updateKeysBindings :: IORef (Map GameKey Bool) -> IORef GLfloat -> IORef (Map Int GameObject) -> IORef (Map Int Widget) -> IO ()
+updateKeysBindings refkeys force balls widgets = do
+  keys     <- get refkeys
+  gForce   <- get force
+  balls'   <- get balls
+  widgets' <- get widgets
 
   let (Just leftKey)  = lookup GameKeyLeft  keys
   let (Just rightKey) = lookup GameKeyRight keys
   let (Just forceKey) = lookup GameKeyForce keys
+
+  case lookup 1 widgets' of
+    Nothing         -> return ()
+    Just (Widget w) -> when(forceKey) $ widgets $~! \m -> insert 1 (Widget (setValue (gForce + 0.1 > maxForce ? maxForce :? gForce + 0.1) w)) m
+
   return ()
   -- let (x,y)    = getCenter ball' 
   -- let (vX, vY) = getVelocity ball'
 
   -- when(leftKey)      $ ball  $~! \b -> setVelocity (x - 0.05, y) b
   -- when(rightKey)     $ ball  $~! \b -> setVelocity (x + 0.05, y) b
-  -- when(forceKey)     $ force $~! \f -> f + 0.1 > maxForce ? maxForce :? f + 0.1
   -- when(not forceKey) $ ball  $~! (\b -> setVelocity (vY <= 0 ? (vX, vY - gForce) :? (vX, vY + gForce)) b) >> force $~! (\f -> 0.0)
 
   where maxForce = 10.0

@@ -45,7 +45,7 @@ polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
         let a_points = getPoints a
             a_edges  = (P.edgefiy a_points) ++ [(last a_points, head a_points)]
             b_center = getCenter b
-            radius = getRadius b
+            radius   = getRadius b
 
         -- Check for a collision inside the Voroni Regions
         forM_ a_edges $ \(vertex, nextVertex) -> do
@@ -129,7 +129,7 @@ polygonsCollision (GameObject a) (GameObject b) ioObjects = do
                 if distance < minDistance then do
                     minIntervalDistance ^& (\d -> distance) >> translationAxis ^& (\a -> axis)
                     let d = (getCenter a) -. (getCenter b)                                  -- We ara translating the A polygon according to the vector (A-B) [which points from B to A]
-                    when ((dotProduct d axis) < 0) $ translationAxis ^& (\a -> (--.) a)    -- Negative dot product [(A-B)·Axis] means that the axis and [A-B] do not point in the same direction
+                    when ((dotProduct d axis) < 0) $ translationAxis ^& (\a -> (--.) a)     -- Negative dot product [(A-B)·Axis] means that the axis and [A-B] do not point in the same direction
                 else return ()                                                              -- By negating the translation axis we change the pointing direction
             else return ()
 
