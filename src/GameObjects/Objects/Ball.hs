@@ -47,7 +47,7 @@ instance GameObject_ Ball where
         preservingMatrix $ do
             translate $ Vector3 x y 0
             scale 0.5 0.5 (0.5::GLfloat)
-            getColor3f 1 0 0
+            getColor3f (x) (y/2) 0
             renderObject Solid $ Sphere' (float2Double diameter) 64 64
             getColor3f (-1) (-1) (-1)
             rasterPos (Vertex2 (-0.03::GLfloat) (-0.03::GLfloat))

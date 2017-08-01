@@ -62,6 +62,7 @@ polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
                         let distance = abs(radius - magnitude center_vector)
                         intersect ^& (\b -> True)
                         distance < minDistance ? minIntervalDistance ^& (\d -> distance) >> translationAxis ^& (\a -> O.normalize center_vector) :? return ()
+                        when ((dotProduct center_vector axis) < 0) $ translationAxis ^& (\a -> (--.) a)
                 else return ()
 
         -- Check for a collision outside the Voroni Regions
@@ -73,7 +74,7 @@ polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
                     dot  = dotProduct edge axis
                 magnitude axis - radius > 0 ? return () :? do
                     minDistance <- get minIntervalDistance
-                    let distance = magnitude axis - radius
+                    let distance = abs(magnitude axis - radius)
                     intersect ^& (\b -> True)
                     distance < minDistance ? minIntervalDistance ^& (\d -> distance) >> translationAxis ^& (\a -> O.normalize axis) :? return ()
 
@@ -81,11 +82,11 @@ polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
     ta  <- get translationAxis
     mid <- get minIntervalDistance
     
-    let mtv = (getVelocity a) +. (ta *. mid) -- The minimum translation vector.
-    let id = getId a
+    let mtv = (getVelocity b) +. (ta *. mid) -- The minimum translation vector.
+    let id = getId b
 
-    wI == True ? ioObjects ^& (\p -> M.insert id (GameObject (setOffset mtv             (setVelocity (0,0) a))) p) :? 
-                 ioObjects ^& (\p -> M.insert id (GameObject (setOffset (getVelocity a) (setVelocity (0,0) a))) p)
+    wI == True ? ioObjects ^& (\p -> M.insert id (GameObject (setOffset mtv             (setVelocity (0,0) b))) p) :? 
+                 ioObjects ^& (\p -> M.insert id (GameObject (setOffset (getVelocity b) (setVelocity (0,0) b))) p)
 
     where _INFINITY = 999999999.9 
           squered (x,y) = x*x + y*y

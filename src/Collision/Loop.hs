@@ -22,20 +22,21 @@ collisionLoop ioObjects = do
      let ids = (L.map (\(k, v) -> k) $ M.toList objects)
      forM_ ids $ \i -> do              -- Use keys from the dictionary
          forM_ ids $ \j -> do
-            objects  <- get ioObjects  -- Each time we need to fetch the newest position of the Polygon A
-            case M.lookup i objects of
-                Nothing             -> return ()
-                Just (GameObject a) -> do
-                    case M.lookup j objects of
-                         Nothing             -> return ()
-                         Just (GameObject b) -> do
-                            let typeA = getType a
-                                typeB = getType b
-                                idA   = getId a
-                                idB   = getId b
+            i == j ? return () :? do
+                objects  <- get ioObjects  -- Each time we need to fetch the newest positions
+                case M.lookup i objects of
+                    Nothing             -> return ()
+                    Just (GameObject a) -> do
+                        case M.lookup j objects of
+                            Nothing             -> return ()
+                            Just (GameObject b) -> do
+                                let typeA = getType a
+                                    typeB = getType b
+                                    idA   = getId a
+                                    idB   = getId b
 
-                            -- Choose the rigth collision test according to an object type
-                            if typeA == PolygonType && typeB == PolygonType   then polygonsCollision (GameObject a) (GameObject b) ioObjects
-                            else if typeB == PolygonType && typeA == BallType then polygonsCircleCollision (GameObject b) (GameObject a) ioObjects
-                            else if typeA == PolygonType && typeB == BallType then polygonsCircleCollision (GameObject a) (GameObject b) ioObjects
-                            else idA < idB ? circlesCollision (GameObject a) (GameObject b) ioObjects :? circlesCollision (GameObject b) (GameObject a) ioObjects
+                                -- Choose the right collision test according to the object type
+                                if typeA == PolygonType && typeB == PolygonType   then polygonsCollision (GameObject a) (GameObject b) ioObjects
+                                else if typeB == PolygonType && typeA == BallType then polygonsCircleCollision (GameObject b) (GameObject a) ioObjects
+                                else if typeA == PolygonType && typeB == BallType then polygonsCircleCollision (GameObject a) (GameObject b) ioObjects
+                                else circlesCollision (GameObject a) (GameObject b) ioObjects

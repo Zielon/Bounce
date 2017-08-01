@@ -9,6 +9,8 @@ import Data.IORef
 import Data.Bool
 import Data.Map
 
+import Collision.Helpers
+
 data GameKey = GameKeyLeft  |
                GameKeyRight |
                GameKeyForce |
@@ -28,7 +30,7 @@ getKeys = fromList [ (GameKeyOne,   False),
                      (GameKeyForce, False)]
 
 updateKey :: IORef (Map GameKey Bool) -> GameKey -> Bool -> IO ()
-updateKey ref key value = do ref $~! (\d -> insert key value d)
+updateKey ref key value = do ref ^& (\d -> insert key value d)
 
 resetAll :: IORef (Map GameKey Bool) -> IO ()
-resetAll ref = do ref $~! (\d -> Data.Map.map (\f -> False) d)
+resetAll ref = do ref ^& (\d -> Data.Map.map (\f -> False) d)

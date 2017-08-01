@@ -16,6 +16,7 @@ import Control.Monad
 import Widgets.Widget
 import GameObjects.Objects.Ball      as Ball
 import GameObjects.Objects.Polygon   as Polygon
+import Collision.Helpers
 
 import API.Display
 import API.Keys
@@ -39,8 +40,8 @@ updateKeysBindings refkeys balls widgets = do
     Just (Widget w) -> do
         let force = getValue w
             value = force + 0.1 > maxForce ? maxForce :? force + 0.1
-        forceKey == True ? widgets $~! (\m -> insert 1 (Widget $ setValue value w) m) :?
-                           widgets $~! (\m -> insert 1 (Widget $ setValue 0 w) m)
+        forceKey == True ? widgets ^& (\m -> insert 1 (Widget $ setValue value w) m) :?
+                           widgets ^& (\m -> insert 1 (Widget $ setValue 0 w) m)
 
   where maxForce = 10.0
 
@@ -56,20 +57,20 @@ keyboardMouse keys arena key state _ _ = do
   case value of
     Nothing       -> return ()
     (Just (k, b)) -> case k of 
-                        GameKeyOne   -> index $~! (\i -> 1)
-                        GameKeyTwo   -> index $~! (\i -> 2)
-                        GameKeyThree -> index $~! (\i -> 3)
-                        GameKeyFour  -> index $~! (\i -> 4)
+                        GameKeyOne   -> index ^& (\i -> 1)
+                        GameKeyTwo   -> index ^& (\i -> 2)
+                        GameKeyThree -> index ^& (\i -> 3)
+                        GameKeyFour  -> index ^& (\i -> 4)
                         _            -> return ()
   i <- get index
 
   case lookup i arena' of
     Nothing             -> return ()
     Just (GameObject z) -> case key of
-                              (SpecialKey KeyLeft)  -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (-0.01, 0) z)) p)
-                              (SpecialKey KeyRight) -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (0.01, 0) z)) p)
-                              (SpecialKey KeyUp)    -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (0, 0.01) z)) p)
-                              (SpecialKey KeyDown)  -> arena $~! (\p -> insert (getId z) (GameObject (setVelocity (0, -0.01) z)) p)
+                              (SpecialKey KeyLeft)  -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity (-0.01, 0) z)) p)
+                              (SpecialKey KeyRight) -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity (0.01, 0) z)) p)
+                              (SpecialKey KeyUp)    -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity (0, 0.01) z)) p)
+                              (SpecialKey KeyDown)  -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity (0, -0.01) z)) p)
                               (Char ' ')            -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
                               (Char '1')            -> state == Down ? (updateKey keys GameKeyOne True) :? (updateKey keys GameKeyOne False)
                               (Char '2')            -> state == Down ? (updateKey keys GameKeyTwo True) :? (updateKey keys GameKeyTwo False)

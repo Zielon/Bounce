@@ -21,6 +21,8 @@ import Widgets.Widget
 
 import Common.Drawable
 
+import Collision.Helpers
+
 import GameObjects.Objects.Ball
 import GameObjects.Objects.Polygon as P
 import Factory.Producer            as Factory
@@ -51,9 +53,9 @@ main = do
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do
      threadDelay 4000
-   --  updateGravity arena 0.0009 -- dt
+     -- updateGravity arena 0.0009 -- dt
      updateKeysBindings keys arena widgets
-     arena $~! \p -> M.map (\(GameObject v) -> getType v /= BallType ? (GameObject (setOffset (0, -0.00005) v)) :? (GameObject v)) p
+     -- arena ^& \p -> M.map (\(GameObject v) -> getType v /= BallType ? (GameObject (setOffset (0, -0.00005) v)) :? (GameObject v)) p
 
   forkIO $ forever $ do
      threadDelay 500
