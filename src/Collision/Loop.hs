@@ -35,10 +35,7 @@ collisionLoop ioObjects = do
                                 idB   = getId b
 
                             -- Choose the rigth collision test according to an object type
-                            if typeA == PolygonType && typeB == PolygonType
-                                then polygonsCollision (GameObject a) (GameObject b) ioObjects
-                            else if typeB == PolygonType && typeA == BallType
-                                then polygonsCircleCollision (GameObject b) (GameObject a) ioObjects
-                            else if typeA == PolygonType && typeB == BallType
-                                then polygonsCircleCollision (GameObject a) (GameObject b) ioObjects
+                            if typeA == PolygonType && typeB == PolygonType   then polygonsCollision (GameObject a) (GameObject b) ioObjects
+                            else if typeB == PolygonType && typeA == BallType then polygonsCircleCollision (GameObject b) (GameObject a) ioObjects
+                            else if typeA == PolygonType && typeB == BallType then polygonsCircleCollision (GameObject a) (GameObject b) ioObjects
                             else idA < idB ? circlesCollision (GameObject a) (GameObject b) ioObjects :? circlesCollision (GameObject b) (GameObject a) ioObjects

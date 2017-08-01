@@ -24,10 +24,9 @@ import API.Ternary
 reshape :: ReshapeCallback
 reshape size = do viewport $= (Position 0 0, size)
 
-updateKeysBindings :: IORef (Map GameKey Bool) -> IORef GLfloat -> IORef (Map Int GameObject) -> IORef (Map Int Widget) -> IO ()
-updateKeysBindings refkeys force balls widgets = do
+updateKeysBindings :: IORef (Map GameKey Bool) -> IORef (Map Int GameObject) -> IORef (Map Int Widget) -> IO ()
+updateKeysBindings refkeys balls widgets = do
   keys     <- get refkeys
-  gForce   <- get force
   balls'   <- get balls
   widgets' <- get widgets
 
@@ -35,17 +34,13 @@ updateKeysBindings refkeys force balls widgets = do
   let (Just rightKey) = lookup GameKeyRight keys
   let (Just forceKey) = lookup GameKeyForce keys
 
-  case lookup 1 widgets' of
+  case lookup 1 widgets' of         -- Get the force bar widget and update it
     Nothing         -> return ()
-    Just (Widget w) -> when(forceKey) $ widgets $~! \m -> insert 1 (Widget (setValue (gForce + 0.1 > maxForce ? maxForce :? gForce + 0.1) w)) m
-
-  return ()
-  -- let (x,y)    = getCenter ball' 
-  -- let (vX, vY) = getVelocity ball'
-
-  -- when(leftKey)      $ ball  $~! \b -> setVelocity (x - 0.05, y) b
-  -- when(rightKey)     $ ball  $~! \b -> setVelocity (x + 0.05, y) b
-  -- when(not forceKey) $ ball  $~! (\b -> setVelocity (vY <= 0 ? (vX, vY - gForce) :? (vX, vY + gForce)) b) >> force $~! (\f -> 0.0)
+    Just (Widget w) -> do
+        let force = getValue w
+            value = force + 0.1 > maxForce ? maxForce :? force + 0.1
+        forceKey == True ? widgets $~! (\m -> insert 1 (Widget $ setValue value w) m) :?
+                           widgets $~! (\m -> insert 1 (Widget $ setValue 0 w) m)
 
   where maxForce = 10.0
 

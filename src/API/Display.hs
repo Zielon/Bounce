@@ -22,15 +22,13 @@ import Widgets.Widget              as W
 
 display :: IORef (Map Int GameObject) ->
            IORef (Map Int Widget) ->
-           IORef GLfloat ->
            DisplayCallback
-display arena widgets force = do 
+display arena widgets = do 
   clear [ColorBuffer, DepthBuffer] -- clear depth buffer, too
   clear [ColorBuffer]
   loadIdentity
 
   arena'    <- get arena
-  force'    <- get force
   widgets'  <- get widgets
 
   -- | Render section ----------------------

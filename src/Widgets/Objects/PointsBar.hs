@@ -17,8 +17,8 @@ instance Widget_ PointsBar where
     getValue pointsBar = value pointsBar
     draw pointsBar = preservingMatrix $ do
                         getColor3f 1 0 1
-                        translate $ Vector3 (0.65::GLfloat) (0.95::GLfloat) 0
-                        rasterPos (Vertex2 (0.0::GLfloat) (-0.025::GLfloat))
+                        translate $ Vector3 (0.7::GLfloat) (0.95::GLfloat) 0
+                        rasterPos (Vertex2 (0.0::GLfloat) (0.0::GLfloat))
                         renderString Helvetica18 $ printf "Points %f" (value pointsBar)
 
 instance Drawable_ PointsBar where

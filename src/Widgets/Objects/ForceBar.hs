@@ -13,13 +13,20 @@ data ForceBar = ForceBar {
 }
 
 instance Widget_ ForceBar where
-    setValue _value forceBar = forceBar { value = v + _value } where v = value forceBar
+    setValue _value forceBar = forceBar { value = _value }
     getValue forceBar = value forceBar
     draw forceBar = preservingMatrix $ do
+                        getColor3f 1 0 0
+                        renderPrimitive Polygon $ mapM_ (\(x, y) -> vertex $ Vertex3 x y 0) $ points
+                        translate $ Vector3 (-0.95::GLfloat) (0.95::GLfloat) 0
                         getColor3f 1 0 1
-                        translate $ Vector3 (-0.85::GLfloat) (0.95::GLfloat) 0
-                        rasterPos (Vertex2 (0.0::GLfloat) (-0.025::GLfloat))
-                        renderString Helvetica18 $ printf "Force %f" (value forceBar)
+                        rasterPos (Vertex2 (0.0::GLfloat) (0.0::GLfloat))
+                        renderString Helvetica18 $ printf "%.1f%%" (value forceBar * 10)
+          where scale = 2/10
+                force = -1 + scale * value forceBar
+                x  = -1.0
+                y  = -0.95
+                points = [(x, force), (x, x), (y, x), (y, force)]
 
 instance Drawable_ ForceBar where
     render forceBar = draw forceBar

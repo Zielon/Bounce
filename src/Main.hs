@@ -33,7 +33,6 @@ main = do
   createWindow "Bounce"
   reshapeCallback $= Just reshape
 
-  force    <- newIORef 0
   keys     <- newIORef getKeys
   widgets  <- newIORef getWidgetsMap
   arena    <- newIORef getArenaObjectsMap
@@ -42,7 +41,7 @@ main = do
   clearColor            $= Color4 255.0 255.0 255.0 255.0
   keyboardMouseCallback $= Just (keyboardMouse keys arena)
   idleCallback          $= Just (idle)
-  displayCallback       $= display arena widgets force
+  displayCallback       $= display arena widgets
 
   -- Global handler for StdGen
   generator <- newIORef (mkStdGen 0)
@@ -53,7 +52,7 @@ main = do
   forkIO $ forever $ do
      threadDelay 4000
    --  updateGravity arena 0.0009 -- dt
-     updateKeysBindings keys force arena widgets
+     updateKeysBindings keys arena widgets
      arena $~! \p -> M.map (\(GameObject v) -> getType v /= BallType ? (GameObject (setOffset (0, -0.00005) v)) :? (GameObject v)) p
 
   forkIO $ forever $ do
