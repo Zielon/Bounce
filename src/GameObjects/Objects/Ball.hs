@@ -31,7 +31,7 @@ class Bounceable a where
     updateScore  :: a -> Int -> a
 
 instance GameObject_ Ball where 
-    setOffset (x1, y1) ball = ball { center = (x1 + x2, y1 + y2) } where (x2, y2) = center ball
+    setOffset (x1, y1) ball = ball { center = (x1 + x2, y1 + y2), velocity = (0.0, 0.0) } where (x2, y2) = center ball
     setVelocity vector ball = ball { velocity = vector }
     getVelocity ball = velocity ball
     getCenter ball = center ball
