@@ -53,7 +53,7 @@ keyboardMouse keys arena key state _ _ = do
 
   let value = find (\(k ,v) -> v == True) $ toList keys'
 
-  -- TODO delete this part
+  -- TODO delete this part [Control the 4 objects with the consquent ids throughout keys (1,2,3,4)]
   case value of
     Nothing       -> return ()
     (Just (k, b)) -> case k of 
@@ -67,13 +67,14 @@ keyboardMouse keys arena key state _ _ = do
   case lookup i arena' of
     Nothing             -> return ()
     Just (GameObject z) -> case key of
-                              (SpecialKey KeyLeft)  -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity (-0.01, 0) z)) p)
-                              (SpecialKey KeyRight) -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity (0.01, 0) z)) p)
-                              (SpecialKey KeyUp)    -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity (0, 0.01) z)) p)
-                              (SpecialKey KeyDown)  -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity (0, -0.01) z)) p)
+                              (SpecialKey KeyLeft)  -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity ((-precision), 0) z)) p)
+                              (SpecialKey KeyRight) -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity (precision, 0) z)) p)
+                              (SpecialKey KeyUp)    -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity (0, precision) z)) p)
+                              (SpecialKey KeyDown)  -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity (0, (-precision)) z)) p)
                               (Char ' ')            -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
                               (Char '1')            -> state == Down ? (updateKey keys GameKeyOne True) :? (updateKey keys GameKeyOne False)
                               (Char '2')            -> state == Down ? (updateKey keys GameKeyTwo True) :? (updateKey keys GameKeyTwo False)
                               (Char '3')            -> state == Down ? (updateKey keys GameKeyThree True) :? (updateKey keys GameKeyThree False)
                               (Char '4')            -> state == Down ? (updateKey keys GameKeyFour True) :? (updateKey keys GameKeyFour False)
                               _                     -> return ()
+  where precision = 0.005

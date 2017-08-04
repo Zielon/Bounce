@@ -20,7 +20,7 @@ collisionLoop :: IORef (Map Int GameObject) -> IO ()
 collisionLoop ioObjects = do
      objects <- get ioObjects
      let ids = (L.map (\(k, v) -> k) $ M.toList objects)
-     forM_ ids $ \i -> do              -- Use keys from the dictionary
+     forM_ ids $ \i -> do                 -- Use keys from the dictionary
          forM_ ids $ \j -> do
             i == j ? return () :? do
                 objects  <- get ioObjects  -- Each time we need to fetch the newest positions

@@ -20,9 +20,7 @@ import GameObjects.Objects.Polygon
 import GameObjects.GameObject      as G
 import Widgets.Widget              as W
 
-display :: IORef (Map Int GameObject) ->
-           IORef (Map Int Widget) ->
-           DisplayCallback
+display :: IORef (Map Int GameObject) -> IORef (Map Int Widget) -> DisplayCallback
 display arena widgets = do 
   clear [ColorBuffer, DepthBuffer] -- clear depth buffer, too
   clear [ColorBuffer]
@@ -31,13 +29,9 @@ display arena widgets = do
   arena'    <- get arena
   widgets'  <- get widgets
 
-  -- | Render section ----------------------
-
-  -- | Arena objects
-  forM_ arena' $ \(GameObject o) -> (G.draw o)
-
-  -- | Widgets
-  forM_ widgets' $ \(Widget w) -> W.draw w
+  -- | The render section ----------------------
+  forM_ arena'   $ \(GameObject o) -> G.draw o  -- Arena objects
+  forM_ widgets' $ \(Widget w)     -> W.draw w  -- Widgets
 
   swapBuffers
 
