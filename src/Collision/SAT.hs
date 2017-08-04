@@ -39,7 +39,8 @@ polygonsCircleCollision :: GameObject -> GameObject -> IORef (Map Int GameObject
 polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
 
     intersect           <- newIORef False
-    translationAxis     <- newIORef (0, 0)
+    translationAxis     <- newIORef (0.0, 0.0)
+    projectedVector     <- newIORef (0.0, 0.0)
     minIntervalDistance <- newIORef _INFINITY
 
     getId a == getId b ? return () :? do
@@ -48,45 +49,42 @@ polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
             b_center = getCenter b
             radius   = getRadius b
 
-        -- Check for a collision inside the Voroni Regions
-        forM_ a_edges $ \(vertex, nextVertex) -> do
-            let axis = b_center -. vertex
-                edge = nextVertex -. vertex
-                dot  = dotProduct edge axis
-            if dot >= 0 && dot <= squered edge && squered edge /= 0 then do
-                let projection = vertex +. (edge *. (dot / squered edge))
-                    center_vector = projection -. b_center
-                magnitude center_vector > radius ? return () :? do
-                    minDistance <- get minIntervalDistance
-                    let distance = abs(radius - magnitude center_vector)
-                    intersect ^& (\b -> True)
-                    distance < minDistance ? minIntervalDistance ^& (\d -> distance) >> translationAxis ^& (\a -> O.normalize center_vector) :? return ()
-                    when ((dotProduct center_vector axis) < 0) $ translationAxis ^& (\a -> (--.) a)
-            else return ()
+        forM_ a_edges $ \(start, end) -> do
+            let axis   = b_center -. start
+                edge   = end -. start
+                length = magnitude edge
+                dot    = dotProduct axis (O.normalize edge)
 
-        -- Check for a collision outside the Voroni Regions
-        i <- get intersect
-        i == True ? return () :? do
-            forM_ a_edges $ \(vertex, nextVertex) -> do
-                let axis = b_center -. vertex
-                    edge = nextVertex -. vertex
-                    dot  = dotProduct edge axis
-                magnitude axis - radius > 0 ? return () :? do
-                    minDistance <- get minIntervalDistance
-                    let distance = abs(magnitude axis - radius)
-                    intersect ^& (\b -> True)
-                    distance < minDistance ? minIntervalDistance ^& (\d -> distance) >> translationAxis ^& (\a -> O.normalize axis) :? return ()
+            if dot <= 0.0 then do projectedVector ^& (\v -> start)          -- Check for a collision outside the Voroni Regions
+            else if dot >= length then do projectedVector ^& (\v -> end)
+            else do let normal = (O.normalize edge) *. dot                  -- Check for a collision inside the Voroni Regions
+                        vector = normal +. start
+                    projectedVector ^& (\v -> vector)
 
-    wI  <- get intersect
-    ta  <- get translationAxis
-    mid <- get minIntervalDistance
-    
-    let mtv = (getVelocity b) +. (ta *. mid) -- The minimum translation vector.
-        id  = getId b
-        velocity = getVelocity b
+            minDistance <- get minIntervalDistance
+            projection  <- get projectedVector
 
-    wI == True ? ioObjects ^& (\p -> M.insert id (GameObject (setOffset mtv  b)) p) >> putStrLn ( printf "Ball -> %d with Polygon -> %d" id (getId a) ) :? 
-                 ioObjects ^& (\p -> M.insert id (GameObject (setOffset velocity b)) p)
+            let centerVector = b_center -. projection
+                distance     = magnitude centerVector
+                mtvDistance  = abs(radius - distance)
+
+            distance <= radius && distance < minDistance ? minIntervalDistance ^& (\d -> mtvDistance)
+                    >> translationAxis ^& (\a -> O.normalize centerVector) 
+                    >> (when ((dotProduct centerVector axis) <= 0.0) $ translationAxis ^& (\a -> (--.) a))
+                    >> intersect ^& (\b -> True) :? return ()
+
+        wI  <- get intersect
+        ta  <- get translationAxis
+        mid <- get minIntervalDistance
+        
+        let mtv = (getVelocity b) +. (ta *. mid) -- The minimum translation vector.
+            id  = getId b
+            velocity = getVelocity b
+
+     --   wI == True ? putStrLn (printf "Polygon %d with Ball %d" (getId a) id) :? putStrLn "------"
+
+        wI == True ? ioObjects ^& (\p -> M.insert id (GameObject (setOffset mtv  b)) p)  :? 
+                     ioObjects ^& (\p -> M.insert id (GameObject (setOffset velocity b)) p)
 
     where _INFINITY = 999999999.9 
           squered (x,y) = x*x + y*y
