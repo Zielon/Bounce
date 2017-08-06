@@ -30,7 +30,7 @@ import Factory.Producer            as Factory
 main :: IO ()
 main = do
   (_progName, _args) <- getArgsAndInitialize
-  initialDisplayMode $= [WithDepthBuffer, DoubleBuffered]
+  initialDisplayMode $= [WithDepthBuffer, DoubleBuffered, WithSamplesPerPixel 5]
   initialWindowSize $= Size 800 800
   createWindow "Bounce"
   reshapeCallback $= Just reshape
@@ -44,6 +44,7 @@ main = do
   keyboardMouseCallback $= Just (keyboardMouse keys arena)
   idleCallback          $= Just (idle)
   displayCallback       $= display arena widgets
+  polygonSmooth         $= Enabled
 
   -- Global handler for StdGen
   generator <- newIORef (mkStdGen 0)
@@ -52,13 +53,13 @@ main = do
 
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do
-     threadDelay 10000
+     threadDelay 1000
      -- updateGravity arena 0.0009 -- dt
      updateKeysBindings keys arena widgets
      -- arena ^& \p -> M.map (\(GameObject v) -> getType v /= BallType ? (GameObject (setOffset (0, -0.00005) v)) :? (GameObject v)) p
 
   forkIO $ forever $ do
-     threadDelay 10000
+     threadDelay 1000
      collisionBoundaries arena
      collisionLoop arena
 

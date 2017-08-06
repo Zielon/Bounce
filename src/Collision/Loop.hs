@@ -32,9 +32,6 @@ collisionLoop ioObjects = do
                             Just (GameObject b) -> do
                                 let typeA = getType a
                                     typeB = getType b
-                                    idA   = getId a
-                                    idB   = getId b
-
                                 -- Choose the right collision test according to the object type
                                 if typeA == PolygonType && typeB == PolygonType   then polygonsCollision (GameObject a) (GameObject b) ioObjects
                                 else if typeB == PolygonType && typeA == BallType then polygonsCircleCollision (GameObject b) (GameObject a) ioObjects
