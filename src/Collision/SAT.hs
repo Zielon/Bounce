@@ -9,7 +9,6 @@ import Data.IORef
 import Control.Monad
 import Text.Printf
 import Data.Map                      as M
-import Data.List                     as L
 
 import API.Ternary
 import GameObjects.Objects.Polygon   as P
@@ -38,15 +37,15 @@ circlesCollision (GameObject a) (GameObject b) ioObjects = do
 polygonsCircleCollision :: GameObject -> GameObject -> IORef (Map Int GameObject) -> IO ()
 polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
 
-    projectedVector     <- newIORef (0, 0)
-    evaluated           <- newIORef []
+    intersect           <- newIORef False
+    translationAxis     <- newIORef (0.0, 0.0)
+    projectedVector     <- newIORef (0.0, 0.0)
+    minIntervalDistance <- newIORef _INFINITY
 
     let a_points = getPoints a
         a_edges  = (P.edgefiy a_points) ++ [(last a_points, head a_points)]
         b_center = getCenter b
         radius   = getRadius b
-
-    -- Check for a collision outside the Voroni Regions
 
     forM_ a_edges $ \(start, end) -> do
         let axis   = b_center -. start
@@ -54,31 +53,34 @@ polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
             length = magnitude edge
             dot    = dotProduct axis (O.normalize edge)
 
-        if dot < 0.0 then do projectedVector ^& (\v -> start)
-        else if dot > length then do projectedVector ^& (\v -> end)
-        else do
+     -- Check for a collision outside the Voroni Regions
+        if dot <= 0.0 then do projectedVector ^& (\v -> start)
+        else if dot >= length then do projectedVector ^& (\v -> end)
+        else do 
             let normal = (O.normalize edge) *. dot
                 vector = normal +. start
             projectedVector ^& (\v -> vector)
-            
+
+        minDistance <- get minIntervalDistance
         projection  <- get projectedVector
 
         let centerVector = b_center -. projection
             distance     = magnitude centerVector
-            mtvDistance  = abs(radius - distance)
 
-        evaluated ^& \l -> l ++ [(distance <= radius, mtvDistance, O.normalize centerVector, distance)]
+        distance <= radius && distance < minDistance ? minIntervalDistance ^& (\d -> distance)
+                >> translationAxis ^& (\a -> O.normalize centerVector)
+                >> intersect ^& (\b -> True) :? return ()
 
-    values <- get evaluated
-    let filtered = L.filter (\(e,_,_,_) -> e == True) values
-        velocity = getVelocity b
+    i   <- get intersect
+    ta  <- get translationAxis
+    mid <- get minIntervalDistance
+
+    let velocity = getVelocity b
         id  = getId b
+        mtv = velocity +. (ta *. abs(radius - mid)) -- The minimum translation vector.
 
-    if length filtered > 0 then do
-        let (_,mid, ta,_) = L.minimumBy (\(_,_,_,a) (_,_,_,b) -> compare a b) filtered 
-            mtv = velocity +. (ta *. mid)
-        ioObjects ^& (\p -> M.insert id (GameObject (setOffset mtv  b)) p)  -- The minimum translation vector.
-    else do ioObjects ^& (\p -> M.insert id (GameObject (setOffset velocity b)) p)
+    i == True ? ioObjects ^& (\p -> M.insert id (GameObject (setOffset mtv  b)) p) :? 
+                ioObjects ^& (\p -> M.insert id (GameObject (setOffset velocity b)) p)
 
     where _INFINITY = 999999999.9 
           squered (x,y) = x*x + y*y
