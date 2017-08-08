@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings, DeriveGeneric, DeriveAnyClass #-}
+
 module GameObjects.Objects.Polygon(
     GamePolygon(..),
     GameObject(..),
@@ -11,6 +13,8 @@ import Prelude hiding (id)
 import Graphics.UI.GLUT     as G
 import Data.List
 import Text.Printf
+import Data.Aeson (ToJSON)
+import GHC.Generics
 
 import GameObjects.GameObject
 import Common.Drawable
@@ -20,7 +24,7 @@ data GamePolygon = GamePolygon {
     id       :: Int,
     velocity :: Vector,
     points   :: [Vector]
-}
+} deriving (Show, Generic, ToJSON)
 
 instance GameObject_ GamePolygon where
     setVelocity v polygon = polygon { velocity = v }

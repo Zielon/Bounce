@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings, DeriveGeneric, DeriveAnyClass #-}
+
 module GameObjects.Objects.Ball(
     Ball(..),
     Bounceable(..),
@@ -10,6 +12,8 @@ import Graphics.UI.GLUT
 import Prelude hiding (id)
 import Text.Printf
 import GHC.Float
+import Data.Aeson (ToJSON)
+import GHC.Generics
 
 import GameObjects.GameObject
 import Common.Drawable
@@ -22,7 +26,7 @@ data Ball = Ball {
     radius    :: GLfloat,
     score     :: Int,
     lastFloor :: Int
-}
+} deriving (Show, Generic, ToJSON)
 
 -- | Class characteristic only for the Ball object
 --

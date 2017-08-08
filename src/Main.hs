@@ -13,6 +13,7 @@ import API.Display
 import API.Bindings
 import API.Keys
 import API.Ternary
+import API.Serialize
 
 import Collision.PhysicsEngine
 import Collision.Loop
@@ -48,6 +49,8 @@ main = do
 
   -- Global handler for StdGen
   generator <- newIORef (mkStdGen 0)
+
+  serialize "ball.json"
 
   -- ===== THREAD SECTION =====
 
