@@ -15,6 +15,8 @@ data PointsBar = PointsBar {
 instance Widget_ PointsBar where
     setValue _value pointsBar = pointsBar { value = _value }
     getValue pointsBar = value pointsBar
+    setCallback pointsBar = error "Not implemented exception"
+    getCallback pointsBar = error "Not implemented exception"
     draw pointsBar = preservingMatrix $ do
                         getColor3f 1 0 1
                         translate $ Vector3 (0.7::GLfloat) (0.95::GLfloat) 0

@@ -9,9 +9,11 @@ module Widgets.WidgetObject(
 import Graphics.UI.GLUT
 
 class Widget_ a where
-    draw     :: a -> IO ()
-    getValue :: a -> Float
-    setValue :: Float -> a -> a
+    draw        :: a -> IO ()
+    getValue    :: a -> Float
+    setValue    :: Float -> a -> a
+    setCallback :: (a -> IO ()) -> a -> a  -- A callback after a click
+    getCallback :: a -> (a -> IO ())
 
 data Widget = forall a. Widget_ a => Widget a
 
