@@ -1,13 +1,15 @@
 module API.Bindings (
   reshape,
   updateKeysBindings,
-  keyboardMouse) 
+  keyboardMouse,
+  mouseMotion) 
 where
 
 import Graphics.UI.GLUT
 import Data.IORef
 import Data.Fixed
 import Data.Bool
+import Text.Printf
 import Data.Map
 import Data.List           hiding (lookup, insert)
 import Prelude             hiding (lookup)
@@ -23,7 +25,16 @@ import API.Keys
 import API.Ternary
 
 reshape :: ReshapeCallback
-reshape size = do viewport $= (Position 0 0, size)
+reshape size = do 
+  viewport $= (Position 0 0, size)
+
+mouseMotion :: IORef Vector -> MotionCallback
+mouseMotion mouse (Position _x _y) = do
+  mouse ^& (\m -> (xw, yw))
+  where x = realToFrac _x
+        y = realToFrac _y
+        xw =    x / 400.0 - 1.0
+        yw = - (y / 400.0 - 1.0)
 
 updateKeysBindings :: IORef (Map GameKey Bool) -> IORef (Map Int GameObject) -> IORef (Map Int Widget) -> IO ()
 updateKeysBindings refkeys balls widgets = do

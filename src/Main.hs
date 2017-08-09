@@ -39,12 +39,14 @@ main = do
   keys     <- newIORef getKeys
   widgets  <- newIORef getWidgetsMap
   arena    <- newIORef getArenaObjectsMap
+  mouse    <- newIORef (0.0, 0.0)
 
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0
   keyboardMouseCallback $= Just (keyboardMouse keys arena)
+  motionCallback        $= Just (mouseMotion mouse)
   idleCallback          $= Just (idle)
-  displayCallback       $= display arena widgets
+  displayCallback       $= display arena widgets mouse
   polygonSmooth         $= Enabled
 
   -- Global handler for StdGen
