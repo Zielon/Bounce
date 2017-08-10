@@ -34,7 +34,9 @@ instance GameObject_ GamePolygon where
     getVelocity polygon = velocity polygon
     getPoints polygon = points polygon
     getType polygon = PolygonType
-    getRadius polygon = error "Not implemented exception"
+    getHovered polygon = error "Not implemented exception"
+    setHovered polygon = error "Not implemented exception"
+    getRadius polygon  = error "Not implemented exception"
     getCenter polygon = (totalX/count, totalY/count)
         where p      = points polygon
               count  = realToFrac (length p)

@@ -28,9 +28,15 @@ circlesCollision (GameObject a) (GameObject b) ioObjects = do
         axis = b_center -. a_center
         mtv = (getVelocity b) +. ((O.normalize axis) *. abs(magnitude axis - b_radius - a_radius))  -- The minimum translation vector.
         velocity = getVelocity b
-    if magnitude axis <= b_radius + a_radius
-    then ioObjects ^& (\p -> M.insert (getId b) (GameObject (setOffset mtv  b)) p)
-    else ioObjects ^& (\p -> M.insert (getId b) (GameObject (setOffset velocity b)) p)
+        result = magnitude axis <= b_radius + a_radius
+    if (getId b) /= 0 then do   -- The mouse ball is always with id equals to 0
+        result == True ? ioObjects ^& (\p -> (GameObject $ setOffset mtv b)      #- p) :? do
+                         ioObjects ^& (\p -> (GameObject $ setOffset velocity b) #- p)
+
+    -- Change color after hovered
+    else do result == True && b_radius <= a_radius && magnitude axis <= a_radius ? 
+                                ioObjects ^& (\p -> (GameObject $ setHovered True  a) #- p) :? do
+                                ioObjects ^& (\p -> (GameObject $ setHovered False a) #- p)
 
 -- | A polygon with a ball collision
 --

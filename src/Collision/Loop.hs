@@ -16,10 +16,12 @@ import GameObjects.GameObject
 
 -- | Segregating axis theorem for arena's objects
 --
-collisionLoop :: IORef (Map Int GameObject) -> IO ()
-collisionLoop ioObjects = do
-     objects <- get ioObjects
-     let ids = (L.map (\(k, v) -> k) $ M.toList objects)
+collisionLoop :: IORef (Map Int GameObject) -> IORef Vector -> IO ()
+collisionLoop ioObjects mouse = do
+     objects    <- get ioObjects
+     (m_x, m_y) <- get mouse
+     let ball = Ball 0 (m_x, m_y) (0.0, 0.0) 0.01 0 0 False
+         ids = (L.map (\(k, v) -> k) $ M.toList objects)
      forM_ ids $ \i -> do                  -- Use keys from the dictionary
          forM_ ids $ \j -> do
             i == j ? return () :? do
@@ -36,4 +38,6 @@ collisionLoop ioObjects = do
                                 if typeA == PolygonType && typeB == PolygonType   then polygonsCollision (GameObject a) (GameObject b) ioObjects
                                 else if typeB == PolygonType && typeA == BallType then polygonsCircleCollision (GameObject b) (GameObject a) ioObjects
                                 else if typeA == PolygonType && typeB == BallType then polygonsCircleCollision (GameObject a) (GameObject b) ioObjects
-                                else circlesCollision (GameObject a) (GameObject b) ioObjects
+                                else do 
+                                    circlesCollision (GameObject a) (GameObject b)    ioObjects
+                                    circlesCollision (GameObject a) (GameObject ball) ioObjects

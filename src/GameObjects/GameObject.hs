@@ -22,6 +22,7 @@ class GameObject_ a where
     -- SETTERS
     setOffset   :: Vector -> a -> a
     setVelocity :: Vector -> a -> a
+    setHovered   :: Bool   -> a -> a
 
     -- GETTERS
     getVelocity :: a -> Vector
@@ -31,6 +32,7 @@ class GameObject_ a where
     getEdges    :: a -> [Vector]
     getType     :: a -> Type
     getRadius   :: a -> GLfloat
+    getHovered    :: a -> Bool
 
     -- OTHERS
     projection  :: Vector -> a -> (GLfloat, GLfloat)

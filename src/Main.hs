@@ -44,9 +44,9 @@ main = do
   -- Register callbacks
   clearColor            $= Color4 255.0 255.0 255.0 255.0
   keyboardMouseCallback $= Just (keyboardMouse keys arena)
-  motionCallback        $= Just (mouseMotion mouse)
+  passiveMotionCallback $= Just (mouseMotion mouse)
   idleCallback          $= Just (idle)
-  displayCallback       $= display arena widgets mouse
+  displayCallback       $= display arena widgets
   polygonSmooth         $= Enabled
 
   -- Global handler for StdGen
@@ -66,7 +66,7 @@ main = do
   forkIO $ forever $ do
      threadDelay 1000
      collisionBoundaries arena
-     collisionLoop arena
+     collisionLoop arena mouse
 
   -- Main OpenGL loop with callbacks
   mainLoop

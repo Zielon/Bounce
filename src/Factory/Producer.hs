@@ -14,7 +14,7 @@ polygon :: Int -> Vector -> [Vector] -> GameObject
 polygon i v e = GameObject (GamePolygon i v e)
 
 ball :: Int -> Vector -> Vector -> GLfloat -> Int -> Int -> GameObject
-ball i p v r s f = GameObject (Ball i p v r s f)
+ball i p v r s f = GameObject (Ball i p v r s f False)
 
 getArenaObjectsMap :: Map Int GameObject
 getArenaObjectsMap = fromList [ -- The polygons section
