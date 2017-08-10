@@ -30,12 +30,12 @@ circlesCollision (GameObject a) (GameObject b) ioObjects = do
         velocity = getVelocity b
         result = magnitude axis <= b_radius + a_radius
     if (getId b) /= 0 then do   -- The mouse ball is always with id equals to 0
-        result == True ? ioObjects ^& (\p -> (GameObject $ setOffset mtv b)      #- p) :? do
+        result == True ? ioObjects ^& (\p -> (GameObject $ setOffset mtv b)      #- p) :?
                          ioObjects ^& (\p -> (GameObject $ setOffset velocity b) #- p)
 
     -- Change color after hovered
     else do result == True && b_radius <= a_radius && magnitude axis <= a_radius ? 
-                                ioObjects ^& (\p -> (GameObject $ setHovered True  a) #- p) :? do
+                                ioObjects ^& (\p -> (GameObject $ setHovered True  a) #- p) :?
                                 ioObjects ^& (\p -> (GameObject $ setHovered False a) #- p)
 
 -- | A polygon with a ball collision
@@ -85,8 +85,8 @@ polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
         id  = getId b
         mtv = velocity +. (ta *. abs(radius - mid)) -- The minimum translation vector.
 
-    i == True ? ioObjects ^& (\p -> M.insert id (GameObject (setOffset mtv  b)) p) :? 
-                ioObjects ^& (\p -> M.insert id (GameObject (setOffset velocity b)) p)
+    i == True ? ioObjects ^& (\p -> (GameObject $ setOffset mtv  b)     #- p) :? 
+                ioObjects ^& (\p -> (GameObject $ setOffset velocity b) #- p)
 
     where _INFINITY = 999999999.9 
           squered (x,y) = x*x + y*y
@@ -141,7 +141,7 @@ polygonsCollision (GameObject a) (GameObject b) ioObjects = do
         mtv = velocity +. (ta *. mid) -- The minimum translation vector is used to push the polygons appart.
         id = getId a
 
-    wI == True ? ioObjects ^& (\p -> M.insert id (GameObject (setOffset mtv a)) p) :? 
-                 ioObjects ^& (\p -> M.insert id (GameObject (setOffset velocity a)) p)
+    wI == True ? ioObjects ^& (\p -> (GameObject $ setOffset mtv a)      #- p) :? 
+                 ioObjects ^& (\p -> (GameObject $ setOffset velocity a) #- p)
 
     where _INFINITY = 999999999.9
