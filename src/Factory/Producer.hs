@@ -11,7 +11,7 @@ import Data.Map
 -- Smart constructors
 
 polygon :: Int -> Vector -> [Vector] -> GameObject
-polygon i v e = GameObject (GamePolygon i v e)
+polygon i v e = GameObject (GamePolygon i v e False)
 
 ball :: Int -> Vector -> Vector -> GLfloat -> Int -> Int -> GameObject
 ball i p v r s f = GameObject (Ball i p v r s f False)

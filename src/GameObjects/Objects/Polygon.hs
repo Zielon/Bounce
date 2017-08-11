@@ -16,6 +16,7 @@ import Text.Printf
 import Data.Aeson (ToJSON)
 import GHC.Generics
 
+import API.Ternary
 import GameObjects.GameObject
 import Common.Drawable
 import Collision.VectorOperations
@@ -23,7 +24,8 @@ import Collision.VectorOperations
 data GamePolygon = GamePolygon {
     id       :: Int,
     velocity :: Vector,
-    points   :: [Vector]
+    points   :: [Vector],
+    hovered    :: Bool
 } deriving (Show, Generic, ToJSON)
 
 instance GameObject_ GamePolygon where
@@ -34,8 +36,8 @@ instance GameObject_ GamePolygon where
     getVelocity polygon = velocity polygon
     getPoints polygon = points polygon
     getType polygon = PolygonType
-    getHovered polygon = error "Not implemented exception"
-    setHovered polygon = error "Not implemented exception"
+    getHovered polygon = hovered polygon
+    setHovered bool polygon = polygon { hovered = bool }
     getRadius polygon  = error "Not implemented exception"
     getCenter polygon = (totalX/count, totalY/count)
         where p      = points polygon
@@ -43,7 +45,7 @@ instance GameObject_ GamePolygon where
               totalX = foldr (\(x,y) s -> s + x) 0.0 p
               totalY = foldr (\(x,y) s -> s + y) 0.0 p
     draw polygon = preservingMatrix $ do
-            renderPrimitive G.Polygon $ mapM_ (\(x, y) -> (getColor3f x y 0.5) >> (vertex $ Vertex3 x y 0)) $ points polygon
+            renderPrimitive G.Polygon $ mapM_ (\(x, y) -> (hovered polygon == False ? (getColor3f x y 0.5) :? getColor3f 1 1 0) >> (vertex $ Vertex3 x y 0)) $ points polygon
             getColor3f (-1) (-1) (-1)
             translate $ Vector3 x y 0
             rasterPos (Vertex2 (0.0::GLfloat) (0.0::GLfloat))

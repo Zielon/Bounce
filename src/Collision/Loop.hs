@@ -37,7 +37,9 @@ collisionLoop ioObjects mouse = do
                                 -- Choose the right collision test according to the object type
                                 if typeA == PolygonType && typeB == PolygonType   then polygonsCollision (GameObject a) (GameObject b) ioObjects
                                 else if typeB == PolygonType && typeA == BallType then polygonsCircleCollision (GameObject b) (GameObject a) ioObjects
-                                else if typeA == PolygonType && typeB == BallType then polygonsCircleCollision (GameObject a) (GameObject b) ioObjects
+                                else if typeA == PolygonType && typeB == BallType then do
+                                    polygonsCircleCollision (GameObject a) (GameObject b)    ioObjects
+                                    polygonsCircleCollision (GameObject a) (GameObject ball) ioObjects
                                 else do 
                                     circlesCollision (GameObject a) (GameObject b)    ioObjects
                                     circlesCollision (GameObject a) (GameObject ball) ioObjects

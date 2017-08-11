@@ -44,6 +44,7 @@ polygonsCircleCollision :: GameObject -> GameObject -> IORef (Map Int GameObject
 polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
 
     intersect           <- newIORef False
+    isInside            <- newIORef False
     translationAxis     <- newIORef (0.0, 0.0)
     projectedVector     <- newIORef (0.0, 0.0)
     minIntervalDistance <- newIORef _INFINITY
@@ -77,16 +78,21 @@ polygonsCircleCollision (GameObject a) (GameObject b) ioObjects = do
                 >> translationAxis ^& (\a -> O.normalize centerVector)
                 >> intersect ^& (\b -> True) :? return ()
 
-    i   <- get intersect
-    ta  <- get translationAxis
-    mid <- get minIntervalDistance
+    i      <- get intersect
+    ta     <- get translationAxis
+    mid    <- get minIntervalDistance
+    inside <- get isInside
 
     let velocity = getVelocity b
         id  = getId b
         mtv = velocity +. (ta *. abs(radius - mid)) -- The minimum translation vector.
 
-    i == True ? ioObjects ^& (\p -> (GameObject $ setOffset mtv  b)     #- p) :? 
-                ioObjects ^& (\p -> (GameObject $ setOffset velocity b) #- p)
+    if (getId b) /= 0 then
+        i == True ? ioObjects ^& (\p -> (GameObject $ setOffset mtv  b)     #- p) :? 
+                    ioObjects ^& (\p -> (GameObject $ setOffset velocity b) #- p)
+
+    else inside == True ? ioObjects ^& (\p -> (GameObject $ setHovered True  a) #- p) :?
+                          ioObjects ^& (\p -> (GameObject $ setHovered False a) #- p)
 
     where _INFINITY = 999999999.9 
           squered (x,y) = x*x + y*y
