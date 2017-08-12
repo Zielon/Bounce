@@ -10,36 +10,57 @@ import Data.Map                      as M
 import API.Ternary
 import Collision.VectorOperations    as O
 import Collision.SAT
+import Collision.RayCasting
 import GameObjects.Objects.Polygon   as P
 import GameObjects.Objects.Ball      as B
 import GameObjects.GameObject
 
 -- | Segregating axis theorem for arena's objects
 --
-collisionLoop :: IORef (Map Int GameObject) -> IORef Vector -> IO ()
-collisionLoop ioObjects mouse = do
-     objects    <- get ioObjects
-     (m_x, m_y) <- get mouse
-     let ball = Ball 0 (m_x, m_y) (0.0, 0.0) 0.01 0 0 False
-         ids = (L.map (\(k, v) -> k) $ M.toList objects)
+collisionLoop :: IORef (Map Int GameObject) -> IO ()
+collisionLoop ioObjects = do
+     objects       <- get ioObjects
+     let ids = (L.map (\(k, v) -> k) $ M.toList objects)
      forM_ ids $ \i -> do                  -- Use keys from the dictionary
          forM_ ids $ \j -> do
             i == j ? return () :? do
-                objects  <- get ioObjects  -- Each time we need to fetch the newest positions
                 case M.lookup i objects of
                     Nothing             -> return ()
                     Just (GameObject a) -> do
                         case M.lookup j objects of
                             Nothing             -> return ()
                             Just (GameObject b) -> do
-                                let typeA = getType a
-                                    typeB = getType b
+                                let iA = getType a
+                                    jB = getType b
+
                                 -- Choose the right collision test according to the object type
-                                if typeA == PolygonType && typeB == PolygonType   then polygonsCollision (GameObject a) (GameObject b) ioObjects
-                                else if typeB == PolygonType && typeA == BallType then polygonsCircleCollision (GameObject b) (GameObject a) ioObjects
-                                else if typeA == PolygonType && typeB == BallType then do
-                                    polygonsCircleCollision (GameObject a) (GameObject b)    ioObjects
-                                    polygonsCircleCollision (GameObject a) (GameObject ball) ioObjects
+                                if iA == PolygonType && jB == PolygonType   then do
+                                    let (i1, j1) = isHovered a b
+                                    polygonsCollision i1 j1 ioObjects
+                                else if jB == PolygonType && iA == BallType then polygonsCircleCollision j i ioObjects
+                                else if iA == PolygonType && jB == BallType then polygonsCircleCollision i j ioObjects
                                 else do 
-                                    circlesCollision (GameObject a) (GameObject b)    ioObjects
-                                    circlesCollision (GameObject a) (GameObject ball) ioObjects
+                                    let (i1, j1) = isHovered a b
+                                    circlesCollision i1 j1 ioObjects
+
+                        where isHovered a b = 
+                                if hoveredA == False && hoveredB == False then (i, j)
+                                else if hoveredA == True then (i, j) else (j, i)
+                                where hoveredA = getHovered a  
+                                      hoveredB = getHovered b
+
+-- | Check is the mouse position is inside an object
+--
+pointInObjects :: IORef (Map Int GameObject) -> IORef Vector -> IO ()
+pointInObjects ioObjects mouse = do
+     objects       <- get ioObjects
+     mousePosition <- get mouse
+     let ids = (L.map (\(k, v) -> k) $ M.toList objects)
+     forM_ ids $ \i -> do                  -- Use keys from the dictionary
+     case M.lookup i objects of
+        Nothing             -> return ()
+        Just (GameObject a) -> do
+            let iA = getType a
+            if iA == PolygonType   then pointInPolygon i mousePosition ioObjects
+            else if iA == BallType then pointInCircle  i mousePosition ioObjects
+            else return ()

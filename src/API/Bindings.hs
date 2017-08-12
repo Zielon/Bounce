@@ -1,11 +1,13 @@
 module API.Bindings (
   reshape,
   updateKeysBindings,
-  keyboardMouse,
-  mouseMotion) 
+  keyboard,
+  mouseMotion,
+  moveObject) 
 where
 
 import Graphics.UI.GLUT
+import Graphics.UI.GLUT.Callbacks
 import Data.IORef
 import Data.Fixed
 import Data.Bool
@@ -22,24 +24,40 @@ import Collision.Helpers
 
 import API.Display
 import API.Keys
+import API.Buttons
 import API.Ternary
 
 reshape :: ReshapeCallback
 reshape size = do 
   viewport $= (Position 0 0, size)
 
-mouseMotion :: IORef Vector -> MotionCallback
-mouseMotion mouse (Position _x _y) = do
+getPosition :: Position -> Vector
+getPosition (Position x y) = (xw, -yw)
+    where xw = (realToFrac x) / 400.0 - 1.0
+          yw = (realToFrac y) / 400.0 - 1.0
+
+moveObject :: IORef (Map Int GameObject) -> IORef Vector -> MotionCallback
+moveObject arena mouse position = do
+  objects <- get arena
   mouse ^& (\m -> (xw, yw))
-  where x = realToFrac _x
-        y = realToFrac _y
-        xw =    x / 400.0 - 1.0
-        yw = - (y / 400.0 - 1.0)
+  let value = find (\(k, (GameObject v)) -> getHovered v == True ) $ toList objects
+  case value of
+      Nothing                    -> return ()
+      Just (k, (GameObject v)) -> do 
+        arena ^& (\p -> insert k (GameObject (setOffset (xw-o_x, yw-o_y) v)) p)
+        where (o_x, o_y) = getCenter v
+
+  where (xw, yw) = getPosition position
+
+mouseMotion :: IORef Vector -> MotionCallback
+mouseMotion mouse position = do
+  mouse ^& (\m -> (xw, yw))
+  where (xw, yw) = getPosition position
 
 updateKeysBindings :: IORef (Map GameKey Bool) -> IORef (Map Int GameObject) -> IORef (Map Int Widget) -> IO ()
-updateKeysBindings refkeys balls widgets = do
+updateKeysBindings refkeys arena widgets = do
   keys     <- get refkeys
-  balls'   <- get balls
+  objects  <- get arena
   widgets' <- get widgets
 
   let (Just leftKey)  = lookup GameKeyLeft  keys
@@ -56,8 +74,8 @@ updateKeysBindings refkeys balls widgets = do
 
   where maxForce = 10.0
 
-keyboardMouse :: IORef (Map GameKey Bool) -> IORef (Map Int GameObject) -> KeyboardMouseCallback
-keyboardMouse keys arena key state _ _ = do
+keyboard :: IORef (Map GameKey Bool) -> IORef (Map Int GameObject) -> KeyboardMouseCallback
+keyboard keys arena key state _ _ = do
   arena'    <- get arena
   keys'     <- get keys
   index     <- newIORef 1
