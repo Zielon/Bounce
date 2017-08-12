@@ -25,7 +25,7 @@ data GamePolygon = GamePolygon {
     id       :: Int,
     velocity :: Vector,
     points   :: [Vector],
-    hovered    :: Bool
+    hovered  :: Bool
 } deriving (Show, Generic, ToJSON)
 
 instance GameObject_ GamePolygon where

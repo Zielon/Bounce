@@ -27,7 +27,7 @@ data Ball = Ball {
     radius    :: GLfloat,
     score     :: Int,
     lastFloor :: Int,
-    hovered    :: Bool
+    hovered   :: Bool
 } deriving (Show, Generic, ToJSON)
 
 -- | Class characteristic only for the Ball object

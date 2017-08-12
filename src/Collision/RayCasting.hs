@@ -10,6 +10,7 @@ import Data.Map                      as M
 import API.Ternary
 import GameObjects.Objects.Polygon   as P
 import GameObjects.Objects.Ball      as B
+import GameObjects.Objects.Segment   as S
 import Collision.VectorOperations    as O
 import GameObjects.GameObject
 import Collision.Helpers
@@ -43,7 +44,7 @@ carrier ((ax, ay), (bx, by)) | ax == bx  = Vert ax
 between :: Ord a => a -> a -> a -> Bool
 between x a b | a > b     = b <= x && x <= a
               | otherwise = a <= x && x <= b
- 
+
 inPolygon :: Point -> Polygon -> Bool
 inPolygon p @ (px, py) = f 0 . polygonSides
   where f n []                             = odd n
@@ -67,8 +68,9 @@ pointInPolygon i mouse ioObjects = do
     case M.lookup i objects of
             Nothing             -> return ()
             Just (GameObject a) -> do
-                inPolygon mouse (getPoints a) == True ? ioObjects ^& (\p -> (GameObject $ setHovered True  a) #- p) :?
-                                                        ioObjects ^& (\p -> (GameObject $ setHovered False a) #- p)
+                inPolygon mouse (getPoints a) == True ? 
+                    ioObjects ^& (\p -> (GameObject $ setHovered True  a) #- p) :?
+                    ioObjects ^& (\p -> (GameObject $ setHovered False a) #- p)
 
 pointInCircle :: Int -> Vector -> IORef (Map Int GameObject) -> IO ()
 pointInCircle i mouse ioObjects = do
@@ -76,8 +78,14 @@ pointInCircle i mouse ioObjects = do
     case M.lookup i objects of
             Nothing             -> return ()
             Just (GameObject a) -> do
-                (x - c_x)^2 + (y - c_y)^2 < r^2 ? ioObjects ^& (\p -> (GameObject $ setHovered True  a) #- p) :?
-                                                  ioObjects ^& (\p -> (GameObject $ setHovered False a) #- p)
+                (x - c_x)^2 + (y - c_y)^2 < r^2 ? 
+                    ioObjects ^& (\p -> (GameObject $ setHovered True  a) #- p) :?
+                    ioObjects ^& (\p -> (GameObject $ setHovered False a) #- p)
                 where r          = getRadius a
                       (c_x, c_y) = getCenter a
                       (x,y)      = mouse
+
+rayCasting :: IORef (Map Int GameObject) -> IORef [Segment] -> IORef Vector -> IO ()
+rayCasting ioObjects segments mouse = do 
+    mouseStart <- get mouse
+    segments ^& \rays -> Prelude.map (\r -> r { start = mouseStart }) rays

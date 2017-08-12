@@ -4,9 +4,10 @@ import Graphics.UI.GLUT
 
 import GameObjects.Objects.Ball
 import GameObjects.Objects.Polygon
+import GameObjects.Objects.Segment
 import Common.Drawable
 
-import Data.Map
+import Data.Map as M
 
 -- Smart constructors
 
@@ -17,7 +18,7 @@ ball :: Int -> Vector -> Vector -> GLfloat -> Int -> Int -> GameObject
 ball i p v r s f = GameObject (Ball i p v r s f False)
 
 getArenaObjectsMap :: Map Int GameObject
-getArenaObjectsMap = fromList [ -- The polygons section
+getArenaObjectsMap = M.fromList [ -- The polygons section
                                 (6, polygon 6 (0.0, 0.0) [(0.1, 0.2), (0.1, 0.4), (0.2, 0.4)]),
                                 (3, polygon 3 (0.0, 0.0) [(-0.8, -0.8), (-0.8, -0.7),(0.8, -0.7), (0.8, -0.8)]),
                                 (4, polygon 4 (0.0, 0.0) [(-0.5, -0.6), (-0.4, 0.4), (-0.5, 0.4)]),
@@ -30,3 +31,6 @@ getArenaObjectsMap = fromList [ -- The polygons section
                                 (11, ball 11 (0.7, 0.1)  (0.0, 0.0) 0.09 0 0),
                                 (12, ball 12 (-0.7, 0.8) (0.0, 0.0) 0.07 0 0),
                                 (13, ball 13 (0.1, -0.1) (0.0, 0.0) 0.17 0 0)]
+
+getSegments :: GLfloat -> Vector -> [Segment]
+getSegments i mouse = [ Segment ((-1), (-1), (-1)) mouse (sin (2*pi*k/i), cos (2*pi*k/i)) | k <- [1..i] ]

@@ -27,18 +27,21 @@ import API.Keys
 import API.Buttons
 import API.Ternary
 
-reshape :: ReshapeCallback
-reshape size = do 
+reshape :: IORef Size -> ReshapeCallback
+reshape ref size = do
+  ref ^& (\r -> size)
   viewport $= (Position 0 0, size)
 
-getPosition :: Position -> Vector
-getPosition (Position x y) = (xw, -yw)
-    where xw = (realToFrac x) / 400.0 - 1.0
-          yw = (realToFrac y) / 400.0 - 1.0
+getPosition :: Position -> Size -> Vector
+getPosition (Position xP yP) (Size xS yS) = (xw, -yw)
+    where xw = (realToFrac xP) / ((realToFrac xS) / 2) - 1.0
+          yw = (realToFrac yP) / ((realToFrac yS) / 2) - 1.0
 
-moveObject :: IORef (Map Int GameObject) -> IORef Vector -> MotionCallback
-moveObject arena mouse position = do
+moveObject :: IORef (Map Int GameObject) -> IORef Vector -> IORef Size -> MotionCallback
+moveObject arena mouse size position = do
   objects <- get arena
+  windows <- get size
+  let (xw, yw) = getPosition position windows
   mouse ^& (\m -> (xw, yw))
   let value = find (\(k, (GameObject v)) -> getHovered v == True ) $ toList objects
   case value of
@@ -47,12 +50,11 @@ moveObject arena mouse position = do
         arena ^& (\p -> insert k (GameObject (setOffset (xw-o_x, yw-o_y) v)) p)
         where (o_x, o_y) = getCenter v
 
-  where (xw, yw) = getPosition position
-
-mouseMotion :: IORef Vector -> MotionCallback
-mouseMotion mouse position = do
+mouseMotion :: IORef Vector -> IORef Size -> MotionCallback
+mouseMotion mouse size position = do
+  windows <- get size
+  let (xw, yw) = getPosition position windows
   mouse ^& (\m -> (xw, yw))
-  where (xw, yw) = getPosition position
 
 updateKeysBindings :: IORef (Map GameKey Bool) -> IORef (Map Int GameObject) -> IORef (Map Int Widget) -> IO ()
 updateKeysBindings refkeys arena widgets = do

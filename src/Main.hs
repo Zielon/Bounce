@@ -25,6 +25,7 @@ import Common.Drawable
 
 import Collision.Helpers
 
+import Collision.RayCasting
 import GameObjects.Objects.Ball
 import GameObjects.Objects.Polygon as P
 import Factory.Producer            as Factory
@@ -35,39 +36,40 @@ main = do
   initialDisplayMode $= [WithDepthBuffer, DoubleBuffered, WithSamplesPerPixel 5]
   initialWindowSize $= Size 800 800
   createWindow "Bounce"
-  reshapeCallback $= Just reshape
 
-  keys         <- newIORef getKeys
-  buttons      <- newIORef getButtons
-  widgets      <- newIORef getWidgetsMap
-  arena        <- newIORef getArenaObjectsMap
-  mousePosition<- newIORef (0.0, 0.0)
+  keys          <- newIORef getKeys
+  buttons       <- newIORef getButtons
+  widgets       <- newIORef getWidgetsMap
+  arena         <- newIORef getArenaObjectsMap
+  rays          <- newIORef $ getSegments 50 (0, 0)
+  size          <- newIORef $ Size 800 800
+  mousePosition <- newIORef (0, 0)
 
   -- Register callbacks
+  reshapeCallback       $= Just (reshape size)
   clearColor            $= Color4 255.0 255.0 255.0 255.0
   keyboardMouseCallback $= Just (keyboard keys arena)
-  passiveMotionCallback $= Just (mouseMotion mousePosition)
-  motionCallback        $= Just (moveObject arena mousePosition)
+  passiveMotionCallback $= Just (mouseMotion mousePosition size)
+  motionCallback        $= Just (moveObject arena mousePosition size)
   idleCallback          $= Just (idle)
-  displayCallback       $= display arena widgets
+  displayCallback       $= display arena widgets rays
   polygonSmooth         $= Enabled
-
-  -- Global handler for StdGen
-  generator <- newIORef (mkStdGen 0)
-
-  -- serialize "ball.json"
 
   -- ===== THREAD SECTION =====
 
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do
-     threadDelay 100
+     threadDelay 1000
      -- updateGravity arena 0.0009 -- dt
      updateKeysBindings keys arena widgets
      pointInObjects arena mousePosition
 
   forkIO $ forever $ do
-     threadDelay 100
+    threadDelay 1000
+    rayCasting arena rays mousePosition
+
+  forkIO $ forever $ do
+     threadDelay 1000
      collisionBoundaries arena
      collisionLoop arena
 
