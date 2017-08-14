@@ -35,19 +35,14 @@ collisionLoop ioObjects = do
 
                                 -- Choose the right collision test according to the object type
                                 if iA == PolygonType && jB == PolygonType   then do
-                                    let (i1, j1) = isHovered a b
+                                    let (i1, j1) = isHovered b
                                     polygonsCollision i1 j1 ioObjects
                                 else if jB == PolygonType && iA == BallType then polygonsCircleCollision j i ioObjects
                                 else if iA == PolygonType && jB == BallType then polygonsCircleCollision i j ioObjects
                                 else do 
-                                    let (i1, j1) = isHovered a b
+                                    let (i1, j1) = isHovered b
                                     circlesCollision i1 j1 ioObjects
-
-                        where isHovered a b = 
-                                if hoveredA == False && hoveredB == False then (i, j)
-                                else if hoveredA == True then (i, j) else (j, i)
-                                where hoveredA = getHovered a  
-                                      hoveredB = getHovered b
+                        where isHovered b = getHovered b == True ? (j, i) :? (i, j)
 
 -- | Check is the mouse position is inside an object
 --

@@ -41,7 +41,7 @@ main = do
   buttons       <- newIORef getButtons
   widgets       <- newIORef getWidgetsMap
   arena         <- newIORef getArenaObjectsMap
-  rays          <- newIORef $ getSegments 50 (0, 0)
+  rays          <- newIORef $ getSegments 10 (0, 0)
   size          <- newIORef $ Size 800 800
   mousePosition <- newIORef (0, 0)
 
@@ -65,7 +65,7 @@ main = do
      pointInObjects arena mousePosition
 
   forkIO $ forever $ do
-    threadDelay 1000
+    threadDelay 10000
     rayCasting arena rays mousePosition
 
   forkIO $ forever $ do

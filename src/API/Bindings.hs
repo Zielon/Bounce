@@ -45,7 +45,7 @@ moveObject arena mouse size position = do
   mouse ^& (\m -> (xw, yw))
   let value = find (\(k, (GameObject v)) -> getHovered v == True ) $ toList objects
   case value of
-      Nothing                    -> return ()
+      Nothing                  -> return ()
       Just (k, (GameObject v)) -> do 
         arena ^& (\p -> insert k (GameObject (setOffset (xw-o_x, yw-o_y) v)) p)
         where (o_x, o_y) = getCenter v

@@ -38,8 +38,8 @@ carrier :: (Point, Point) -> Line
 {- Finds the line containing the given line segment. -}
 carrier ((ax, ay), (bx, by)) | ax == bx  = Vert ax
                              | otherwise = Sloped slope yint
-  where slope = (ay - by) / (ax - bx)
-        yint = ay - slope * ax
+  where slope = (ay - by) / (ax - bx)   -- tan (b/a) = m
+        yint = ay - slope * ax          -- y = mx + b -> b = y - mx
  
 between :: Ord a => a -> a -> a -> Bool
 between x a b | a > b     = b <= x && x <= a
@@ -86,6 +86,20 @@ pointInCircle i mouse ioObjects = do
                       (x,y)      = mouse
 
 rayCasting :: IORef (Map Int GameObject) -> IORef [Segment] -> IORef Vector -> IO ()
-rayCasting ioObjects segments mouse = do 
+rayCasting ioObjects segments mouse = do
+    objects    <- get ioObjects
     mouseStart <- get mouse
-    segments ^& \rays -> Prelude.map (\r -> r { start = mouseStart }) rays
+    rays       <- get segments
+    output     <- newIORef []
+
+    forM_ rays $ \ray -> do
+        let startPoint = mouseStart
+            endPoint   = end ray
+            egde       = startPoint -. endPoint
+            inters     = Prelude.filter (\(k, GameObject v) -> inPolygon egde (getPoints v)) $ toList objects
+
+        --putStrLn $ show $ Prelude.map (\(k, GameObject v) -> getId v) inters
+        output ^& \l -> l ++ [Segment (lineColor ray) startPoint endPoint]
+
+    o <- get output
+    segments ^& \s -> o
