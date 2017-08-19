@@ -24,7 +24,6 @@ import Widgets.Widget
 import Common.Drawable
 
 import Collision.Helpers
-
 import Collision.RayCasting
 import GameObjects.Objects.Ball
 import GameObjects.Objects.Polygon as P

@@ -3,6 +3,7 @@ module Collision.Helpers where
 import Graphics.UI.GLUT
 import Data.IORef
 import Control.Monad
+import Control.Parallel.Strategies
 import Data.Map
 
 import GameObjects.GameObject
@@ -17,3 +18,10 @@ import GameObjects.Objects.Ball
 (#-) (GameObject object) dictionary = 
     insert i (GameObject object) dictionary
     where i = getId object
+
+mapEval :: (a -> b) -> [a] -> Eval [b]
+mapEval f [] = return []
+mapEval f (a:as) = do
+    b  <- rpar (f a)
+    bs <- mapEval f as
+    return (b:bs)
