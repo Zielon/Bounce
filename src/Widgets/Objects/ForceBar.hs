@@ -17,6 +17,8 @@ instance Widget_ ForceBar where
     getValue forceBar = value forceBar
     setCallback forceBar = error "Not implemented exception"
     getCallback forceBar = error "Not implemented exception"
+    setOptions _ _ = error "Not implemented exception"
+    getOptions _   = error "Not implemented exception"
     draw forceBar = preservingMatrix $ do
                         getColor3f 1 0 0
                         renderPrimitive Polygon $ mapM_ (\(x, y) -> vertex $ Vertex3 x y 0) $ points

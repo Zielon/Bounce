@@ -12,6 +12,8 @@ instance Widget_ ForceBar where
     getValue button = value button
     setCallback button = error "Not implemented exception"
     getCallback button = error "Not implemented exception"
+    setOptions _ _ = error "Not implemented exception"
+    getOptions _   = error "Not implemented exception"
     draw button = preservingMatrix $ do
                     getColor3f 1 0 1
                     rasterPos (Vertex2 (0.0::GLfloat) (0.0::GLfloat))
