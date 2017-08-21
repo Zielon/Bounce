@@ -6,7 +6,9 @@ import Control.Monad
 import Text.Printf
 import Data.Ratio
 import Data.Map                      as M
+import Data.List                     as L
 
+import Factory.Producer
 import API.Ternary
 import GameObjects.Objects.Polygon   as P
 import GameObjects.Objects.Ball      as B
@@ -92,14 +94,27 @@ rayCasting ioObjects segments mouse = do
     rays       <- get segments
     output     <- newIORef []
 
-    forM_ rays $ \ray -> do
-        let startPoint = mouseStart
-            endPoint   = end ray
-            egde       = startPoint -. endPoint
-            inters     = Prelude.filter (\(k, GameObject v) -> inPolygon egde (getPoints v)) $ toList objects
+    segments ^& \l -> getSegments 10 mouseStart
 
-        --putStrLn $ show $ Prelude.map (\(k, GameObject v) -> getId v) inters
-        output ^& \l -> l ++ [Segment (lineColor ray) startPoint endPoint]
+    forM_ rays $ \ray -> do
+        intersections <- newIORef []
+        let p = mouseStart
+            r = end ray
+        forM_ objects $ \(GameObject o) -> do 
+            forM_ (polygonSides $ getPoints o) $ \(q, s) -> do
+                let t = (q -. p) × s / (r × s)
+                    u = (q -. p) × r / (r × s)
+                    i = p +. (r *. t)
+                if r × s == 0 && (q -. p) × r /= 0 then return ()
+                else if r × s /= 0 && interval t && interval u then intersections ^& \l -> l ++ [i]
+                else return ()
+
+        list <- get intersections
+        if length list == 0 then output ^& \l -> l ++ [Segment (lineColor ray) p r]
+        else do
+            let (_,v) = L.minimumBy (\(l1, _) (l2, _) -> compare l2 l1) $ Prelude.map (\e -> (O.lenght e p, e)) list
+            output ^& \l -> l ++ [Segment (lineColor ray) p v]
 
     o <- get output
     segments ^& \s -> o
+    where interval a = a >= 0 && a <= 1

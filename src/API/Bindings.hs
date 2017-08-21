@@ -68,7 +68,7 @@ updateKeysBindings refkeys arena widgets = do
       (Just twoKey)   = lookup GameKeyTwo   keys
       (Just threeKey) = lookup GameKeyThree keys
 
- -- when (twoKey   == False) $ arena ^& (\o -> fromList $ Data.List.filter (\(k, (GameObject v)) -> getType v /= BallType) $ toList objects)
+  arena ^& (\o -> fromList $ Data.List.filter (\(k, (GameObject v)) -> getType v /= BallType) $ toList objects)
  -- when (threeKey == False) $ arena ^& (\o -> fromList $ Data.List.filter (\(k, (GameObject v)) -> getType v /= PolygonType) $ toList objects)
 
   -- Settings
