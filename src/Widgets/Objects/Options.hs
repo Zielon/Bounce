@@ -27,14 +27,18 @@ instance Widget_ Options where
     getOptions options = settings options
     draw options = do 
         i <- newIORef (0.85::GLfloat)
-        forM_ (M.toList (settings options)) $ \(k, v) ->
-            preservingMatrix $ do
+        forM_ (M.toList (settings options)) $ \(k, v) -> do
             getColor3f 1 0 0
             i' <- get i
             i ^& \e -> e - 0.05
-            translate $ Vector3 (-0.95::GLfloat) i' 0
-            rasterPos (Vertex2 (0.0::GLfloat) (0.0::GLfloat))
-            renderString Helvetica18 $ printf "%-8s -> %s" (show k) (v == True ? "ON" :? "OFF")
+            preservingMatrix $ do
+                translate $ Vector3 (-0.95::GLfloat) i' 0
+                rasterPos (Vertex2 (0.0::GLfloat) (0.0::GLfloat))
+                renderString Helvetica18 $ printf "%-8s" (show k)
+            preservingMatrix $ do
+                translate $ Vector3 (-0.75::GLfloat) i' 0
+                rasterPos (Vertex2 (0.0::GLfloat) (0.0::GLfloat))
+                renderString Helvetica18 $ printf " | %-3s" (v == True ? "ON" :? "OFF")
 
 instance Drawable_ Options where
     render options = draw options

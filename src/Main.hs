@@ -64,7 +64,7 @@ main = do
      pointInObjects arena mousePosition
 
   forkIO $ forever $ do
-    threadDelay 10000
+    threadDelay 1000
     rayCasting arena rays mousePosition
 
   forkIO $ forever $ do

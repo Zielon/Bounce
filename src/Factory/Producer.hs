@@ -30,7 +30,7 @@ getArenaObjectsMap = M.fromList [ -- The polygons section
                                 (2,  ball 2  (0.5, 0.8)  (0.0, 0.0) 0.1 0 0),
                                 (5,  ball 5  (-0.3, 0.4) (0.0, 0.0) 0.03 0 0),
                                 (11, ball 11 (0.7, 0.1)  (0.0, 0.0) 0.09 0 0),
-                                (12, ball 12 (-0.7, 0.8) (0.0, 0.0) 0.07 0 0),
+                                (12, ball 12 (-0.4, 0.8) (0.0, 0.0) 0.07 0 0),
                                 (13, ball 13 (0.1, -0.1) (0.0, 0.0) 0.17 0 0)]
 
 getSegments :: GLfloat -> Vector -> [Segment]
