@@ -18,6 +18,7 @@ import Prelude             hiding (lookup)
 import Control.Monad 
 
 import Widgets.Widget
+import Widgets.Settings
 import GameObjects.Objects.Ball      as Ball
 import GameObjects.Objects.Polygon   as Polygon
 import Collision.Helpers
@@ -62,10 +63,22 @@ updateKeysBindings refkeys arena widgets = do
   objects  <- get arena
   widgets' <- get widgets
 
-  let (Just leftKey)  = lookup GameKeyLeft  keys
-  let (Just rightKey) = lookup GameKeyRight keys
   let (Just forceKey) = lookup GameKeyForce keys
+      (Just oneKey)   = lookup GameKeyOne   keys
+      (Just twoKey)   = lookup GameKeyTwo   keys
+      (Just threeKey) = lookup GameKeyThree keys
 
+ -- when (twoKey   == False) $ arena ^& (\o -> fromList $ Data.List.filter (\(k, (GameObject v)) -> getType v /= BallType) $ toList objects)
+ -- when (threeKey == False) $ arena ^& (\o -> fromList $ Data.List.filter (\(k, (GameObject v)) -> getType v /= PolygonType) $ toList objects)
+
+  -- Settings
+  case lookup 3 widgets' of         -- Get the force bar widget and update it
+    Nothing         -> return ()
+    Just (Widget w) -> do
+      let settings = setOptions (setOptions (setOptions w (Polygons, threeKey)) (Balls, twoKey)) (RayCast, oneKey)
+      widgets ^& (\m -> insert 3 (Widget $ settings) m)
+
+  -- Force bar
   case lookup 1 widgets' of         -- Get the force bar widget and update it
     Nothing         -> return ()
     Just (Widget w) -> do
@@ -80,32 +93,11 @@ keyboard :: IORef (Map GameKey Bool) -> IORef (Map Int GameObject) -> KeyboardMo
 keyboard keys arena key state _ _ = do
   arena'    <- get arena
   keys'     <- get keys
-  index     <- newIORef 1
 
-  let value = find (\(k ,v) -> v == True) $ toList keys'
-
-  -- TODO delete this part [Control the 4 objects with the consquent ids throughout keys (1,2,3,4)]
-  case value of
-    Nothing       -> return ()
-    (Just (k, b)) -> case k of 
-                        GameKeyOne   -> index ^& (\i -> 1)
-                        GameKeyTwo   -> index ^& (\i -> 2)
-                        GameKeyThree -> index ^& (\i -> 3)
-                        GameKeyFour  -> index ^& (\i -> 4)
-                        _            -> return ()
-  i <- get index
-
-  case lookup i arena' of
-    Nothing             -> return ()
-    Just (GameObject z) -> case key of
-                              (SpecialKey KeyLeft)  -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity ((-precision), 0) z)) p)
-                              (SpecialKey KeyRight) -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity (precision, 0) z)) p)
-                              (SpecialKey KeyUp)    -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity (0, precision) z)) p)
-                              (SpecialKey KeyDown)  -> arena ^& (\p -> insert (getId z) (GameObject (setVelocity (0, (-precision)) z)) p)
-                              (Char ' ')            -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
-                              (Char '1')            -> state == Down ? (updateKey keys GameKeyOne True) :? (updateKey keys GameKeyOne False)
-                              (Char '2')            -> state == Down ? (updateKey keys GameKeyTwo True) :? (updateKey keys GameKeyTwo False)
-                              (Char '3')            -> state == Down ? (updateKey keys GameKeyThree True) :? (updateKey keys GameKeyThree False)
-                              (Char '4')            -> state == Down ? (updateKey keys GameKeyFour True) :? (updateKey keys GameKeyFour False)
-                              _                     -> return ()
-  where precision = 0.005
+  case key of
+    (Char ' ')            -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
+    (Char '1')            -> state == Down ? keys ^& (\k -> let (Just v) = lookup GameKeyOne k   in insert GameKeyOne (not v) k)   :? return ()
+    (Char '2')            -> state == Down ? keys ^& (\k -> let (Just v) = lookup GameKeyTwo k   in insert GameKeyTwo (not v) k)   :? return ()
+    (Char '3')            -> state == Down ? keys ^& (\k -> let (Just v) = lookup GameKeyThree k in insert GameKeyThree (not v) k) :? return ()
+    (Char '4')            -> state == Down ? keys ^& (\k -> let (Just v) = lookup GameKeyFour k  in insert GameKeyFour (not v) k)  :? return ()
+    _                     -> return ()
