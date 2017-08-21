@@ -94,26 +94,32 @@ rayCasting ioObjects segments mouse = do
     rays       <- get segments
     output     <- newIORef []
 
-    segments ^& \l -> getSegments 10 mouseStart
+   -- segments ^& \l -> getSegments 10 mouseStart
 
     forM_ rays $ \ray -> do
         intersections <- newIORef []
-        let p = mouseStart
-            r = end ray
+        let (p0_x, p0_y) = mouseStart
+            (p1_x, p1_y) = end ray
         forM_ objects $ \(GameObject o) -> do 
-            forM_ (polygonSides $ getPoints o) $ \(q, s) -> do
-                let t = (q -. p) × s / (r × s)
-                    u = (q -. p) × r / (r × s)
-                    i = p +. (r *. t)
-                if r × s == 0 && (q -. p) × r /= 0 then return ()
-                else if r × s /= 0 && interval t && interval u then intersections ^& \l -> l ++ [i]
-                else return ()
+            forM_ (polygonSides $ getPoints o) $ \(q, z) -> do
+                let (p2_x, p2_y) = q
+                    (p3_x, p3_y) = z
+                    s1_x = p1_x - p0_x
+                    s1_y = p1_y - p0_y
+                    s2_x = p3_x - p2_x
+                    s2_y = p3_y - p2_y
+                    s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y)
+                    t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y)
+                    x = p0_x + (t * s1_x)
+                    y = p0_y + (t * s1_y)
+
+                if interval s && interval t then intersections ^& \l -> l ++ [(x, y)] else return ()
 
         list <- get intersections
-        if length list == 0 then output ^& \l -> l ++ [Segment (lineColor ray) p r]
+        if length list == 0 then output ^& \l -> l ++ [Segment (lineColor ray) mouseStart (end ray)]
         else do
-            let (_,v) = L.minimumBy (\(l1, _) (l2, _) -> compare l2 l1) $ Prelude.map (\e -> (O.lenght e p, e)) list
-            output ^& \l -> l ++ [Segment (lineColor ray) p v]
+            let (_,v) = L.minimumBy (\(l1, _) (l2, _) -> compare l1 l2) $ Prelude.map (\e -> (O.lenght e mouseStart, e)) list
+            output ^& \l -> l ++ [Segment (lineColor ray) mouseStart v]
 
     o <- get output
     segments ^& \s -> o

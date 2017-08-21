@@ -40,7 +40,7 @@ main = do
   buttons       <- newIORef getButtons
   widgets       <- newIORef getWidgetsMap
   arena         <- newIORef getArenaObjectsMap
-  rays          <- newIORef $ getSegments 10 (0, 0)
+  rays          <- newIORef $ getSegments 500 (0, 0)
   size          <- newIORef $ Size 800 800
   mousePosition <- newIORef (0, 0)
 
