@@ -91,10 +91,10 @@ rayCasting :: IORef (Map Int GameObject) -> IORef [Segment] -> IORef Vector -> I
 rayCasting ioObjects segments mouse = do
     objects    <- get ioObjects
     mouseStart <- get mouse
-    rays       <- get segments
     output     <- newIORef []
 
-   -- segments ^& \l -> getSegments 10 mouseStart
+    segments ^& \l -> getSegments 250 mouseStart
+    rays       <- get segments
 
     forM_ rays $ \ray -> do
         intersections <- newIORef []
