@@ -56,7 +56,7 @@ instance GameObject_ GamePolygon where
     --  @axis    - perpendicular vector to a selected axis
     --  @polygon - the given polygon
     --
-    projection axis polygon = (minimum d, maximum d) where d = map (\point -> dotProduct point axis) $ points polygon
+    projection axis polygon = (minimum d, maximum d) where d = map (\point -> point • axis) $ points polygon
 
 instance Drawable_ GamePolygon where
     render polygon = draw polygon

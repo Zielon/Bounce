@@ -29,13 +29,13 @@ perpendicular (x, y) = (-y, x)
 
 -- | Scalar dot product of two vectors 2D
 --
-dotProduct :: Vector -> Vector -> GLfloat
-dotProduct (x1, y1) (x2, y2) = x1 * x2 + y1 * y2
+(•) :: Vector -> Vector -> GLfloat
+(•) (x1, y1) (x2, y2) = x1 * x2 + y1 * y2
 
 -- | Scalar cross product of two vectors 2D
 --
 (×) :: Vector -> Vector -> GLfloat
-(×) (x1, y1) (x2, y2) = x1 * x2 - y1 * y2
+(×) (vx, vy) (wx, wy) = vx * wy - vy * wx
 
 -- | Calculate the distance between [minA, maxA] and [minB, maxB]
 --   The distance will be negative if the intervals overlap

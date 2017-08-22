@@ -14,7 +14,7 @@ data Segment = Segment {
     lineColor  :: (Float, Float, Float),
     start      :: Vector,
     end        :: Vector
-}
+} deriving Show
 
 instance Ray Segment where
     draw segment = do

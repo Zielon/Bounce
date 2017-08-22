@@ -5,8 +5,10 @@ import Data.IORef
 import Control.Monad
 import Text.Printf
 import Data.Ratio
+import Data.Maybe
 import Data.Map                      as M
 import Data.List                     as L
+import Control.Parallel.Strategies
 
 import Factory.Producer
 import API.Ternary
@@ -87,40 +89,41 @@ pointInCircle i mouse ioObjects = do
                       (c_x, c_y) = getCenter a
                       (x,y)      = mouse
 
+parM :: (a -> b) -> [a] -> Eval [b]
+parM f [] = return []
+parM f (a:as) = do
+    b <- rpar (f a)
+    bs <- parM f as
+    return (b:bs)
+
+-- Detection that two line segments intersect
+--
 rayCasting :: IORef (Map Int GameObject) -> IORef [Segment] -> IORef Vector -> IO ()
 rayCasting ioObjects segments mouse = do
-    objects    <- get ioObjects
-    mouseStart <- get mouse
-    output     <- newIORef []
+    objects <- get ioObjects
+    m       <- get mouse
 
-    segments ^& \l -> getSegments 250 mouseStart
-    rays       <- get segments
+    let solve ray    = rays m ray objects
+        raysSegments = getSegments 200 m
 
-    forM_ rays $ \ray -> do
-        intersections <- newIORef []
-        let (p0_x, p0_y) = mouseStart
-            (p1_x, p1_y) = end ray
-        forM_ objects $ \(GameObject o) -> do 
-            forM_ (polygonSides $ getPoints o) $ \(q, z) -> do
-                let (p2_x, p2_y) = q
-                    (p3_x, p3_y) = z
-                    s1_x = p1_x - p0_x
-                    s1_y = p1_y - p0_y
-                    s2_x = p3_x - p2_x
-                    s2_y = p3_y - p2_y
-                    s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y)
-                    t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y)
-                    x = p0_x + (t * s1_x)
-                    y = p0_y + (t * s1_y)
+    segments ^& \s -> runEval (parM solve raysSegments)
 
-                if interval s && interval t then intersections ^& \l -> l ++ [(x, y)] else return ()
+    where intersect (p, r) (q, s) =
+            if interval t && interval u then i else (0,0)
+            where e1 = (r -. p)   -- mouse -> ray edge
+                  e2 = (s -. q)   -- polyon       edge
+                  cross = (e1 × e2)
+                  t  = (q -. p) × e1 / cross
+                  u  = (q -. p) × e2 / cross
+                  i = p +. (e1 *. u)
+                  interval a = a >= 0 && a <= 1
 
-        list <- get intersections
-        if length list == 0 then output ^& \l -> l ++ [Segment (lineColor ray) mouseStart (end ray)]
-        else do
-            let (_,v) = L.minimumBy (\(l1, _) (l2, _) -> compare l1 l2) $ Prelude.map (\e -> (O.lenght e mouseStart, e)) list
-            output ^& \l -> l ++ [Segment (lineColor ray) mouseStart v]
+          intersects (p, r) []          = []
+          intersects (p, r) [(q, s)]    = [intersect (p, r) (q, s)]
+          intersects (p, r) ((q, s):xs) = L.filter (\e -> e /= (0,0)) $ [intersect (p, r) (q, s)] ++ intersects (p, r) xs
 
-    o <- get output
-    segments ^& \s -> o
-    where interval a = a >= 0 && a <= 1
+          rays p ray objects = length intersections == 0 ? Segment color p r :? 
+                let (_, v) = L.minimumBy (\(l1, _) (l2, _) -> compare l1 l2) (Prelude.map (\e -> (O.lenght e p, e)) intersections) in Segment color p v
+            where r = end ray
+                  color = lineColor ray
+                  intersections = L.foldr (++) [] $ L.map (\(_,(GameObject o)) -> intersects (p, r) $ polygonSides $ getPoints o) $ toList objects

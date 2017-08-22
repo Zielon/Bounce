@@ -64,7 +64,7 @@ polygonsCircleCollision i j ioObjects = do
                         let axis   = b_center -. start
                             edge   = end -. start
                             length = magnitude edge
-                            dot    = dotProduct axis (O.normalize edge)
+                            dot    = axis • (O.normalize edge)
 
                     -- Check for a collision outside the Voroni Regions
                         if dot <= 0.0 then do projectedVector ^& (\v -> start)
@@ -119,7 +119,7 @@ polygonsCollision i j ioObjects = do
                         
                         calculateIntervalDistance (minA, maxA) projectionB > 0 ? intersect ^& (\b -> False) :? return ()
 
-                        let projectionV = dotProduct axis (getVelocity a)
+                        let projectionV = axis • (getVelocity a)
 
                         if projectionV < 0 
                         then intervalDistance ^& (\i -> calculateIntervalDistance (minA + projectionV, maxA) projectionB)
@@ -138,7 +138,7 @@ polygonsCollision i j ioObjects = do
                             if distance < minDistance then do
                                 minIntervalDistance ^& (\d -> distance) >> translationAxis ^& (\a -> axis)
                                 let d = (getCenter a) -. (getCenter b)                                  -- We ara translating the A polygon according to the vector (A-B) [which points from B to A]
-                                when ((dotProduct d axis) < 0) $ translationAxis ^& (\a -> (--.) a)     -- Negative dot product [(A-B)·Axis] means that the axis and [A-B] do not point in the same direction
+                                when ((d • axis) < 0) $ translationAxis ^& (\a -> (--.) a)     -- Negative dot product [(A-B)·Axis] means that the axis and [A-B] do not point in the same direction
                             else return ()                                                              -- By negating the translation axis we change the pointing direction
                         else return ()
 
