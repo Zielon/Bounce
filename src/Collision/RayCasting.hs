@@ -28,18 +28,18 @@ polygonSides :: Polygon -> [(Point, Point)]
 polygonSides poly@(p1 : ps) = zip poly $ ps ++ [p1]
  
 intersects :: Point -> Line -> Bool
-{- @intersects (px, py) l@ is true if the ray {(x, py) | x ≥ px} intersects l. -}
+-- @intersects (px, py) l@ is true if the ray {(x, py) | x ≥ px} intersects l.
 intersects (px, _)  (Vert xint)  = px <= xint
 intersects (px, py) (Sloped m b) | m < 0     = py <= m * px + b
                                  | otherwise = py >= m * px + b
 
 onLine :: Point -> Line -> Bool
-{- Is the point on the line? -}
+-- Is the point on the line?
 onLine (px, _)  (Vert xint)  = px == xint
 onLine (px, py) (Sloped m b) = py == m * px + b
 
 carrier :: (Point, Point) -> Line
-{- Finds the line containing the given line segment. -}
+-- Finds the line containing the given line segment.
 carrier ((ax, ay), (bx, by)) | ax == bx  = Vert ax
                              | otherwise = Sloped slope yint
   where slope = (ay - by) / (ax - bx)   -- tan (b/a) = m
@@ -102,6 +102,8 @@ rayCasting :: IORef (Map Int GameObject) -> IORef [Segment] -> IORef Vector -> I
 rayCasting ioObjects segments mouse = do
     objects <- get ioObjects
     m       <- get mouse
+
+    -- TODO ===== Ray Castring on Balls =====
 
     let solve ray    = rays m ray objects
         raysSegments = getSegments 200 m
