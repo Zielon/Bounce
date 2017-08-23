@@ -27,10 +27,10 @@ data Line = Sloped {lineSlope, lineYIntercept :: GLfloat} |
 polygonSides :: Polygon -> [(Point, Point)]
 polygonSides poly@(p1 : ps) = zip poly $ ps ++ [p1]
  
-intersects :: Point -> Line -> Bool
--- @intersects (px, py) l@ is true if the ray {(x, py) | x ≥ px} intersects l.
-intersects (px, _)  (Vert xint)  = px <= xint
-intersects (px, py) (Sloped m b) | m < 0     = py <= m * px + b
+intersectPolygon :: Point -> Line -> Bool
+-- @intersectPolygon (px, py) l@ is true if the ray {(x, py) | x ≥ px} intersectPolygon l.
+intersectPolygon (px, _)  (Vert xint)  = px <= xint
+intersectPolygon (px, py) (Sloped m b) | m < 0     = py <= m * px + b
                                  | otherwise = py >= m * px + b
 
 onLine :: Point -> Line -> Bool
@@ -54,13 +54,13 @@ inPolygon p @ (px, py) = f 0 . polygonSides
   where f n []                             = odd n
         f n (side : sides) | far           = f n       sides
                            | onSegment     = True
-                           | rayIntersects = f (n + 1) sides
+                           | rayintersectPolygon = f (n + 1) sides
                            | otherwise     = f n       sides
           where far = not $ between py ay by
                 onSegment | ay == by  = between px ax bx
                           | otherwise = p `onLine` line
-                rayIntersects =
-                    intersects p line &&
+                rayintersectPolygon =
+                    intersectPolygon p line &&
                     (py /= ay || by < py) &&
                     (py /= by || ay < py)
                 ((ax, ay), (bx, by)) = side
@@ -103,29 +103,36 @@ rayCasting ioObjects segments mouse = do
     objects <- get ioObjects
     m       <- get mouse
 
-    -- TODO ===== Ray Castring on Balls =====
-
     let solve ray    = rays m ray objects
-        raysSegments = getSegments 200 m
+        raysSegments = getSegments 100 m
 
     segments ^& \s -> runEval (parM solve raysSegments)
 
     where intersect (p, r) (q, s) =
-            if interval t && interval u then i else (0,0)
-            where e1 = (r -. p)   -- mouse -> ray edge
-                  e2 = (s -. q)   -- polyon       edge
+            if interval t && interval u then i else r
+            where e1 = r -. p
+                  e2 = s -. q
                   cross = (e1 × e2)
                   t  = (q -. p) × e1 / cross
                   u  = (q -. p) × e2 / cross
                   i = p +. (e1 *. u)
                   interval a = a >= 0 && a <= 1
 
-          intersects (p, r) []          = []
-          intersects (p, r) [(q, s)]    = [intersect (p, r) (q, s)]
-          intersects (p, r) ((q, s):xs) = L.filter (\e -> e /= (0,0)) $ [intersect (p, r) (q, s)] ++ intersects (p, r) xs
+          intersectPolygon (p, r) []          = []
+          intersectPolygon (p, r) [(q, s)]    = [intersect (p, r) (q, s)]
+          intersectPolygon (p, r) ((q, s):xs) = [intersect (p, r) (q, s)] ++ intersectPolygon (p, r) xs
+
+          intersectBall (p, r) center radius = dot >= 0 && distance <= radius ? [vector] :? [r]
+            where edge     = r -. p
+                  axis     = center -. p
+                  dot      = axis • (O.normalize edge)
+                  vector   = p +. ((O.normalize edge) *. dot)
+                  distance = magnitude (center -. vector)
 
           rays p ray objects = length intersections == 0 ? Segment color p r :? 
                 let (_, v) = L.minimumBy (\(l1, _) (l2, _) -> compare l1 l2) (Prelude.map (\e -> (O.lenght e p, e)) intersections) in Segment color p v
             where r = end ray
                   color = lineColor ray
-                  intersections = L.foldr (++) [] $ L.map (\(_,(GameObject o)) -> intersects (p, r) $ polygonSides $ getPoints o) $ toList objects
+                  intersections = L.foldr (++) [] $ L.map (\(_,(GameObject o)) ->
+                      getType o == PolygonType ? intersectPolygon (p, r) (polygonSides (getPoints o)) :?
+                                                 intersectBall    (p, r) (getCenter o) (getRadius o)) $ toList objects

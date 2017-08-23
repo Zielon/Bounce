@@ -68,7 +68,7 @@ updateKeysBindings refkeys arena widgets = do
       (Just twoKey)   = lookup GameKeyTwo   keys
       (Just threeKey) = lookup GameKeyThree keys
 
-  arena ^& (\o -> fromList $ Data.List.filter (\(k, (GameObject v)) -> getType v /= BallType) $ toList objects)
+ -- arena ^& (\o -> fromList $ Data.List.filter (\(k, (GameObject v)) -> getType v /= BallType) $ toList objects)
  -- when (threeKey == False) $ arena ^& (\o -> fromList $ Data.List.filter (\(k, (GameObject v)) -> getType v /= PolygonType) $ toList objects)
 
   -- Settings
@@ -95,9 +95,9 @@ keyboard keys arena key state _ _ = do
   keys'     <- get keys
 
   case key of
-    (Char ' ')            -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
-    (Char '1')            -> state == Down ? keys ^& (\k -> let (Just v) = lookup GameKeyOne k   in insert GameKeyOne (not v) k)   :? return ()
-    (Char '2')            -> state == Down ? keys ^& (\k -> let (Just v) = lookup GameKeyTwo k   in insert GameKeyTwo (not v) k)   :? return ()
-    (Char '3')            -> state == Down ? keys ^& (\k -> let (Just v) = lookup GameKeyThree k in insert GameKeyThree (not v) k) :? return ()
-    (Char '4')            -> state == Down ? keys ^& (\k -> let (Just v) = lookup GameKeyFour k  in insert GameKeyFour (not v) k)  :? return ()
-    _                     -> return ()
+    (Char ' ') -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
+    (Char '1') -> state == Down ? keys ^& (\k -> let (Just v) = lookup GameKeyOne k   in insert GameKeyOne (not v) k)   :? return ()
+    (Char '2') -> state == Down ? keys ^& (\k -> let (Just v) = lookup GameKeyTwo k   in insert GameKeyTwo (not v) k)   :? return ()
+    (Char '3') -> state == Down ? keys ^& (\k -> let (Just v) = lookup GameKeyThree k in insert GameKeyThree (not v) k) :? return ()
+    (Char '4') -> state == Down ? keys ^& (\k -> let (Just v) = lookup GameKeyFour k  in insert GameKeyFour (not v) k)  :? return ()
+    _          -> return ()
