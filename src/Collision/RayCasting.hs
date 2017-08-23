@@ -21,9 +21,8 @@ import Collision.Helpers
 
 type Point = (GLfloat, GLfloat)
 type Polygon = [Point]
-data Line = Sloped {lineSlope, lineYIntercept :: GLfloat} |
-            Vert {lineXIntercept :: GLfloat}
- 
+data Line = Sloped {lineSlope, lineYIntercept :: GLfloat} | Vert   {lineXIntercept :: GLfloat}
+
 polygonSides :: Polygon -> [(Point, Point)]
 polygonSides poly@(p1 : ps) = zip poly $ ps ++ [p1]
  

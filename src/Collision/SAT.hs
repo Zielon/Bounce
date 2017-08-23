@@ -18,6 +18,7 @@ import Collision.VectorOperations    as O
 import GameObjects.GameObject
 import Collision.Helpers
 
+
 -- | A ball with a ball collison
 --
 circlesCollision :: Int -> Int -> IORef (Map Int GameObject) -> IO ()
@@ -47,7 +48,7 @@ polygonsCircleCollision i j ioObjects = do
     intersect           <- newIORef False
     translationAxis     <- newIORef (0.0, 0.0)
     projectedVector     <- newIORef (0.0, 0.0)
-    minIntervalDistance <- newIORef _INFINITY
+    minIntervalDistance <- newIORef infinity
 
     case M.lookup i objects of
         Nothing             -> return ()
@@ -90,8 +91,7 @@ polygonsCircleCollision i j ioObjects = do
 
                     changePosition ioObjects ta (abs(radius - mid)) inter (GameObject a) (GameObject b)
 
-    where _INFINITY = 999999999.9 
-          squered (x,y) = x*x + y*y
+    where squered (x,y) = x*x + y*y
 
 -- | A polygon with a polygon collision
 --
@@ -101,7 +101,7 @@ polygonsCollision i j ioObjects = do
     willIntersect       <- newIORef True
     translationAxis     <- newIORef (0, 0)
     intervalDistance    <- newIORef 0.0
-    minIntervalDistance <- newIORef _INFINITY
+    minIntervalDistance <- newIORef infinity
     objects <- get ioObjects
 
     case M.lookup i objects of
@@ -137,9 +137,9 @@ polygonsCollision i j ioObjects = do
                             minDistance <- get minIntervalDistance
                             if distance < minDistance then do
                                 minIntervalDistance ^& (\d -> distance) >> translationAxis ^& (\a -> axis)
-                                let d = (getCenter a) -. (getCenter b)                                  -- We ara translating the A polygon according to the vector (A-B) [which points from B to A]
+                                let d = (getCenter a) -. (getCenter b)                         -- We ara translating the A polygon according to the vector (A-B) [which points from B to A]
                                 when ((d • axis) < 0) $ translationAxis ^& (\a -> (--.) a)     -- Negative dot product [(A-B)·Axis] means that the axis and [A-B] do not point in the same direction
-                            else return ()                                                              -- By negating the translation axis we change the pointing direction
+                            else return ()                                                     -- By negating the translation axis we change the pointing direction
                         else return ()
 
                     inter  <- get willIntersect
@@ -147,8 +147,6 @@ polygonsCollision i j ioObjects = do
                     mid <- get minIntervalDistance
 
                     changePosition ioObjects ta mid inter (GameObject b) (GameObject a)
-
-    where _INFINITY = 999999999.9
 
 -- ========== PRIVATE SECTION ==========
 

@@ -52,10 +52,10 @@ pointInObjects ioObjects mouse = do
      mousePosition <- get mouse
      let ids = (L.map (\(k, v) -> k) $ M.toList objects)
      forM_ ids $ \i -> do                  -- Use keys from the dictionary
-     case M.lookup i objects of
-        Nothing             -> return ()
-        Just (GameObject a) -> do
-            let iA = getType a
-            if iA == PolygonType   then pointInPolygon i mousePosition ioObjects
-            else if iA == BallType then pointInCircle  i mousePosition ioObjects
-            else return ()
+        case M.lookup i objects of
+            Nothing             -> return ()
+            Just (GameObject a) -> do
+                let iA = getType a
+                if iA == PolygonType   then pointInPolygon i mousePosition ioObjects
+                else if iA == BallType then pointInCircle  i mousePosition ioObjects
+                else return ()
