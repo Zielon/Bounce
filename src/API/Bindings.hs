@@ -22,6 +22,7 @@ import Widgets.Settings
 import GameObjects.Objects.Ball      as Ball
 import GameObjects.Objects.Polygon   as Polygon
 import Collision.Helpers
+import Collision.VectorOperations
 
 import API.Display
 import API.Keys
@@ -40,16 +41,18 @@ getPosition (Position xP yP) (Size xS yS) = (xw, -yw)
 
 moveObject :: IORef (Map Int GameObject) -> IORef Vector -> IORef Size -> MotionCallback
 moveObject arena mouse size position = do
-  objects <- get arena
-  windows <- get size
-  let (xw, yw) = getPosition position windows
-  mouse ^& (\m -> (xw, yw))
+  objects     <- get arena
+  windows     <- get size
+  oldPosition <- get mouse
+
+  let newPosition = getPosition position windows
+  mouse ^& (\m -> newPosition)
   let value = find (\(k, (GameObject v)) -> getHovered v == True ) $ toList objects
   case value of
       Nothing                  -> return ()
       Just (k, (GameObject v)) -> do 
-        arena ^& (\p -> insert k (GameObject (setOffset (xw-o_x, yw-o_y) v)) p)
-        where (o_x, o_y) = getCenter v
+        arena ^& (\p -> insert k (GameObject (setOffset diff v)) p)
+        where diff = newPosition -. oldPosition
 
 mouseMotion :: IORef Vector -> IORef Size -> MotionCallback
 mouseMotion mouse size position = do
