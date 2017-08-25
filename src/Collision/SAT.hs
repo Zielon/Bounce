@@ -162,8 +162,10 @@ changePosition ioObjects translationAxis lenght inter (GameObject a) (GameObject
             if lengthToA >= lengthToB then do
                 let velocity = getVelocity a
                     mtv = velocity -. (translationAxis *. lenght)
-                inter == True ? ioObjects ^& (\p -> (GameObject $ setOffset mtv  a) #- p) :?  ioObjects ^& (\p -> (GameObject $ setOffset velocity a) #- p)
+                inter == True ? ioObjects ^& (\p -> (GameObject $ setOffset mtv  a) #- p) :?
+                                ioObjects ^& (\p -> (GameObject $ setOffset velocity a) #- p)
             else do
                 let velocity = getVelocity b
                     mtv = velocity +. (translationAxis *. lenght)
-                inter == True ? ioObjects ^& (\p -> (GameObject $ setOffset mtv  b) #- p) :?  ioObjects ^& (\p -> (GameObject $ setOffset velocity b) #- p)
+                inter == True ? ioObjects ^& (\p -> (GameObject $ setOffset mtv  b) #- p) :?
+                                ioObjects ^& (\p -> (GameObject $ setOffset velocity b) #- p)

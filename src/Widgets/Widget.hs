@@ -21,9 +21,11 @@ pointsBar :: Float -> Widget
 pointsBar v = Widget (PointsBar v)
 
 options :: Widget
-options = Widget (Options 0 $ fromList [(RayCast, False), (Balls, False), (Polygons, False)])
+options = Widget $ Options 0 $ fromList [(RayCast, False)]
+                                        -- (Balls, False),
+                                        -- (Polygons, False)]
 
 getWidgetsMap :: Map Int Widget
 getWidgetsMap = fromList [(1, forceBar 1), 
-                          (2, pointsBar 7),
+                          (2, pointsBar 0),
                           (3, options)]

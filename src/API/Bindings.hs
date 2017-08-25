@@ -71,14 +71,11 @@ updateKeysBindings refkeys arena widgets = do
       (Just twoKey)   = lookup GameKeyTwo   keys
       (Just threeKey) = lookup GameKeyThree keys
 
- -- arena ^& (\o -> fromList $ Data.List.filter (\(k, (GameObject v)) -> getType v /= BallType) $ toList objects)
- -- when (threeKey == False) $ arena ^& (\o -> fromList $ Data.List.filter (\(k, (GameObject v)) -> getType v /= PolygonType) $ toList objects)
-
   -- Settings
   case lookup 3 widgets' of         -- Get the force bar widget and update it
     Nothing         -> return ()
     Just (Widget w) -> do
-      let settings = setOptions (setOptions (setOptions w (Polygons, threeKey)) (Balls, twoKey)) (RayCast, oneKey)
+      let settings = setOptions w (RayCast, oneKey)
       widgets ^& (\m -> insert 3 (Widget $ settings) m)
 
   -- Force bar

@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                Bounce
-version:             0.1.0.0
+version:             1.0.0.0
 synopsis:            SAT and RayCasting
 description:         The implementation of a few 2D alghoritms
 license:             BSD3
