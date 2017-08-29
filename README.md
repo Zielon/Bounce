@@ -1,9 +1,9 @@
 # Bounce
 The SAT and Ray Casting implementation
 
-The program is based only on *OpenGL* and *GLUT* libraries.
+The program is based only on the *OpenGL* and *GLUT* libraries.
 
 Functionality:
-- The *Separating Axis Theorem [SAT]* algorithm implementation for polygons and circles
+- The *Separating Axis Theorem [SAT]* algorithm for polygons and circles [not for fast moving objects]
 - The *ray casting* algorithm for polygons and circles
-- Left options are controlled throughout keys *1 2 3*
+- Left options are controlled throughout the key *1*
