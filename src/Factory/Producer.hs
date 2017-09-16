@@ -33,8 +33,8 @@ getArenaObjectsMap = M.fromList [ -- The polygons section
                                 (12, ball 12 (-0.4, 0.8) (0.0, 0.0) 0.07 0 0),
                                 (13, ball 13 (0.1, -0.1) (0.0, 0.0) 0.17 0 0)]
 
-getSegments :: GLfloat -> Vector -> [Segment]
-getSegments i mouse = [ Segment (r,g,b) mouse $ (sin (2*pi*k/i), cos (2*pi*k/i)) *. 2.0 | k <- [1..i] ]
+getSegments :: GLfloat -> GLfloat -> Vector -> [Segment]
+getSegments i l mouse = [ Segment (r,g,b) mouse $ (sin (2*pi*k/i), cos (2*pi*k/i)) *. l | k <- [1..i] ]
     where r = -0.05
           g = -0.05
           b = -0.05

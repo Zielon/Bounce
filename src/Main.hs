@@ -47,7 +47,7 @@ main = do
   -- Register callbacks
   reshapeCallback       $= Just (reshape size)
   clearColor            $= Color4 255.0 255.0 255.0 255.0
-  keyboardMouseCallback $= Just (keyboard keys arena)
+  keyboardMouseCallback $= Just (keyboardMouse keys arena widgets size)
   passiveMotionCallback $= Just (mouseMotion mousePosition size)
   motionCallback        $= Just (moveObject arena mousePosition size)
   idleCallback          $= Just (idle)
@@ -55,6 +55,8 @@ main = do
   polygonSmooth         $= Enabled
 
   -- ===== THREAD SECTION =====
+
+  --serialize "dump.json"
 
   -- Gravity update and rand new floors thread
   forkIO $ forever $ do

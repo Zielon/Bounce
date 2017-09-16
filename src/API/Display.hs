@@ -37,7 +37,7 @@ display arena widgets rays = do
   case Data.Map.lookup 3 widgets' of
     Nothing         -> return ()
     Just (Widget w) -> do
-      let (Just on) = Data.Map.lookup RayCast $ getOptions w
+      let (Just on) = Data.Map.lookup Cast $ getOptions w
       on == True ? forM_ rays' (\r -> S.draw r) :? return ()
 
   -- | The render section ----------------------

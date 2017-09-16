@@ -103,7 +103,7 @@ rayCasting ioObjects segments mouse = do
     m       <- get mouse
 
     let solve ray    = rays m ray objects
-        raysSegments = getSegments 100 m
+        raysSegments = getSegments 100 2 m
 
     segments ^& \s -> runEval (parM solve raysSegments)
 

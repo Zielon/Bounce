@@ -1,7 +1,7 @@
 module API.Bindings (
   reshape,
   updateKeysBindings,
-  keyboard,
+  keyboardMouse,
   mouseMotion,
   moveObject) 
 where
@@ -11,6 +11,7 @@ import Graphics.UI.GLUT.Callbacks
 import Data.IORef
 import Data.Fixed
 import Data.Bool
+import Control.Concurrent
 import Text.Printf
 import Data.Map
 import Data.List           hiding (lookup, insert)
@@ -23,6 +24,7 @@ import GameObjects.Objects.Ball      as Ball
 import GameObjects.Objects.Polygon   as Polygon
 import Collision.Helpers
 import Collision.VectorOperations
+import Collision.RayReflection
 
 import API.Display
 import API.Keys
@@ -72,11 +74,12 @@ updateKeysBindings refkeys arena widgets = do
       (Just threeKey) = lookup GameKeyThree keys
 
   -- Settings
-  case lookup 3 widgets' of         -- Get the force bar widget and update it
+  case lookup 3 widgets' of
     Nothing         -> return ()
     Just (Widget w) -> do
-      let settings = setOptions w (RayCast, oneKey)
-      widgets ^& (\m -> insert 3 (Widget $ settings) m)
+      let cast       = setOptions w (Cast, oneKey)
+      let reflection = setOptions cast (Reflection, twoKey)
+      widgets ^& (\m -> insert 3 (Widget $ reflection) m)
 
   -- Force bar
   case lookup 1 widgets' of         -- Get the force bar widget and update it
@@ -89,10 +92,23 @@ updateKeysBindings refkeys arena widgets = do
 
   where maxForce = 10.0
 
-keyboard :: IORef (Map GameKey Bool) -> IORef (Map Int GameObject) -> KeyboardMouseCallback
-keyboard keys arena key state _ _ = do
+keyboardMouse :: IORef (Map GameKey Bool) -> IORef (Map Int GameObject) -> IORef (Map Int Widget) -> IORef Size -> KeyboardMouseCallback
+keyboardMouse keys arena widgets windows key state _ position = do
   arena'    <- get arena
   keys'     <- get keys
+  widgets'  <- get widgets
+  windows'  <- get windows
+
+  pos       <- newIORef $ getPosition position windows'
+
+  case lookup 3 widgets' of
+    Nothing         -> return ()
+    Just (Widget w) -> do
+      let (Just reflect) = lookup Reflection $ getOptions w
+      if reflect == True && state == Down then do 
+        forkIO $ do rayReflection arena pos
+        return ()
+      else do return ()
 
   case key of
     (Char ' ') -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
