@@ -20,8 +20,9 @@ import GameObjects.GameObject
 import Collision.Helpers
 
 
-rayReflection :: IORef (Map Int GameObject) -> IORef Vector -> IO ()
-rayReflection ioObjects mouse = do
+rayReflection :: IORef (Map Int GameObject) -> IORef [Segment] -> IORef Vector -> IO ()
+rayReflection ioObjects reflections mouse = do
     m <- get mouse
-    let rays = getSegments 100 0.5 m
-    forM_ rays (\r -> S.draw r)
+    r <- get reflections
+
+    return ()

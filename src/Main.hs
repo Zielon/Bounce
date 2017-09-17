@@ -41,17 +41,18 @@ main = do
   widgets       <- newIORef getWidgetsMap
   arena         <- newIORef getArenaObjectsMap
   rays          <- newIORef $ []
+  reflections   <- newIORef $ []
   size          <- newIORef $ Size 800 800
   mousePosition <- newIORef (0, 0)
 
   -- Register callbacks
   reshapeCallback       $= Just (reshape size)
   clearColor            $= Color4 255.0 255.0 255.0 255.0
-  keyboardMouseCallback $= Just (keyboardMouse keys arena widgets size)
+  keyboardMouseCallback $= Just (keyboardMouse keys arena widgets size reflections)
   passiveMotionCallback $= Just (mouseMotion mousePosition size)
   motionCallback        $= Just (moveObject arena mousePosition size)
-  idleCallback          $= Just (idle)
-  displayCallback       $= display arena widgets rays
+  idleCallback          $= Just (idle reflections)
+  displayCallback       $= display arena widgets rays reflections
   polygonSmooth         $= Enabled
 
   -- ===== THREAD SECTION =====

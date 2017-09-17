@@ -22,6 +22,8 @@ import Widgets.Widget
 import Widgets.Settings
 import GameObjects.Objects.Ball      as Ball
 import GameObjects.Objects.Polygon   as Polygon
+import GameObjects.Objects.Segment   as S
+import Factory.Producer
 import Collision.Helpers
 import Collision.VectorOperations
 import Collision.RayReflection
@@ -92,23 +94,20 @@ updateKeysBindings refkeys arena widgets = do
 
   where maxForce = 10.0
 
-keyboardMouse :: IORef (Map GameKey Bool) -> IORef (Map Int GameObject) -> IORef (Map Int Widget) -> IORef Size -> KeyboardMouseCallback
-keyboardMouse keys arena widgets windows key state _ position = do
+keyboardMouse :: IORef (Map GameKey Bool) -> IORef (Map Int GameObject) -> IORef (Map Int Widget) -> IORef Size -> IORef [Segment] -> KeyboardMouseCallback
+keyboardMouse keys arena widgets windows reflections key state _ position = do
   arena'    <- get arena
   keys'     <- get keys
   widgets'  <- get widgets
   windows'  <- get windows
 
-  pos       <- newIORef $ getPosition position windows'
+  let pos = getPosition position windows'
 
   case lookup 3 widgets' of
     Nothing         -> return ()
     Just (Widget w) -> do
       let (Just reflect) = lookup Reflection $ getOptions w
-      if reflect == True && state == Down then do 
-        forkIO $ do rayReflection arena pos
-        return ()
-      else do return ()
+      reflect == True && state == Down ? reflections ^& (\_ -> getSegments 5 0.5 pos) :? return ()
 
   case key of
     (Char ' ') -> state == Down ? (updateKey keys GameKeyForce True) :? (updateKey keys GameKeyForce False)
